@@ -21,6 +21,7 @@ products/
 | Save the Date | ✅ fertig | [products/save-the-date/Save_The_Date_loveforlove.pdf](products/save-the-date/Save_The_Date_loveforlove.pdf) |
 | Invitation Suite | ✅ fertig | [products/invitation-suite/Invitation_Suite_loveforlove.pdf](products/invitation-suite/Invitation_Suite_loveforlove.pdf) |
 | Wedding Day Set | ✅ fertig | [products/wedding-day-set/Wedding_Day_Set_loveforlove.pdf](products/wedding-day-set/Wedding_Day_Set_loveforlove.pdf) |
+| Monogram & Crest Pack | ✅ fertig | [products/monogram-pack/Monogram_Crest_Pack_loveforlove.pdf](products/monogram-pack/Monogram_Crest_Pack_loveforlove.pdf) |
 
 ## Neues Produkt hinzufügen
 
