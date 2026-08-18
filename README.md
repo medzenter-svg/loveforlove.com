@@ -22,6 +22,7 @@ products/
 | Invitation Suite | ✅ fertig | [products/invitation-suite/Invitation_Suite_loveforlove.pdf](products/invitation-suite/Invitation_Suite_loveforlove.pdf) |
 | Wedding Day Set | ✅ fertig | [products/wedding-day-set/Wedding_Day_Set_loveforlove.pdf](products/wedding-day-set/Wedding_Day_Set_loveforlove.pdf) |
 | Monogram & Crest Pack | ✅ fertig | [products/monogram-pack/Monogram_Crest_Pack_loveforlove.pdf](products/monogram-pack/Monogram_Crest_Pack_loveforlove.pdf) |
+| Welcome & Guest Book Sign Set | ✅ fertig | [products/welcome-sign-set/Welcome_GuestBook_Sign_Set_loveforlove.pdf](products/welcome-sign-set/Welcome_GuestBook_Sign_Set_loveforlove.pdf) |
 
 ## Neues Produkt hinzufügen
 
