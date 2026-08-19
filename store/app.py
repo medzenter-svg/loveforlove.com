@@ -41,9 +41,9 @@ def get_cart():
 
 @app.route("/")
 def home():
-    featured = [p for p in PRODUCTS if p["category"] == "Featured Destinations"][:4]
-    stationery = [p for p in PRODUCTS if p["category"] == "Stationery"][:4]
-    curated = [p for p in PRODUCTS if p["category"] not in ("Featured Destinations", "Stationery")][:4]
+    featured = [p for p in PRODUCTS if p["category"] == "Featured Destinations"][:8]
+    stationery = [p for p in PRODUCTS if p["category"] == "Stationery"][:8]
+    curated = [p for p in PRODUCTS if p["category"] not in ("Featured Destinations", "Stationery")][:8]
     return render_template("home.html", featured=featured, stationery=stationery, curated=curated)
 
 
