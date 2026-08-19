@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Shop — loveforlove.com{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="section-head">
+    <div class="kicker">SHOP</div>
+    <h2>All designs</h2>
+  </div>
+  <div class="category-filter">
+    <a href="{{ url_for('shop') }}" class="{{ 'active' if not active_category }}">ALL</a>
+    {% for c in categories %}
+    <a href="{{ url_for('shop', category=c) }}" class="{{ 'active' if active_category == c }}">{{ c.upper() }}</a>
+    {% endfor %}
+  </div>
+  <div class="grid">
+    {% for p in products %}
+    <a class="p-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
+      <div class="thumb"><img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}"></div>
+      <div class="name">{{ p.name }}</div>
+      <div class="price">{{ price_display(p.price) }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

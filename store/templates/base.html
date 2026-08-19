@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}loveforlove.com{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="site-nav">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="{{ url_for('shop') }}">SHOP</a>
+        <a href="{{ url_for('shop') }}?category=Featured+Destinations">COLLECTIONS</a>
+        <a href="{{ url_for('shop') }}">WEDDING MOMENTS</a>
+      </div>
+      <a class="brand" href="{{ url_for('home') }}">LOVE <span>&amp;</span> LOVE</a>
+      <div class="nav-right">
+        <a href="{{ url_for('cart_view') }}" class="cart-link">CART{% if session.get('cart') %} ({{ session['cart']|length }}){% endif %}</a>
+      </div>
+    </div>
+  </header>
+
+  {% if not live_payments %}
+  <div class="dev-banner">Preview mode — Stripe isn't connected yet, so purchases are simulated for testing.</div>
+  {% endif %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <div class="footer-title">Instant Download</div>
+        <p>Get your files within seconds of purchase.</p>
+      </div>
+      <div class="footer-col">
+        <div class="footer-title">Edit &amp; Print</div>
+        <p>Print at home or through any print shop.</p>
+      </div>
+      <div class="footer-col">
+        <div class="footer-title">Premium Design</div>
+        <p>Every piece designed in-house by loveforlove.com.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">Designed by loveforlove.com</div>
+  </footer>
+</body>
+</html>

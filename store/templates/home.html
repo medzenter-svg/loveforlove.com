@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}loveforlove.com — Wedding stationery, made with love{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-text">
+    <div class="kicker">DIGITAL WEDDING STATIONERY</div>
+    <h1>Beautifully designed,<br>instantly yours.</h1>
+    <p>Printable invitations, menus, signage and gifts — designed in-house, delivered the moment you check out.</p>
+    <a href="{{ url_for('shop') }}" class="btn btn-gold">SHOP THE COLLECTION</a>
+  </div>
+  <div class="hero-img">
+    <img src="{{ url_for('static', filename='products/rosewood-set/cover.png') }}" alt="Rosewood Garden Suite">
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div class="kicker">SHOP BY MOMENT</div>
+    <h2>Every part of the story</h2>
+  </div>
+  <div class="moments">
+    {% for label in ["Engagement","Bridal Shower","Ceremony","Reception","Honeymoon","Anniversary","Gifts","Thank You"] %}
+    <a class="moment" href="{{ url_for('shop') }}">
+      <div class="circle">{{ label[0] }}</div>
+      <div class="label">{{ label }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div class="kicker">FEATURED DESTINATIONS</div>
+    <h2>Our newest suites</h2>
+  </div>
+  <div class="grid">
+    {% for p in featured %}
+    <a class="p-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
+      <div class="thumb"><img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}"></div>
+      <div class="name">{{ p.name }}</div>
+      <div class="price">{{ price_display(p.price) }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div class="kicker">SHOP STATIONERY</div>
+    <h2>Classics for every stage</h2>
+  </div>
+  <div class="grid">
+    {% for p in stationery %}
+    <a class="p-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
+      <div class="thumb"><img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}"></div>
+      <div class="name">{{ p.name }}</div>
+      <div class="price">{{ price_display(p.price) }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div class="kicker">CURATED COLLECTIONS</div>
+    <h2>Loved by our couples</h2>
+  </div>
+  <div class="grid">
+    {% for p in curated %}
+    <a class="p-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
+      <div class="thumb"><img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}"></div>
+      <div class="name">{{ p.name }}</div>
+      <div class="price">{{ price_display(p.price) }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

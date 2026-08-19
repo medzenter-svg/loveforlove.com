@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Thank you — loveforlove.com{% endblock %}
+{% block content %}
+<div class="status-page">
+  <h1>Thank you for your order!</h1>
+  <p>
+    {% if dev_mode %}
+      Preview mode: this purchase was simulated because Stripe isn't connected yet. Once real payments are on, your customers will land here for real after checking out.
+    {% else %}
+      Your files are ready below. A copy of these links has also been sent to your email.
+    {% endif %}
+  </p>
+  <div class="download-list">
+    {% for p in items %}
+      {% for f in p.files %}
+      <div class="dl-item">
+        <span>{{ p.name }}{% if p.files|length > 1 %} — {{ f.split('_')[-2] if '_' in f else f }}{% endif %}</span>
+        <a class="btn" href="{{ url_for('download', order_id=order_id, slug=p.slug, filename=f) }}">DOWNLOAD</a>
+      </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+  <a href="{{ url_for('shop') }}" class="btn btn-outline">CONTINUE SHOPPING</a>
+</div>
+{% endblock %}
