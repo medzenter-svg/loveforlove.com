@@ -1,0 +1,154 @@
+:root {
+  --gold: #B08A55;
+  --ink: #2E2A25;
+  --paper: #FAF8F4;
+  --paper2: #F4EFE6;
+  --sub: #5c5347;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  color: var(--ink);
+  background: #fff;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.site-nav {
+  border-bottom: 1px solid #eee;
+  padding: 22px 40px;
+}
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-left a, .nav-right a {
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  margin-right: 24px;
+  color: var(--ink);
+}
+.nav-right { margin-left: auto; }
+.brand {
+  font-family: 'Lora', serif;
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: 3px;
+}
+.brand span { color: var(--gold); font-style: italic; }
+
+.dev-banner {
+  background: #FFF4D6;
+  color: #6b5b1f;
+  text-align: center;
+  font-size: 13px;
+  padding: 10px;
+  letter-spacing: 0.5px;
+}
+
+/* Hero */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+  max-width: 1200px;
+  margin: 60px auto;
+  padding: 0 40px;
+}
+.hero-text { flex: 1; }
+.hero-text .kicker { letter-spacing: 4px; font-size: 13px; color: var(--gold); margin-bottom: 18px; font-weight: 600; }
+.hero-text h1 { font-family: 'Lora', serif; font-size: 46px; line-height: 1.2; margin: 0 0 20px; }
+.hero-text p { color: var(--sub); font-size: 15px; line-height: 1.7; margin-bottom: 30px; max-width: 460px; }
+.btn {
+  display: inline-block;
+  background: var(--ink);
+  color: #fff;
+  padding: 14px 34px;
+  font-size: 13px;
+  letter-spacing: 2px;
+  border: none;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.btn-gold { background: var(--gold); }
+.btn-outline { background: transparent; border: 1px solid var(--ink); color: var(--ink); }
+.hero-img { flex: 1; }
+.hero-img img { width: 100%; border-radius: 4px; }
+
+/* Section headers */
+.section { max-width: 1200px; margin: 70px auto; padding: 0 40px; }
+.section-head { text-align: center; margin-bottom: 36px; }
+.section-head .kicker { letter-spacing: 4px; font-size: 12px; color: var(--gold); font-weight: 600; }
+.section-head h2 { font-family: 'Lora', serif; font-size: 30px; margin: 8px 0 0; }
+
+/* Product grid */
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+.p-tile { display: block; }
+.p-tile .thumb {
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--paper2);
+  margin-bottom: 12px;
+}
+.p-tile .thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center center; }
+.p-tile .name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.p-tile .price { font-size: 13px; color: var(--gold); }
+
+/* Shop by moment icons */
+.moments { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+.moment { text-align: center; width: 90px; }
+.moment .circle {
+  width: 64px; height: 64px; border-radius: 50%; background: var(--paper2);
+  display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;
+  font-family: 'Lora', serif; color: var(--gold); font-size: 22px; font-style: italic;
+}
+.moment .label { font-size: 11px; letter-spacing: 1px; color: var(--sub); }
+
+.category-filter { text-align: center; margin-bottom: 40px; }
+.category-filter a {
+  font-size: 12px; letter-spacing: 1.5px; margin: 0 14px; color: var(--sub); padding-bottom: 4px;
+}
+.category-filter a.active { color: var(--ink); border-bottom: 2px solid var(--gold); }
+
+/* Product detail */
+.product-detail { display: flex; gap: 60px; max-width: 1100px; margin: 60px auto; padding: 0 40px; }
+.product-detail .pd-img { flex: 1; }
+.product-detail .pd-img img { width: 100%; border-radius: 4px; }
+.product-detail .pd-info { flex: 1; padding-top: 10px; }
+.product-detail .pd-cat { letter-spacing: 3px; font-size: 12px; color: var(--gold); font-weight: 600; margin-bottom: 14px; }
+.product-detail h1 { font-family: 'Lora', serif; font-size: 34px; margin: 0 0 16px; }
+.product-detail .pd-price { font-size: 22px; color: var(--gold); margin-bottom: 24px; font-family: 'Lora', serif; }
+.product-detail .pd-desc { color: var(--sub); line-height: 1.8; margin-bottom: 30px; }
+
+/* Cart */
+.cart-page { max-width: 800px; margin: 60px auto; padding: 0 40px; }
+.cart-row { display: flex; align-items: center; gap: 20px; padding: 18px 0; border-bottom: 1px solid #eee; }
+.cart-row img { width: 70px; height: 90px; object-fit: cover; border-radius: 3px; }
+.cart-row .ci-name { flex: 1; font-size: 15px; }
+.cart-row .ci-price { color: var(--gold); font-family: 'Lora', serif; }
+.cart-total { display: flex; justify-content: space-between; padding: 24px 0; font-size: 18px; font-family: 'Lora', serif; }
+.remove-btn { background: none; border: none; color: var(--sub); font-size: 12px; cursor: pointer; text-decoration: underline; }
+.empty-state { text-align: center; padding: 80px 0; color: var(--sub); }
+
+/* Success / cancel */
+.status-page { max-width: 640px; margin: 90px auto; padding: 0 40px; text-align: center; }
+.status-page h1 { font-family: 'Lora', serif; font-size: 30px; margin-bottom: 20px; }
+.status-page p { color: var(--sub); line-height: 1.8; margin-bottom: 30px; }
+.download-list { text-align: left; background: var(--paper); border-radius: 6px; padding: 24px 30px; margin-bottom: 30px; }
+.download-list .dl-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eadfc9; }
+.download-list .dl-item:last-child { border-bottom: none; }
+
+/* Footer */
+.site-footer { border-top: 1px solid #eee; margin-top: 80px; padding: 50px 40px 30px; }
+.footer-inner { max-width: 1200px; margin: 0 auto; display: flex; gap: 60px; justify-content: center; text-align: center; flex-wrap: wrap; }
+.footer-title { font-family: 'Lora', serif; font-weight: 600; margin-bottom: 8px; }
+.footer-col p { color: var(--sub); font-size: 13px; max-width: 220px; }
+.footer-bottom { text-align: center; margin-top: 40px; font-size: 11px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; }
