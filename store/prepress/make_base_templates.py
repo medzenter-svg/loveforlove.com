@@ -271,9 +271,9 @@ def _layout(piece, width, height, safe):
         _field("coordinatorName", x, height*.25, content_w, height*.13, 16, True)
         _field("coordinatorRole", x, height*.39, content_w, height*.08, 8)
         _label("questions", x+content_w*.05, height*.49, content_w*.90, height*.09, 7, True)
-        _field("coordinatorPhone", x, height*.62, content_w, height*.07, 8)
-        _field("coordinatorMessenger", x, height*.70, content_w, height*.07, 7)
-        _field("coordinatorEmail", x, height*.78, content_w, height*.07, 7)
+        _field("coordinatorPhone", x, height*.61, content_w, height*.07, 8)
+        _field("coordinatorMessenger", x, height*.69, content_w, height*.09, 6)
+        _field("coordinatorEmail", x, height*.79, content_w, height*.07, 7)
     elif piece == "dress_code":
         _label("dress_code", x, height*.12, content_w, height*.07, 9)
         _field("dressStyle", x, height*.25, content_w, height*.15, 20, True)
