@@ -16,17 +16,18 @@ xvfb-run -a scribus -g -ns -py \
   "$COLLECTION" \
   "$ROOT"
 
-python3 prepress/configure_template_cms.py "$PREPRESS_ROOT"
-
 TEMPLATE_COUNT="$(find "$PREPRESS_ROOT" -type f -name '*.sla' | wc -l | tr -d ' ')"
 if [ "$TEMPLATE_COUNT" != "30" ]; then
   echo "Expected 30 Scribus templates, generated $TEMPLATE_COUNT" >&2
   exit 1
 fi
 
-# build_package.py performs template preflight, real Scribus export and
-# structural PDF preflight for every expected package file. It publishes the
-# output atomically only when all 60 files pass.
+xvfb-run -a scribus -g -ns -py \
+  prepress/check_template_fonts.py \
+  "$PREPRESS_ROOT"
+
+python3 prepress/configure_template_cms.py "$PREPRESS_ROOT"
+
 python3 prepress/build_package.py \
   prepress/JOB_EXAMPLE.json \
   "$OUTPUT_ROOT" \
