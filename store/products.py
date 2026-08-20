@@ -85,6 +85,7 @@ PRODUCTS = [
         "description": "Four beautifully designed thank you card styles to send your gratitude after the big day.",
         "cover": "thank-you-cards/cover.png",
         "files": ["Thank_You_Cards_loveforlove.pdf"],
+        "published": False,
     },
     {
         "slug": "invitation-suite-floral",
@@ -94,6 +95,7 @@ PRODUCTS = [
         "description": "A romantic invitation and RSVP card built directly on a real floral flat-lay photograph.",
         "cover": "invitation-suite-floral/cover.png",
         "files": ["Floral_Invitation_Suite_loveforlove.pdf"],
+        "published": False,
     },
     {
         "slug": "tuscany-set",
@@ -107,6 +109,7 @@ PRODUCTS = [
             "Blush_Rose_Menu_loveforlove.pdf",
             "Blush_Rose_Table_Number_loveforlove.pdf",
         ],
+        "published": False,
     },
     {
         "slug": "rosewood-set",
@@ -120,6 +123,7 @@ PRODUCTS = [
             "Rosewood_Menu_loveforlove.pdf",
             "Rosewood_Table_Number_loveforlove.pdf",
         ],
+        "published": False,
     },
     {
         "slug": "villa-belvedere-set",
@@ -133,9 +137,11 @@ PRODUCTS = [
             "VillaBelvedere_Menu_loveforlove.pdf",
             "VillaBelvedere_Table_Number_loveforlove.pdf",
         ],
+        "published": False,
     },
 ]
 
+PUBLISHED_PRODUCTS = [p for p in PRODUCTS if p.get("published", True)]
 PRODUCTS_BY_SLUG = {p["slug"]: p for p in PRODUCTS}
 
 
