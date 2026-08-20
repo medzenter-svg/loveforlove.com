@@ -3,7 +3,7 @@ import uuid
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort
 from itsdangerous import URLSafeSerializer, BadSignature
 
-from products import PRODUCTS_BY_SLUG, PUBLISHED_PRODUCTS, price_display
+from products import PRODUCTS_BY_SLUG, PUBLISHED_PRODUCTS, OCCASION_ROADMAP, price_display
 from suite_locales import SUITE_LOCALES, LANGUAGE_NAMES, RTL_LANGUAGES
 from suite_optional_locales import OPTIONAL_SUITE_LOCALES
 
@@ -86,17 +86,35 @@ def home():
     stationery = [p for p in PUBLISHED_PRODUCTS if p["category"] == "Stationery"][:8]
     curated = [p for p in PUBLISHED_PRODUCTS if p["category"] not in ("Featured Destinations", "Stationery")][:8]
     new_arrivals = list(reversed(PUBLISHED_PRODUCTS[-8:]))
-    return render_template("home.html", featured=featured, stationery=stationery, curated=curated, new_arrivals=new_arrivals)
+    return render_template(
+        "home.html",
+        featured=featured,
+        stationery=stationery,
+        curated=curated,
+        new_arrivals=new_arrivals,
+        occasion_roadmap=OCCASION_ROADMAP,
+    )
 
 
 @app.route("/shop")
 def shop():
     category = request.args.get("category")
+    occasion = request.args.get("occasion")
     products = PUBLISHED_PRODUCTS
     if category:
-        products = [p for p in PUBLISHED_PRODUCTS if p["category"] == category]
+        products = [p for p in products if p["category"] == category]
+    if occasion:
+        products = [p for p in products if p.get("occasion") == occasion]
     categories = sorted(set(p["category"] for p in PUBLISHED_PRODUCTS))
-    return render_template("shop.html", products=products, categories=categories, active_category=category)
+    occasions = sorted(set(p.get("occasion") for p in PUBLISHED_PRODUCTS if p.get("occasion")))
+    return render_template(
+        "shop.html",
+        products=products,
+        categories=categories,
+        occasions=occasions,
+        active_category=category,
+        active_occasion=occasion,
+    )
 
 
 @app.route("/product/<slug>")
