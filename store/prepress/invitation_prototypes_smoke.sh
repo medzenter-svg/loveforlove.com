@@ -3,7 +3,15 @@ set -euo pipefail
 
 ROOT="${LF_PROTOTYPE_SMOKE_ROOT:-/tmp/loveforlove-invitation-prototypes}"
 COLLECTION="wedding-day-set"
-THEMES=("amalfi-luce" "monaco-regatta" "como-sereno")
+THEMES=(
+  "amalfi-luce"
+  "monaco-regatta"
+  "como-sereno"
+  "provence-rose"
+  "santorini-aegean"
+  "riviera-garden"
+  "vienna-champagne"
+)
 
 rm -rf "$ROOT"
 mkdir -p "$ROOT"
@@ -59,6 +67,26 @@ for THEME in "${THEMES[@]}"; do
         grep -q 'design__como_water_2' "$SLA"
         grep -q 'design__como_sage' "$SLA"
         ;;
+      provence-rose)
+        grep -q 'design__provence_stem_top' "$SLA"
+        grep -q 'design__provence_leaf_1' "$SLA"
+        grep -q 'design__provence_bud' "$SLA"
+        ;;
+      santorini-aegean)
+        grep -q 'design__santorini_arch' "$SLA"
+        grep -q 'design__santorini_sun' "$SLA"
+        grep -q 'design__santorini_horizon' "$SLA"
+        ;;
+      riviera-garden)
+        grep -q 'design__riviera_top_petal_1' "$SLA"
+        grep -q 'design__riviera_stem_top' "$SLA"
+        grep -q 'design__riviera_bottom_center' "$SLA"
+        ;;
+      vienna-champagne)
+        grep -q 'design__vienna_crest_outer' "$SLA"
+        grep -q 'design__vienna_crest_inner' "$SLA"
+        grep -q 'design__vienna_crest_mark' "$SLA"
+        ;;
       *)
         echo "Unknown prototype theme: $THEME" >&2
         exit 1
@@ -88,10 +116,10 @@ for THEME in "${THEMES[@]}"; do
 done
 
 TOTAL="$(find "$ROOT" -type f -name '*.pdf' | wc -l | tr -d ' ')"
-if [ "$TOTAL" != "12" ]; then
-  echo "Expected 12 total prototype PDFs, generated $TOTAL" >&2
+if [ "$TOTAL" != "28" ]; then
+  echo "Expected 28 total prototype PDFs, generated $TOTAL" >&2
   exit 1
 fi
 
 chmod -R a+rX "$ROOT"
-echo "Three-theme Invitation prototype smoke ready at: $ROOT"
+echo "Seven-theme Invitation prototype smoke ready at: $ROOT"
