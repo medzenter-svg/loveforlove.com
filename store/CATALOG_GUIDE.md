@@ -44,10 +44,12 @@ The premium optional layer contains:
 11. Dress Code card
 12. Matching envelope design
 13. Matching envelope liner
+14. Wedding Weekend Program — Day 1
+15. Wedding Weekend Program — Day 2
 
-Other matching extensions can add Save the Date, Welcome Sign, Seating Chart, Bar Menu, Gift Table Sign, transport information, weekend itinerary or other event-specific pieces without changing the design language.
+Other matching extensions can add Save the Date, Welcome Sign, Seating Chart, Bar Menu, Gift Table Sign, transport information or other event-specific pieces without changing the design language.
 
-Optional pieces must be switchable off in the editor so the buyer prints only what is relevant to the event.
+Optional pieces must be switchable off in the editor so the buyer prints only what is relevant to the event. Day 1 and Day 2 programs are independent optional cards because many destination weddings span more than one day, while one-day weddings may omit both.
 
 ## Editable-suite standard
 
@@ -62,7 +64,9 @@ For weddings, editable content includes:
 - all four menu courses and descriptions
 - table number or table name
 - guest name
-- program times
+- main wedding program times
+- Day 1 date, four event times and four event names
+- Day 2 date, four event times and four event names
 - thank-you message
 - hotel name, address, check-in/check-out, booking and transfer details
 - coordinator name, role, phone, messenger and email
@@ -77,7 +81,7 @@ Language presets are conveniences, not restrictions. Presets may be provided for
 
 Anniversary, vow-renewal and milestone-birthday collections reuse the same technical system but replace wedding-specific language with occasion-specific wording.
 
-- Anniversary / vow renewal: invitation, venue card, RSVP, dinner menu, seating, program, accommodation, coordinator, Dress Code, thank-you, envelope and liner.
+- Anniversary / vow renewal: invitation, venue card, RSVP, dinner menu, seating, program, accommodation, coordinator, Dress Code, thank-you, envelope and liner; multi-day celebration cards may be enabled where useful.
 - Milestone birthday: invitation, venue card, RSVP, dinner/menu card, table card, guest place card, schedule, Dress Code, hotel/travel information when relevant, coordinator/contact card, thank-you, envelope and liner.
 
 Do not force wedding-specific fields into non-wedding products. Reuse the architecture, not inappropriate wording.
@@ -86,7 +90,7 @@ Do not force wedding-specific fields into non-wedding products. Reuse the archit
 
 The online editor is for personalization and visual review. **A browser Print/Save PDF is not the customer press master.**
 
-Every printable piece must be generated as its own professional production file. A complete thirteen-piece collection therefore produces thirteen separate print pieces, not one long browser PDF.
+Every printable piece must be generated as its own professional production file. A complete fifteen-piece collection therefore produces fifteen separate print pieces when all optional items are enabled, not one long browser PDF.
 
 ### Required professional exports
 
@@ -121,12 +125,14 @@ Every coordinated design is typeset separately in two size families; one final P
 - DL menu
 - A6 table number
 - 85 × 55 mm place card
-- A5 program
+- A5 main program
 - A6 thank-you
 - A6 accommodation card
 - A7 coordinator card
 - A6 Dress Code card
 - C6 envelope and matching liner
+- A6 Day 1 program
+- A6 Day 2 program
 - 3 mm bleed
 
 **North America**
@@ -137,12 +143,14 @@ Every coordinated design is typeset separately in two size families; one final P
 - 4 × 9 in menu
 - 5 × 7 in table number
 - 3.5 × 2 in place card
-- 5 × 7 in program
+- 5 × 7 in main program
 - 5 × 3.5 in thank-you
 - 5 × 7 in accommodation card
 - 5 × 3.5 in coordinator card
 - 5 × 7 in Dress Code card
 - A7 envelope and matching liner
+- 5 × 7 in Day 1 program
+- 5 × 7 in Day 2 program
 - 0.125 in bleed
 
 ### What “works with printers worldwide” means
