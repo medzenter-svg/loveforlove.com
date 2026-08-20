@@ -12,12 +12,19 @@ import app as store_app
 class PrintJobRouteTests(unittest.TestCase):
     def setUp(self):
         self.client = store_app.app.test_client()
+        self.email = "buyer@example.com"
         self.token = store_app.make_access_token(
             "test-order",
             ["wedding-day-set"],
+            self.email,
             dev_paid=True,
         )
         self.url = f"/customize/{self.token}/wedding-day-set/print-job/validate"
+        payload = store_app.read_access_token(self.token)
+        with self.client.session_transaction() as flask_session:
+            flask_session["verified_orders"] = {
+                payload["order_id"]: payload["customer_email_hash"]
+            }
 
     def test_full_default_package_reports_60_professional_files(self):
         response = self.client.post(self.url, json={
@@ -53,8 +60,22 @@ class PrintJobRouteTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertFalse(response.get_json()["ok"])
 
+    def test_unverified_browser_is_rejected(self):
+        fresh_client = store_app.app.test_client()
+        response = fresh_client.post(self.url, json={
+            "language": "en",
+            "fields": {},
+            "labels": {},
+        })
+        self.assertEqual(response.status_code, 403)
+
     def test_wrong_product_access_is_rejected(self):
-        token = store_app.make_access_token("test-order", ["love-coupon-book"], dev_paid=True)
+        token = store_app.make_access_token(
+            "test-order",
+            ["love-coupon-book"],
+            self.email,
+            dev_paid=True,
+        )
         response = self.client.post(
             f"/customize/{token}/wedding-day-set/print-job/validate",
             json={"fields": {}, "labels": {}},
