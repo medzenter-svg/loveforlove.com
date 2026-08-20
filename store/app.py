@@ -6,6 +6,7 @@ from itsdangerous import URLSafeSerializer, BadSignature
 from products import PRODUCTS_BY_SLUG, PUBLISHED_PRODUCTS, OCCASION_ROADMAP, price_display
 from suite_locales import SUITE_LOCALES, LANGUAGE_NAMES, RTL_LANGUAGES
 from suite_optional_locales import OPTIONAL_SUITE_LOCALES
+from suite_weekend_locales import WEEKEND_SUITE_LOCALES
 
 try:
     import stripe
@@ -139,6 +140,7 @@ def customize(access_token, slug):
             continue
         merged = dict(SUITE_LOCALES[code])
         merged.update(OPTIONAL_SUITE_LOCALES.get(code, {}))
+        merged.update(WEEKEND_SUITE_LOCALES.get(code, {}))
         locales[code] = merged
 
     language_names = {code: LANGUAGE_NAMES.get(code, code.upper()) for code in locales}
