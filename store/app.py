@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import os
+import re
 import uuid
 
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort, jsonify
@@ -38,8 +39,9 @@ if STRIPE_AVAILABLE and STRIPE_SECRET_KEY:
 else:
     LIVE_PAYMENTS = False
 
-ORDER_SIGNER = URLSafeSerializer(app.secret_key, salt="loveforlove-paid-access-v2")
+ORDER_SIGNER = URLSafeSerializer(app.secret_key, salt="loveforlove-paid-access-v3")
 PRODUCTS_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "products"))
+EMAIL_HASH_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 @app.context_processor
@@ -66,11 +68,11 @@ def email_digest(value):
 
 def make_access_token(order_id, slugs, customer_email, stripe_session_id=None, dev_paid=False):
     customer_email = normalize_email(customer_email)
-    if not order_id or not customer_email:
-        raise ValueError("order_id and customer_email are required for paid access")
+    if not order_id or not valid_customer_email(customer_email):
+        raise ValueError("order_id and valid customer_email are required for paid access")
     return ORDER_SIGNER.dumps({
         "order_id": str(order_id),
-        "customer_email": customer_email,
+        "customer_email_hash": email_digest(customer_email),
         "slugs": list(slugs),
         "stripe_session_id": stripe_session_id,
         "dev_paid": bool(dev_paid),
@@ -84,7 +86,9 @@ def read_access_token(access_token):
         abort(403)
     if not isinstance(payload, dict) or not isinstance(payload.get("slugs"), list):
         abort(403)
-    if not payload.get("order_id") or not valid_customer_email(payload.get("customer_email")):
+    if not payload.get("order_id"):
+        abort(403)
+    if not EMAIL_HASH_RE.match(str(payload.get("customer_email_hash") or "")):
         abort(403)
     return payload
 
@@ -103,7 +107,7 @@ def stripe_session_email(checkout_session):
 
 def paid_access(access_token, slug=None):
     payload = read_access_token(access_token)
-    token_email = normalize_email(payload.get("customer_email"))
+    token_email_hash = str(payload.get("customer_email_hash"))
 
     if payload.get("dev_paid"):
         paid = not LIVE_PAYMENTS
@@ -115,12 +119,13 @@ def paid_access(access_token, slug=None):
                 checkout_session = stripe.checkout.Session.retrieve(stripe_session_id)
                 metadata = checkout_session.metadata or {}
                 stripe_email = stripe_session_email(checkout_session)
+                stripe_email_hash = email_digest(stripe_email) if stripe_email else ""
                 metadata_order_id = str(metadata.get("order_id") or "")
                 metadata_slugs = [s for s in str(metadata.get("slugs") or "").split(",") if s]
                 paid = (
                     checkout_session.payment_status == "paid"
-                    and bool(stripe_email)
-                    and hmac.compare_digest(stripe_email, token_email)
+                    and bool(stripe_email_hash)
+                    and hmac.compare_digest(stripe_email_hash, token_email_hash)
                     and hmac.compare_digest(metadata_order_id, str(payload.get("order_id")))
                     and set(metadata_slugs) == set(payload.get("slugs", []))
                 )
@@ -137,7 +142,7 @@ def paid_access(access_token, slug=None):
 def grant_customer_access(payload):
     order_id = str(payload["order_id"])
     verified = dict(session.get("verified_orders") or {})
-    verified[order_id] = email_digest(payload["customer_email"])
+    verified[order_id] = str(payload["customer_email_hash"])
     session["verified_orders"] = verified
     session.modified = True
 
@@ -146,8 +151,8 @@ def customer_access_verified(payload):
     order_id = str(payload.get("order_id") or "")
     verified = session.get("verified_orders") or {}
     stored = str(verified.get(order_id) or "")
-    expected = email_digest(payload.get("customer_email"))
-    return bool(stored) and hmac.compare_digest(stored, expected)
+    expected = str(payload.get("customer_email_hash") or "")
+    return bool(stored and expected) and hmac.compare_digest(stored, expected)
 
 
 def safe_next_path(value):
@@ -218,8 +223,9 @@ def order_access(access_token):
     error = None
     if request.method == "POST":
         entered_email = normalize_email(request.form.get("email"))
-        expected_email = normalize_email(payload["customer_email"])
-        if entered_email and hmac.compare_digest(entered_email, expected_email):
+        entered_hash = email_digest(entered_email) if valid_customer_email(entered_email) else ""
+        expected_hash = str(payload["customer_email_hash"])
+        if entered_hash and hmac.compare_digest(entered_hash, expected_hash):
             grant_customer_access(payload)
             return redirect(next_path or url_for("success", access_token=access_token))
         error = "The email address does not match this paid order."
@@ -334,7 +340,8 @@ def cart_view():
     session["cart"] = cart
     items = [PRODUCTS_BY_SLUG[s] for s in cart]
     total = sum(p["price"] for p in items)
-    return render_template("cart.html", items=items, total=total)
+    checkout_error = session.pop("checkout_error", None)
+    return render_template("cart.html", items=items, total=total, checkout_error=checkout_error)
 
 
 @app.route("/checkout", methods=["POST"])
