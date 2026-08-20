@@ -5,6 +5,7 @@ ROOT="${LF_AMALFI_SMOKE_ROOT:-/tmp/loveforlove-amalfi-prototype}"
 COLLECTION="wedding-day-set"
 PREPRESS_ROOT="$ROOT/$COLLECTION/prepress"
 OUTPUT_ROOT="$ROOT/$COLLECTION/amalfi-invitation-prototype"
+MARKER="$PREPRESS_ROOT/.amalfi-invitation-prototype-applied"
 
 rm -rf "$ROOT/$COLLECTION"
 mkdir -p "$ROOT/$COLLECTION"
@@ -18,11 +19,29 @@ xvfb-run -a scribus -g -ns -py \
 
 test "$(find "$PREPRESS_ROOT" -type f -name '*.sla' | wc -l | tr -d ' ')" = "30"
 
-# Apply only the gated Amalfi Invitation prototype. The theme remains blocked
-# from full-package export and sale.
+# Apply only the gated Amalfi Invitation prototype. Scribus may return exit code
+# zero even when a Python script throws, so the marker and persisted-object checks
+# below are mandatory and turn silent Scripter failures into hard CI failures.
 xvfb-run -a scribus -g -ns -py \
   prepress/apply_amalfi_prototype.py \
   "$PREPRESS_ROOT"
+
+test -f "$MARKER"
+grep -q '^theme=amalfi-luce$' "$MARKER"
+grep -q '^templates=2$' "$MARKER"
+
+for SLA in \
+  "$PREPRESS_ROOT/international_metric/invitation.sla" \
+  "$PREPRESS_ROOT/north_america/invitation.sla"
+do
+  grep -q 'design__amalfi_arch' "$SLA"
+  grep -q 'design__amalfi_left' "$SLA"
+  grep -q 'design__amalfi_right' "$SLA"
+  grep -q 'design__amalfi_olive_left' "$SLA"
+  grep -q 'design__amalfi_coral_mark' "$SLA"
+  grep -q 'LF Amalfi Olive' "$SLA"
+  grep -q 'LF Amalfi Coral' "$SLA"
+done
 
 xvfb-run -a scribus -g -ns -py \
   prepress/check_template_fonts.py \
