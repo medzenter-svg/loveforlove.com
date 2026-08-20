@@ -19,9 +19,9 @@ import scribus
 
 
 PDF_VERSION = {
-    # Scribus' internal PDF/X version codes. Version 14 is PDF/X-4 and
-    # version 11 is PDF/X-1a in current Scribus 1.6-era Scripter builds.
-    "pdfx4_worldwide": 14,
+    # Current Scribus Scripter enum from objpdffile.cpp:
+    # 10 = PDF/X-4, 11 = PDF/X-1a, 12 = PDF/X-3.
+    "pdfx4_worldwide": 10,
     "pdfx1a_compatibility": 11,
 }
 
@@ -63,7 +63,6 @@ def _check_text_overflow():
             if scribus.textOverflows(item, 1):
                 overflow.append(item)
         except Exception:
-            # Non-text objects are ignored; editable frames are expected to be text.
             continue
     if overflow:
         raise RuntimeError("Text overflow in frames: " + ", ".join(sorted(overflow)))
@@ -74,17 +73,17 @@ def _export_pdf(output_path, profile):
     pdf.file = output_path
     pdf.version = PDF_VERSION[profile]
 
-    # Keep the professional geometry/settings from the SLA template and make
-    # the critical production parameters explicit at export time.
+    # Preserve the SLA template's professional color-management and font lists,
+    # while making the non-negotiable production settings explicit.
     pdf.resolution = 300
-    pdf.picRes = 300
+    pdf.downsample = 0
     pdf.quality = 0
     pdf.compress = 1
     pdf.outdst = 1
     pdf.useDocBleeds = True
 
-    # Printer marks are intentionally off in the universal master. The printer
-    # can impose/add marks for its own sheet and finishing workflow.
+    # Universal masters are delivered without printer marks. The receiving
+    # printer imposes the piece and adds marks for its own sheet/finishing flow.
     pdf.cropMarks = False
     pdf.bleedMarks = False
     pdf.registrationMarks = False
@@ -92,8 +91,6 @@ def _export_pdf(output_path, profile):
     pdf.docInfoMarks = False
 
     # Embed/subset fonts according to the template's configured font lists.
-    # We deliberately do not force outlining because some workflows and fonts
-    # are safer as embedded/subset fonts and text must remain searchable where possible.
     pdf.fontEmbedding = 0
     pdf.save()
 
