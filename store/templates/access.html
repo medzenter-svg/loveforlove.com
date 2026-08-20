@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Verify your order — loveforlove.com{% endblock %}
+{% block content %}
+<div class="status-page" style="max-width:620px;">
+  <div class="kicker">PAID CUSTOMER ACCESS</div>
+  <h1>Verify your purchase email</h1>
+  <p>This design is protected by your paid order. Enter the same email address used during checkout to continue.</p>
+
+  <div class="order-access-meta">
+    <div><strong>Order:</strong> {{ order_id }}</div>
+  </div>
+
+  {% if error %}
+  <div class="dev-banner" style="margin:18px 0;">{{ error }}</div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('order_access', access_token=access_token) }}" class="order-access-form">
+    <input type="hidden" name="next" value="{{ next_path }}">
+    <label class="editor-field" style="text-align:left;">
+      <span>Purchase email</span>
+      <input type="email" name="email" autocomplete="email" required placeholder="name@example.com">
+    </label>
+    <button class="btn btn-gold" type="submit" style="width:100%;margin-top:14px;">VERIFY & CONTINUE</button>
+  </form>
+
+  <p class="editor-note" style="margin-top:18px;">Access is granted only when the order number, paid purchase and checkout email match.</p>
+</div>
+{% endblock %}
