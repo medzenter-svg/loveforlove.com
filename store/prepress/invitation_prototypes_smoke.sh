@@ -13,8 +13,11 @@ THEMES=(
   "vienna-champagne"
 )
 
-rm -rf "$ROOT"
+# ROOT may be a bind-mounted directory such as /out inside Docker. Removing the
+# mount point itself fails with "Device or resource busy". Clear only its
+# contents so repeated CI runs always start clean without touching the mount.
 mkdir -p "$ROOT"
+find "$ROOT" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
 
 python3 prepress/check_environment.py --require-profiles
 
