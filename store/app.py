@@ -1,6 +1,6 @@
 import os
 import uuid
-from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort, jsonify
 from itsdangerous import URLSafeSerializer, BadSignature
 
 from products import (
@@ -13,6 +13,8 @@ from products import (
 from suite_locales import SUITE_LOCALES, LANGUAGE_NAMES, RTL_LANGUAGES
 from suite_optional_locales import OPTIONAL_SUITE_LOCALES
 from suite_weekend_locales import WEEKEND_SUITE_LOCALES
+from prepress.job import PrintJobValidationError, normalize_print_job
+from print_package import package_summary
 
 try:
     import stripe
@@ -166,6 +168,35 @@ def customize(access_token, slug):
         rtl_languages=rtl_languages,
         theme=theme,
     )
+
+
+@app.route("/customize/<access_token>/<slug>/print-job/validate", methods=["POST"])
+def validate_print_job(access_token, slug):
+    paid_access(access_token, slug)
+    product = PRODUCTS_BY_SLUG.get(slug)
+    if not product or not product.get("editable"):
+        abort(404)
+
+    payload = request.get_json(silent=True)
+    if payload is None:
+        return jsonify({"ok": False, "error": "Print job must be JSON."}), 400
+
+    try:
+        job = normalize_print_job(slug, payload)
+    except PrintJobValidationError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+
+    summary = package_summary(slug, job["enabled_optional"])
+    return jsonify({
+        "ok": True,
+        "collection": slug,
+        "language": job["language"],
+        "enabled_optional": job["enabled_optional"],
+        "printable_pieces": summary["printable_pieces"],
+        "professional_pdf_files": summary["professional_pdf_files"],
+        "files_per_piece": summary["files_per_piece"],
+        "professional_print_package_ready": bool(product.get("professional_print_package_ready", False)),
+    })
 
 
 @app.route("/cart/add/<slug>", methods=["POST"])
