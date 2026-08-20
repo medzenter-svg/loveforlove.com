@@ -1,6 +1,32 @@
 # Product catalog for loveforlove.com
 # price is in USD cents (Stripe wants the smallest currency unit)
 
+FULL_SUITE_ITEMS = [
+    "Invitation",
+    "Venue & Address Card",
+    "RSVP Card",
+    "Four-Course Menu",
+    "Table Number",
+    "Guest Place Card",
+    "Wedding Program",
+    "Thank You Card",
+    "Guest Accommodation / Hotel Card (optional)",
+    "Wedding Coordinator Contact Card (optional)",
+    "Dress Code Card (optional)",
+    "Matching Envelope Design (optional)",
+    "Matching Envelope Liner (optional)",
+]
+
+PRO_PRINT_SPEC = {
+    "resolution": "300 DPI minimum for raster artwork",
+    "bleed_eu": "3 mm on every edge",
+    "bleed_us": "0.125 in on every edge",
+    "safe_area": "Keep critical text at least 5 mm / 0.2 in inside trim",
+    "preferred_pdf": "PDF/X-4 when exported by the production workflow",
+    "color": "CMYK-ready production export; storefront/browser previews remain RGB",
+    "fonts": "Embed fonts or convert display lettering to outlines in final press files",
+}
+
 PRODUCTS = [
     {
         "slug": "love-coupon-book",
@@ -31,25 +57,17 @@ PRODUCTS = [
     },
     {
         "slug": "wedding-day-set",
-        "name": "Editable Wedding Day Suite",
+        "name": "Editable Complete Wedding Suite",
         "category": "Stationery",
         "price": 2200,
-        "description": "A coordinated eight-piece wedding suite with one locked visual identity. Edit the couple names, date, venue and full address, RSVP details, four-course menu, table number, guest place card, program and thank-you wording after purchase.",
+        "description": "A coordinated premium wedding system with eight core pieces plus optional hotel, coordinator, Dress Code, envelope and liner designs. Edit names, date, venue, full address, RSVP, four-course menu, table and guest details, program, accommodation, contacts and wording after purchase while the visual identity stays consistent.",
         "cover": "wedding-day-set/cover.png",
         "files": ["Wedding_Day_Set_loveforlove.pdf"],
         "editable": True,
         "custom_language": True,
         "language_presets": ["en", "de", "fr", "it", "es", "pt", "nl", "pl", "el", "ru", "uk", "tr", "he"],
-        "suite_items": [
-            "Invitation",
-            "Venue & Address Card",
-            "RSVP Card",
-            "Four-Course Menu",
-            "Table Number",
-            "Guest Place Card",
-            "Wedding Program",
-            "Thank You Card",
-        ],
+        "suite_items": FULL_SUITE_ITEMS,
+        "print_spec": PRO_PRINT_SPEC,
         "suite_theme": {
             "bg": "#F7F3ED",
             "paper": "#FFFDF9",
