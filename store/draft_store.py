@@ -1,55 +1,96 @@
 import json
 import os
-import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
+
+from sqlalchemy import create_engine, text
 
 
 MAX_STATE_BYTES = 128 * 1024
 MAX_REVISIONS_PER_DRAFT = 20
+_ENGINE_CACHE = {}
 
 
-def _db_path():
+def _database_url():
+    raw = str(os.environ.get("DATABASE_URL") or "").strip()
+    if raw:
+        if raw.startswith("postgres://"):
+            raw = "postgresql+psycopg://" + raw[len("postgres://"):]
+        elif raw.startswith("postgresql://"):
+            raw = "postgresql+psycopg://" + raw[len("postgresql://"):]
+        return raw
+
     configured = os.environ.get("DRAFT_DB_PATH")
     if configured:
         path = Path(configured)
     else:
         path = Path(__file__).resolve().parent / "instance" / "editor-drafts.sqlite3"
     path.parent.mkdir(parents=True, exist_ok=True)
-    return path
+    return "sqlite+pysqlite:///" + str(path)
 
 
-def _connect():
-    connection = sqlite3.connect(str(_db_path()), timeout=10)
-    connection.row_factory = sqlite3.Row
-    connection.execute("PRAGMA journal_mode=WAL")
-    connection.execute("PRAGMA foreign_keys=ON")
-    return connection
+def draft_storage_mode():
+    url = _database_url()
+    if url.startswith("postgresql+"):
+        return "postgresql"
+    if url.startswith("sqlite+"):
+        return "sqlite"
+    return "other"
+
+
+def production_draft_storage_ready():
+    return draft_storage_mode() == "postgresql" and bool(os.environ.get("DATABASE_URL"))
+
+
+def _engine():
+    url = _database_url()
+    engine = _ENGINE_CACHE.get(url)
+    if engine is None:
+        kwargs = {"pool_pre_ping": True}
+        if url.startswith("sqlite+"):
+            kwargs["connect_args"] = {"check_same_thread": False, "timeout": 10}
+        engine = create_engine(url, future=True, **kwargs)
+        _ENGINE_CACHE[url] = engine
+    return engine
 
 
 def init_draft_store():
-    with _connect() as db:
-        db.executescript(
-            """
-            CREATE TABLE IF NOT EXISTS editor_drafts (
-                order_id TEXT NOT NULL,
-                slug TEXT NOT NULL,
-                revision INTEGER NOT NULL,
-                state_json TEXT NOT NULL,
-                updated_at TEXT NOT NULL,
-                PRIMARY KEY (order_id, slug)
-            );
-
-            CREATE TABLE IF NOT EXISTS editor_draft_revisions (
-                order_id TEXT NOT NULL,
-                slug TEXT NOT NULL,
-                revision INTEGER NOT NULL,
-                state_json TEXT NOT NULL,
-                created_at TEXT NOT NULL,
-                PRIMARY KEY (order_id, slug, revision)
-            );
-            """
+    statements = [
+        """
+        CREATE TABLE IF NOT EXISTS editor_drafts (
+            order_id TEXT NOT NULL,
+            slug TEXT NOT NULL,
+            revision INTEGER NOT NULL,
+            state_json TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            PRIMARY KEY (order_id, slug)
         )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS editor_draft_revisions (
+            order_id TEXT NOT NULL,
+            slug TEXT NOT NULL,
+            revision INTEGER NOT NULL,
+            state_json TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            PRIMARY KEY (order_id, slug, revision)
+        )
+        """,
+        """
+        CREATE INDEX IF NOT EXISTS idx_editor_draft_revisions_lookup
+        ON editor_draft_revisions(order_id, slug, revision DESC)
+        """,
+    ]
+    with _engine().begin() as db:
+        for statement in statements:
+            db.execute(text(statement))
+
+
+def draft_store_healthcheck():
+    init_draft_store()
+    with _engine().connect() as db:
+        db.execute(text("SELECT 1"))
+    return {"ok": True, "mode": draft_storage_mode()}
 
 
 def _serialize_state(state):
@@ -63,11 +104,14 @@ def _serialize_state(state):
 
 def load_draft(order_id, slug):
     init_draft_store()
-    with _connect() as db:
+    with _engine().connect() as db:
         row = db.execute(
-            "SELECT revision, state_json, updated_at FROM editor_drafts WHERE order_id = ? AND slug = ?",
-            (str(order_id), str(slug)),
-        ).fetchone()
+            text(
+                "SELECT revision, state_json, updated_at "
+                "FROM editor_drafts WHERE order_id = :order_id AND slug = :slug"
+            ),
+            {"order_id": str(order_id), "slug": str(slug)},
+        ).mappings().first()
     if row is None:
         return None
     return {
@@ -77,6 +121,14 @@ def load_draft(order_id, slug):
     }
 
 
+def _lock_order_draft(db, order_id, slug):
+    if db.dialect.name == "postgresql":
+        db.execute(
+            text("SELECT pg_advisory_xact_lock(hashtext(:lock_key))"),
+            {"lock_key": f"loveforlove-draft:{order_id}:{slug}"},
+        )
+
+
 def save_draft(order_id, slug, state):
     init_draft_store()
     order_id = str(order_id)
@@ -84,61 +136,83 @@ def save_draft(order_id, slug, state):
     encoded = _serialize_state(state)
     now = datetime.now(timezone.utc).isoformat()
 
-    with _connect() as db:
-        db.execute("BEGIN IMMEDIATE")
+    with _engine().begin() as db:
+        _lock_order_draft(db, order_id, slug)
         row = db.execute(
-            "SELECT revision FROM editor_drafts WHERE order_id = ? AND slug = ?",
-            (order_id, slug),
-        ).fetchone()
+            text(
+                "SELECT revision FROM editor_drafts "
+                "WHERE order_id = :order_id AND slug = :slug"
+            ),
+            {"order_id": order_id, "slug": slug},
+        ).mappings().first()
         revision = (int(row["revision"]) if row else 0) + 1
 
-        db.execute(
-            """
-            INSERT INTO editor_drafts(order_id, slug, revision, state_json, updated_at)
-            VALUES (?, ?, ?, ?, ?)
-            ON CONFLICT(order_id, slug) DO UPDATE SET
-                revision = excluded.revision,
-                state_json = excluded.state_json,
-                updated_at = excluded.updated_at
-            """,
-            (order_id, slug, revision, encoded, now),
-        )
-        db.execute(
-            """
-            INSERT INTO editor_draft_revisions(order_id, slug, revision, state_json, created_at)
-            VALUES (?, ?, ?, ?, ?)
-            """,
-            (order_id, slug, revision, encoded, now),
-        )
-        db.execute(
-            """
-            DELETE FROM editor_draft_revisions
-            WHERE order_id = ? AND slug = ? AND revision NOT IN (
-                SELECT revision FROM editor_draft_revisions
-                WHERE order_id = ? AND slug = ?
-                ORDER BY revision DESC
-                LIMIT ?
+        if row:
+            db.execute(
+                text(
+                    "UPDATE editor_drafts SET revision = :revision, state_json = :state_json, "
+                    "updated_at = :updated_at WHERE order_id = :order_id AND slug = :slug"
+                ),
+                {
+                    "revision": revision,
+                    "state_json": encoded,
+                    "updated_at": now,
+                    "order_id": order_id,
+                    "slug": slug,
+                },
             )
-            """,
-            (order_id, slug, order_id, slug, MAX_REVISIONS_PER_DRAFT),
+        else:
+            db.execute(
+                text(
+                    "INSERT INTO editor_drafts(order_id, slug, revision, state_json, updated_at) "
+                    "VALUES (:order_id, :slug, :revision, :state_json, :updated_at)"
+                ),
+                {
+                    "order_id": order_id,
+                    "slug": slug,
+                    "revision": revision,
+                    "state_json": encoded,
+                    "updated_at": now,
+                },
+            )
+
+        db.execute(
+            text(
+                "INSERT INTO editor_draft_revisions(order_id, slug, revision, state_json, created_at) "
+                "VALUES (:order_id, :slug, :revision, :state_json, :created_at)"
+            ),
+            {
+                "order_id": order_id,
+                "slug": slug,
+                "revision": revision,
+                "state_json": encoded,
+                "created_at": now,
+            },
         )
-        db.commit()
+
+        cutoff = revision - MAX_REVISIONS_PER_DRAFT
+        if cutoff > 0:
+            db.execute(
+                text(
+                    "DELETE FROM editor_draft_revisions "
+                    "WHERE order_id = :order_id AND slug = :slug AND revision <= :cutoff"
+                ),
+                {"order_id": order_id, "slug": slug, "cutoff": cutoff},
+            )
 
     return {"revision": revision, "updated_at": now}
 
 
 def list_draft_revisions(order_id, slug):
     init_draft_store()
-    with _connect() as db:
+    with _engine().connect() as db:
         rows = db.execute(
-            """
-            SELECT revision, created_at
-            FROM editor_draft_revisions
-            WHERE order_id = ? AND slug = ?
-            ORDER BY revision DESC
-            """,
-            (str(order_id), str(slug)),
-        ).fetchall()
+            text(
+                "SELECT revision, created_at FROM editor_draft_revisions "
+                "WHERE order_id = :order_id AND slug = :slug ORDER BY revision DESC"
+            ),
+            {"order_id": str(order_id), "slug": str(slug)},
+        ).mappings().all()
     return [
         {"revision": int(row["revision"]), "created_at": row["created_at"]}
         for row in rows
@@ -147,14 +221,18 @@ def list_draft_revisions(order_id, slug):
 
 def restore_draft_revision(order_id, slug, revision):
     init_draft_store()
-    with _connect() as db:
+    with _engine().connect() as db:
         row = db.execute(
-            """
-            SELECT state_json FROM editor_draft_revisions
-            WHERE order_id = ? AND slug = ? AND revision = ?
-            """,
-            (str(order_id), str(slug), int(revision)),
-        ).fetchone()
+            text(
+                "SELECT state_json FROM editor_draft_revisions "
+                "WHERE order_id = :order_id AND slug = :slug AND revision = :revision"
+            ),
+            {
+                "order_id": str(order_id),
+                "slug": str(slug),
+                "revision": int(revision),
+            },
+        ).mappings().first()
     if row is None:
         return None
     state = json.loads(row["state_json"])
