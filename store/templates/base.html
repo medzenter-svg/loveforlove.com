@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/preview-protection.css') }}">
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
   <div class="wrap">
@@ -53,8 +54,8 @@
       </div>
       <div class="feat">
         <div class="ic">{% include "icons/edit.svg" %}</div>
-        <div class="t">Edit &amp; Print</div>
-        <div class="d">Easy to customize and print at home or professionally</div>
+        <div class="t">Editable Collections</div>
+        <div class="d">Selected suites include a coordinated online editor for names, venue, menu and wedding details</div>
       </div>
       <div class="feat">
         <div class="ic">{% include "icons/globe.svg" %}</div>
@@ -77,5 +78,6 @@
     </div>
     <div class="footer-bottom">Designed by loveforlove.com</div>
   </div>
+  {% block scripts %}{% endblock %}
 </body>
 </html>
