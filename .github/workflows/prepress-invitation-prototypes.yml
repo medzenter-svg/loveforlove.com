@@ -18,28 +18,26 @@ jobs:
       - name: Build reproducible prepress image
         run: docker build -f store/prepress/Dockerfile -t loveforlove-prepress .
 
-      - name: Export three premium Invitation prototypes
+      - name: Export approved Invitation prototype only
         run: |
           rm -rf .prepress-invitation-prototypes
           mkdir -p .prepress-invitation-prototypes
           docker run --rm \
-            -e LF_PROTOTYPE_SMOKE_ROOT=/out \
+            -e LF_AMALFI_SMOKE_ROOT=/out \
             -v "$PWD/.prepress-invitation-prototypes:/out" \
             loveforlove-prepress \
-            bash prepress/invitation_prototypes_smoke.sh
+            bash prepress/amalfi_prototype_smoke.sh
 
-      - name: Verify prototype counts
+      - name: Verify gated Amalfi prototype
         run: |
-          test "$(find .prepress-invitation-prototypes -type f -name '*.pdf' | wc -l)" -eq 12
-          for theme in amalfi-luce monaco-regatta como-sereno; do
-            test "$(find ".prepress-invitation-prototypes/$theme/export" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 4
-            test -f ".prepress-invitation-prototypes/$theme/export/${theme}__MANIFEST.json"
-          done
+          PACKAGE=.prepress-invitation-prototypes/wedding-day-set/amalfi-invitation-prototype
+          test "$(find "$PACKAGE" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 4
+          test -f "$PACKAGE/INVITATION_EXPORT_SMOKE_MANIFEST.json"
 
-      - name: Upload premium Invitation prototypes
+      - name: Upload approved Invitation prototype
         uses: actions/upload-artifact@v4
         with:
           name: wedding-invitation-premium-prototypes
-          path: .prepress-invitation-prototypes
+          path: .prepress-invitation-prototypes/wedding-day-set/amalfi-invitation-prototype
           if-no-files-found: error
           retention-days: 5
