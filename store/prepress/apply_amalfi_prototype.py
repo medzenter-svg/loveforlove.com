@@ -5,6 +5,7 @@ Amalfi Invitation prototype and keeps the collection's full-package release gate
 closed until the design is approved and implemented across all 15 pieces.
 """
 
+import math
 import sys
 from pathlib import Path
 
@@ -19,6 +20,7 @@ from prepress.design_themes import get_prototype_theme
 
 THEME_CODE = "amalfi-luce"
 PIECE = "invitation"
+SUCCESS_MARKER = ".amalfi-invitation-prototype-applied"
 COLOR_PAPER = "LF Ivory"
 COLOR_ACCENT = "LF Burgundy"
 COLOR_GOLD = "LF Gold"
@@ -71,15 +73,30 @@ def _line(name, x1, y1, x2, y2, color, width):
     scribus.setLineWidth(width, name)
 
 
-def _curve(name, points, color, width):
+def _polyline(name, points, color, width):
     if not scribus.objectExists(name):
-        scribus.createBezierLine(points, name)
+        scribus.createPolyLine(points, name)
     scribus.setLineColor(color, name)
     scribus.setLineWidth(width, name)
     try:
         scribus.setFillColor("None", name)
     except Exception:
         pass
+
+
+def _arch_points(left, right, shoulder_y, apex_y, samples=31):
+    """Return a smooth semi-elliptic arch as Scribus x/y polyline pairs."""
+    center_x = (left + right) / 2.0
+    radius_x = (right - left) / 2.0
+    radius_y = shoulder_y - apex_y
+    points = []
+    for index in range(samples):
+        fraction = index / float(samples - 1)
+        angle = math.pi * (1.0 - fraction)
+        x = center_x + radius_x * math.cos(angle)
+        y = shoulder_y - radius_y * math.sin(angle)
+        points.extend([x, y])
+    return points
 
 
 def _dot(name, x, y, diameter, color):
@@ -102,18 +119,14 @@ def _portal_geometry():
     shoulder_y = y + height * 0.265
     base_y = y + height * 0.865
     apex_y = y + height * 0.055
-    control_y = y + height * 0.075
 
-    # Tall gold doorway/terrace geometry: the curved top is deliberately open and
-    # architectural, not a floral frame or literal postcard illustration.
+    # Tall gold doorway/terrace geometry. The arch is a dense vector polyline,
+    # avoiding the version-sensitive Bezier point format in Scribus Scripter.
     _line("design__amalfi_left", left, shoulder_y, left, base_y, COLOR_GOLD, 0.30)
     _line("design__amalfi_right", right, shoulder_y, right, base_y, COLOR_GOLD, 0.30)
-    _curve(
+    _polyline(
         "design__amalfi_arch",
-        [
-            left, shoulder_y, left + width * 0.06, control_y,
-            right, shoulder_y, right - width * 0.06, control_y,
-        ],
+        _arch_points(left, right, shoulder_y, apex_y),
         COLOR_GOLD,
         0.30,
     )
@@ -127,8 +140,8 @@ def _portal_geometry():
     _line("design__amalfi_olive_left", inner_left, inner_shoulder, inner_left, inner_base, COLOR_OLIVE, 0.18)
     _line("design__amalfi_olive_right", inner_right, inner_shoulder, inner_right, inner_base, COLOR_OLIVE, 0.18)
 
-    # Small coral sun/flower punctuation above the names; abstract enough to remain
-    # elegant across formal destination weddings.
+    # Small coral punctuation above the names; abstract enough to remain elegant
+    # across formal destination weddings.
     center_x = x + width / 2.0
     coral_y = y + height * 0.105
     diameter = min(width, height) * 0.009
@@ -177,6 +190,10 @@ def _apply_one(path, theme):
 
 def main():
     root = _args()
+    marker = root / SUCCESS_MARKER
+    if marker.exists():
+        marker.unlink()
+
     theme = get_prototype_theme(THEME_CODE, PIECE)
     invitations = sorted(root.glob(f"*/{PIECE}.sla"))
     if len(invitations) != 2:
@@ -185,6 +202,10 @@ def main():
     for template in invitations:
         _apply_one(template, theme)
 
+    marker.write_text(
+        "theme=amalfi-luce\npiece=invitation\ntemplates=2\n",
+        encoding="utf-8",
+    )
     print(f"Amalfi Luce Invitation prototype applied to {len(invitations)} templates.")
 
 
