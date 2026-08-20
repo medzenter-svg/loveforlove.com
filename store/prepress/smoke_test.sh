@@ -46,4 +46,9 @@ if validated != 30:
 print(f"Validated {validated} Scribus templates: geometry, bleed and CMS all passed.")
 PY
 
+# Files are created by the container's root user on a bind-mounted host path.
+# Make the validated smoke package readable/traversable by the GitHub runner so
+# actions/upload-artifact can zip it without changing template contents.
+chmod -R a+rX "$ROOT/$COLLECTION"
+
 echo "Smoke package ready at: $PREPRESS_ROOT"
