@@ -19,14 +19,19 @@ class PaidAccessTests(unittest.TestCase):
             dev_paid=True,
         )
 
-    def test_token_contains_email_hash_not_plain_email(self):
+    def test_token_contains_private_email_verifier_not_plain_email(self):
         payload = store_app.read_access_token(self.token)
         self.assertNotIn("customer_email", payload)
         self.assertEqual(
             payload["customer_email_hash"],
-            store_app.email_digest("buyer@example.com"),
+            store_app.email_digest("buyer@example.com", "order-123"),
         )
         self.assertNotIn("buyer@example.com", self.token.lower())
+
+    def test_same_email_has_different_verifier_for_different_order(self):
+        digest_a = store_app.email_digest("buyer@example.com", "order-a")
+        digest_b = store_app.email_digest("buyer@example.com", "order-b")
+        self.assertNotEqual(digest_a, digest_b)
 
     def test_fresh_browser_is_redirected_to_email_verification(self):
         client = store_app.app.test_client()
@@ -103,6 +108,9 @@ class PaidAccessTests(unittest.TestCase):
             "order-b", ["wedding-day-set"], "buyer@example.com", dev_paid=True
         )
         payload_a = store_app.read_access_token(token_a)
+        payload_b = store_app.read_access_token(token_b)
+        self.assertNotEqual(payload_a["customer_email_hash"], payload_b["customer_email_hash"])
+
         with client.session_transaction() as flask_session:
             flask_session["verified_orders"] = {
                 payload_a["order_id"]: payload_a["customer_email_hash"]
