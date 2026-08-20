@@ -56,7 +56,7 @@
       <div class="feat">
         <div class="ic">{% include "icons/edit.svg" %}</div>
         <div class="t">Editable Collections</div>
-        <div class="d">Selected suites include coordinated editing for names, venue, menu, guest details and event wording</div>
+        <div class="d">Purchased editable suites can be reopened and revised later; saved versions remain linked to the paid order</div>
       </div>
       <div class="feat">
         <div class="ic">{% include "icons/globe.svg" %}</div>
@@ -80,6 +80,7 @@
     <div class="footer-bottom">Designed by loveforlove.com</div>
   </div>
   {% block scripts %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/persistent-draft.js') }}"></script>
   <script src="{{ url_for('static', filename='js/print-job-client.js') }}"></script>
 </body>
 </html>
