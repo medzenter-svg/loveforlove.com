@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="${LF_SMOKE_ROOT:-/tmp/loveforlove-smoke-products}"
 COLLECTION="wedding-day-set"
 PREPRESS_ROOT="$ROOT/$COLLECTION/prepress"
+EXPORT_ROOT="$ROOT/$COLLECTION/export-smoke"
 
 rm -rf "$ROOT/$COLLECTION"
 mkdir -p "$ROOT/$COLLECTION"
@@ -46,9 +47,22 @@ if validated != 30:
 print(f"Validated {validated} Scribus templates: geometry, bleed and CMS all passed.")
 PY
 
+# Prove the actual export path before scaling to all 60 professional files.
+python3 prepress/export_smoke.py \
+  "$PREPRESS_ROOT" \
+  "$EXPORT_ROOT" \
+  prepress/JOB_EXAMPLE.json
+
+PDF_COUNT="$(find "$EXPORT_ROOT" -type f -name '*.pdf' | wc -l | tr -d ' ')"
+if [ "$PDF_COUNT" != "4" ]; then
+  echo "Expected 4 Invitation PDF/X smoke files, generated $PDF_COUNT" >&2
+  exit 1
+fi
+
 # Files are created by the container's root user on a bind-mounted host path.
-# Make the validated smoke package readable/traversable by the GitHub runner so
-# actions/upload-artifact can zip it without changing template contents.
+# Make validated smoke artifacts readable/traversable by the GitHub runner so
+# actions/upload-artifact can zip them without changing their contents.
 chmod -R a+rX "$ROOT/$COLLECTION"
 
 echo "Smoke package ready at: $PREPRESS_ROOT"
+echo "Invitation PDF/X smoke package ready at: $EXPORT_ROOT"
