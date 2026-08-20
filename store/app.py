@@ -5,6 +5,7 @@ from itsdangerous import URLSafeSerializer, BadSignature
 
 from products import PRODUCTS_BY_SLUG, PUBLISHED_PRODUCTS, price_display
 from suite_locales import SUITE_LOCALES, LANGUAGE_NAMES, RTL_LANGUAGES
+from suite_optional_locales import OPTIONAL_SUITE_LOCALES
 
 try:
     import stripe
@@ -61,7 +62,6 @@ def paid_access(access_token, slug=None):
     payload = read_access_token(access_token)
 
     if payload.get("dev_paid"):
-        # Preview tokens are accepted only while the store is still in preview mode.
         paid = not LIVE_PAYMENTS
     else:
         stripe_session_id = payload.get("stripe_session_id")
@@ -86,13 +86,7 @@ def home():
     stationery = [p for p in PUBLISHED_PRODUCTS if p["category"] == "Stationery"][:8]
     curated = [p for p in PUBLISHED_PRODUCTS if p["category"] not in ("Featured Destinations", "Stationery")][:8]
     new_arrivals = list(reversed(PUBLISHED_PRODUCTS[-8:]))
-    return render_template(
-        "home.html",
-        featured=featured,
-        stationery=stationery,
-        curated=curated,
-        new_arrivals=new_arrivals,
-    )
+    return render_template("home.html", featured=featured, stationery=stationery, curated=curated, new_arrivals=new_arrivals)
 
 
 @app.route("/shop")
@@ -121,16 +115,19 @@ def customize(access_token, slug):
         abort(404)
 
     allowed_codes = product.get("language_presets") or ["en"]
-    locales = {code: SUITE_LOCALES[code] for code in allowed_codes if code in SUITE_LOCALES}
+    locales = {}
+    for code in allowed_codes:
+        if code not in SUITE_LOCALES:
+            continue
+        merged = dict(SUITE_LOCALES[code])
+        merged.update(OPTIONAL_SUITE_LOCALES.get(code, {}))
+        locales[code] = merged
+
     language_names = {code: LANGUAGE_NAMES.get(code, code.upper()) for code in locales}
     rtl_languages = [code for code in RTL_LANGUAGES if code in locales]
     theme = product.get("suite_theme") or {
-        "bg": "#F7F3ED",
-        "paper": "#FFFDF9",
-        "ink": "#181716",
-        "accent": "#6F252A",
-        "gold": "#B79A63",
-        "line": "#DED4C7",
+        "bg": "#F7F3ED", "paper": "#FFFDF9", "ink": "#181716",
+        "accent": "#6F252A", "gold": "#B79A63", "line": "#DED4C7",
     }
 
     return render_template(
@@ -237,12 +234,7 @@ def success():
         payload = {"order_id": order_id, "slugs": slugs}
 
     items = [PRODUCTS_BY_SLUG[s] for s in payload.get("slugs", []) if s in PRODUCTS_BY_SLUG]
-    return render_template(
-        "success.html",
-        items=items,
-        access_token=access_token,
-        dev_mode=not LIVE_PAYMENTS,
-    )
+    return render_template("success.html", items=items, access_token=access_token, dev_mode=not LIVE_PAYMENTS)
 
 
 @app.route("/cancel")
