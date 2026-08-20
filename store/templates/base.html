@@ -13,19 +13,16 @@
   <div class="wrap">
     <header class="nav">
       <div class="nav-left">
-        <a href="{{ url_for('shop') }}">SHOP &#9662;</a>
+        <a href="{{ url_for('shop') }}">SHOP</a>
         <a href="{{ url_for('shop') }}?category=Featured+Destinations">COLLECTIONS</a>
         <a href="{{ url_for('home') }}#moments">WEDDING MOMENTS</a>
         <a href="{{ url_for('shop') }}?category=Designers">DESIGNERS</a>
-        <a href="{{ url_for('shop') }}">JOURNAL</a>
       </div>
       <a class="logo" href="{{ url_for('home') }}">LOVE FOR LOVE</a>
       <div class="nav-right">
         <span class="lang" title="Store currency">USD</span>
         <span class="lang" title="Current language">EN</span>
-        {% include "icons/search.svg" %}
-        {% include "icons/user.svg" %}
-        <a class="cart-wrap" href="{{ url_for('cart_view') }}">
+        <a class="cart-wrap" href="{{ url_for('cart_view') }}" aria-label="Shopping bag">
           {% include "icons/bag.svg" %}
           <span class="cart-badge">{{ session.get('cart', [])|length }}</span>
         </a>
