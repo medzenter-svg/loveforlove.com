@@ -23,6 +23,10 @@ if [ "$TEMPLATE_COUNT" != "30" ]; then
 fi
 
 xvfb-run -a scribus -g -ns -py \
+  prepress/apply_premium_design.py \
+  "$PREPRESS_ROOT"
+
+xvfb-run -a scribus -g -ns -py \
   prepress/check_template_fonts.py \
   "$PREPRESS_ROOT"
 
