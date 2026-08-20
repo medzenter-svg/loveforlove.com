@@ -34,6 +34,21 @@ def _version(command):
     return proc.returncode, (proc.stdout + "\n" + proc.stderr).strip()
 
 
+def _scribus_command(scribus_path, *args):
+    """Build a Scribus command that also works on headless Linux.
+
+    Scribus/Qt still initializes a GUI platform plugin for CLI operations such as
+    --version and -pi. In CI/Docker, where DISPLAY is unset, wrap Scribus with
+    xvfb-run when it is available. On a normal desktop keep the direct command.
+    """
+    command = [scribus_path, *args]
+    if os.name == "posix" and not os.environ.get("DISPLAY"):
+        xvfb_run = shutil.which("xvfb-run")
+        if xvfb_run:
+            command = [xvfb_run, "-a", *command]
+    return command
+
+
 def _scribus_version_ok(output):
     match = re.search(r"(\d+)\.(\d+)(?:\.(\d+))?", output)
     if not match:
@@ -43,8 +58,11 @@ def _scribus_version_ok(output):
 
 
 def _profile_listing(scribus_path):
-    command = [scribus_path, "-g", "-pi"]
-    proc = subprocess.run(command, text=True, capture_output=True)
+    proc = subprocess.run(
+        _scribus_command(scribus_path, "-g", "-pi"),
+        text=True,
+        capture_output=True,
+    )
     return proc.returncode, (proc.stdout + "\n" + proc.stderr)
 
 
@@ -71,21 +89,27 @@ def main(argv=None):
             failed = True
             print(f"FAIL {label}: '{binary}' not found")
 
+    headless_paths = {}
     for binary, label in OPTIONAL_HEADLESS_TOOLS.items():
         path = shutil.which(binary)
+        headless_paths[binary] = path
         if path:
             print(f"OK   {label}: {path}")
         else:
             print(f"WARN {label}: '{binary}' not found (may be required on headless Linux)")
 
     if paths.get("scribus"):
-        code, output = _version([paths["scribus"], "--version"])
-        ok, parsed = _scribus_version_ok(output)
-        if code != 0 or not ok:
+        if os.name == "posix" and not os.environ.get("DISPLAY") and not headless_paths.get("xvfb-run"):
             failed = True
-            print(f"FAIL Scribus version: {output or 'unknown'}; require 1.6.0+")
+            print("FAIL Headless Linux requires xvfb-run for Scribus CLI checks")
         else:
-            print(f"OK   Scribus version: {'.'.join(map(str, parsed))}")
+            code, output = _version(_scribus_command(paths["scribus"], "--version"))
+            ok, parsed = _scribus_version_ok(output)
+            if code != 0 or not ok:
+                failed = True
+                print(f"FAIL Scribus version: {output or 'unknown'}; require 1.6.0+")
+            else:
+                print(f"OK   Scribus version: {'.'.join(map(str, parsed))}")
 
     if paths.get("gs"):
         code, output = _version([paths["gs"], "--version"])
@@ -112,6 +136,8 @@ def main(argv=None):
         if code != 0:
             failed = True
             print("FAIL Could not read Scribus color profile listing")
+            if listing.strip():
+                print(listing.strip())
         else:
             for env_name, profile_name in configured_profiles.items():
                 if profile_name in listing:
