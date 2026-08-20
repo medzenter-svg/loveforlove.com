@@ -23,16 +23,20 @@ FULL_SUITE_ITEMS = [
     "Dress Code Card (optional)",
     "Matching Envelope Design (optional)",
     "Matching Envelope Liner (optional)",
+    "Wedding Weekend Program — Day 1 (optional)",
+    "Wedding Weekend Program — Day 2 (optional)",
 ]
 
 PRO_PRINT_SPEC = {
-    "resolution": "300 DPI minimum for raster artwork",
+    "resolution": "300 DPI minimum for raster artwork at final size",
     "bleed_eu": "3 mm on every edge",
     "bleed_us": "0.125 in on every edge",
     "safe_area": "Keep critical text at least 5 mm / 0.2 in inside trim",
-    "preferred_pdf": "PDF/X-4 when exported by the production workflow",
-    "color": "CMYK-ready production export; storefront/browser previews remain RGB",
-    "fonts": "Embed fonts or convert display lettering to outlines in final press files",
+    "primary_pdf": "PDF/X-4 professional master",
+    "compatibility_pdf": "PDF/X-1a compatibility master",
+    "color": "ICC color-managed production PDF with output intent",
+    "fonts": "Embed fonts or convert selected display lettering to outlines",
+    "delivery": "Each printed piece exported as its own professional file in metric and North American size families",
 }
 
 PRODUCTS = [
@@ -72,7 +76,7 @@ PRODUCTS = [
         "category": "Stationery",
         "occasion": "Weddings",
         "price": 2200,
-        "description": "A coordinated premium wedding system with eight core pieces plus optional hotel, coordinator, Dress Code, envelope and liner designs. Edit names, date, venue, full address, RSVP, four-course menu, table and guest details, program, accommodation, contacts and wording after purchase while the visual identity stays consistent.",
+        "description": "A coordinated premium wedding system with eight core pieces plus seven optional guest and weekend pieces: hotel, coordinator, Dress Code, envelope, liner, Day 1 program and Day 2 program. Personalize all wording while the visual identity remains consistent.",
         "cover": "wedding-day-set/cover.png",
         "files": ["Wedding_Day_Set_loveforlove.pdf"],
         "editable": True,
@@ -80,6 +84,8 @@ PRODUCTS = [
         "language_presets": ["en", "de", "fr", "it", "es", "pt", "nl", "pl", "el", "ru", "uk", "tr", "he"],
         "suite_items": FULL_SUITE_ITEMS,
         "print_spec": PRO_PRINT_SPEC,
+        "professional_print_package_ready": False,
+        "published": False,
         "suite_theme": {
             "bg": "#F7F3ED",
             "paper": "#FFFDF9",
