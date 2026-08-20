@@ -2,6 +2,7 @@ import os
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 from unittest import mock
 
@@ -82,6 +83,42 @@ class OrderEmailFulfillmentTests(unittest.TestCase):
         sent = order_store.get_paid_order("order-mail-1")
         self.assertEqual(sent["access_email_status"], order_store.EMAIL_SENT)
         self.assertEqual(sent["access_email_attempts"], 2)
+
+    def test_abandoned_sending_reservation_is_recoverable_after_lease(self):
+        start = datetime(2026, 8, 20, 10, 0, tzinfo=timezone.utc)
+        with mock.patch("order_store._now_dt", return_value=start):
+            order_store.record_paid_order(
+                "order-mail-1",
+                "cs_test_123",
+                "buyer@example.com",
+                ["wedding-day-set"],
+            )
+            self.assertTrue(order_store.begin_access_email_delivery("order-mail-1"))
+
+        five_minutes_later = start + timedelta(minutes=5)
+        with mock.patch("order_store._now_dt", return_value=five_minutes_later):
+            # A duplicate payment event must not refresh the active email lease.
+            order_store.record_paid_order(
+                "order-mail-1",
+                "cs_test_123",
+                "buyer@example.com",
+                ["wedding-day-set"],
+            )
+            self.assertFalse(order_store.begin_access_email_delivery("order-mail-1"))
+
+        eleven_minutes_later = start + timedelta(minutes=11)
+        with mock.patch("order_store._now_dt", return_value=eleven_minutes_later):
+            order_store.record_paid_order(
+                "order-mail-1",
+                "cs_test_123",
+                "buyer@example.com",
+                ["wedding-day-set"],
+            )
+            self.assertTrue(order_store.begin_access_email_delivery("order-mail-1"))
+
+        order = order_store.get_paid_order("order-mail-1")
+        self.assertEqual(order["access_email_status"], order_store.EMAIL_SENDING)
+        self.assertEqual(order["access_email_attempts"], 2)
 
     def test_unpaid_session_is_never_fulfilled(self):
         self.session.payment_status = "unpaid"
