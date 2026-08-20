@@ -19,6 +19,7 @@ from suite_optional_locales import OPTIONAL_SUITE_LOCALES
 from suite_weekend_locales import WEEKEND_SUITE_LOCALES
 from prepress.job import PrintJobValidationError, normalize_print_job
 from print_package import package_summary
+from draft_store import load_draft, save_draft, list_draft_revisions, restore_draft_revision
 
 try:
     import stripe
@@ -63,12 +64,6 @@ def valid_customer_email(value):
 
 
 def email_digest(value, order_id):
-    """Create a private per-order verifier for the purchase email.
-
-    HMAC prevents offline guessing from a leaked access token; including the
-    order ID also prevents the same customer email from producing the same
-    verifier across different purchases.
-    """
     message = f"{str(order_id)}\n{normalize_email(value)}".encode("utf-8")
     key = str(app.secret_key).encode("utf-8")
     return hmac.new(key, message, hashlib.sha256).hexdigest()
@@ -177,6 +172,16 @@ def access_redirect(access_token, next_path=None):
     return redirect(url_for("order_access", access_token=access_token, next=next_path or None))
 
 
+def verified_editable_product(access_token, slug):
+    payload = paid_access(access_token, slug)
+    if not customer_access_verified(payload):
+        return payload, None, access_redirect(access_token, request.path)
+    product = PRODUCTS_BY_SLUG.get(slug)
+    if not product or not product.get("editable"):
+        abort(404)
+    return payload, product, None
+
+
 @app.route("/")
 def home():
     featured = [p for p in PUBLISHED_PRODUCTS if p["category"] == "Featured Destinations"][:8]
@@ -255,13 +260,9 @@ def order_access(access_token):
 
 @app.route("/customize/<access_token>/<slug>")
 def customize(access_token, slug):
-    payload = paid_access(access_token, slug)
-    if not customer_access_verified(payload):
-        return access_redirect(access_token, request.path)
-
-    product = PRODUCTS_BY_SLUG.get(slug)
-    if not product or not product.get("editable"):
-        abort(404)
+    payload, product, redirect_response = verified_editable_product(access_token, slug)
+    if redirect_response:
+        return redirect_response
 
     allowed_codes = product.get("language_presets") or ["en"]
     locales = {}
@@ -292,15 +293,53 @@ def customize(access_token, slug):
     )
 
 
-@app.route("/customize/<access_token>/<slug>/print-job/validate", methods=["POST"])
-def validate_print_job(access_token, slug):
-    payload = paid_access(access_token, slug)
-    if not customer_access_verified(payload):
+@app.route("/customize/<access_token>/<slug>/draft", methods=["GET", "PUT"])
+def editor_draft(access_token, slug):
+    payload, product, redirect_response = verified_editable_product(access_token, slug)
+    if redirect_response:
         return jsonify({"ok": False, "error": "Purchase email verification is required."}), 403
 
-    product = PRODUCTS_BY_SLUG.get(slug)
-    if not product or not product.get("editable"):
-        abort(404)
+    order_id = payload["order_id"]
+    if request.method == "GET":
+        draft = load_draft(order_id, slug)
+        return jsonify({"ok": True, "draft": draft})
+
+    body = request.get_json(silent=True) or {}
+    state = body.get("state")
+    try:
+        saved = save_draft(order_id, slug, state)
+    except ValueError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+    return jsonify({"ok": True, **saved})
+
+
+@app.route("/customize/<access_token>/<slug>/draft/revisions", methods=["GET"])
+def editor_draft_revisions(access_token, slug):
+    payload, product, redirect_response = verified_editable_product(access_token, slug)
+    if redirect_response:
+        return jsonify({"ok": False, "error": "Purchase email verification is required."}), 403
+    return jsonify({
+        "ok": True,
+        "revisions": list_draft_revisions(payload["order_id"], slug),
+    })
+
+
+@app.route("/customize/<access_token>/<slug>/draft/restore/<int:revision>", methods=["POST"])
+def editor_draft_restore(access_token, slug, revision):
+    payload, product, redirect_response = verified_editable_product(access_token, slug)
+    if redirect_response:
+        return jsonify({"ok": False, "error": "Purchase email verification is required."}), 403
+    restored = restore_draft_revision(payload["order_id"], slug, revision)
+    if restored is None:
+        return jsonify({"ok": False, "error": "Draft revision not found."}), 404
+    return jsonify({"ok": True, **restored})
+
+
+@app.route("/customize/<access_token>/<slug>/print-job/validate", methods=["POST"])
+def validate_print_job(access_token, slug):
+    payload, product, redirect_response = verified_editable_product(access_token, slug)
+    if redirect_response:
+        return jsonify({"ok": False, "error": "Purchase email verification is required."}), 403
 
     job_payload = request.get_json(silent=True)
     if job_payload is None:
