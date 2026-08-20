@@ -12,6 +12,7 @@ THEMES=(
   "riviera-garden"
   "vienna-champagne"
 )
+REFINED_THEMES=("monaco-regatta" "provence-rose" "riviera-garden")
 
 # ROOT may be a bind-mounted directory such as /out inside Docker. Removing the
 # mount point itself fails with "Device or resource busy". Clear only its
@@ -43,6 +44,23 @@ for THEME in "${THEMES[@]}"; do
     --prototype \
     --piece=invitation
 
+  # Three first-pass concepts needed a stronger visual treatment. Keep those
+  # refinements isolated from the stable renderer and require a second marker so
+  # a silent Scribus Scripter failure cannot publish the weak first-pass design.
+  case "$THEME" in
+    monaco-regatta|provence-rose|riviera-garden)
+      xvfb-run -a scribus -g -ns -py \
+        prepress/refine_invitation_prototypes.py \
+        "$PREPRESS_ROOT" \
+        "$THEME"
+      REFINED_MARKER="$PREPRESS_ROOT/.loveforlove-refined-$THEME"
+      test -f "$REFINED_MARKER"
+      grep -q "^theme=$THEME$" "$REFINED_MARKER"
+      grep -q '^piece=invitation$' "$REFINED_MARKER"
+      grep -q '^templates=2$' "$REFINED_MARKER"
+      ;;
+  esac
+
   # Scribus can occasionally exit 0 after an internal Scripter exception. Require
   # an explicit success marker plus theme-specific vector objects in both sizes.
   test -f "$MARKER"
@@ -62,8 +80,9 @@ for THEME in "${THEMES[@]}"; do
         ;;
       monaco-regatta)
         grep -q 'design__monaco_mast' "$SLA"
-        grep -q 'design__monaco_signal' "$SLA"
-        grep -q 'design__monaco_diagonal' "$SLA"
+        grep -q 'design__monaco_refined_mast' "$SLA"
+        grep -q 'design__monaco_refined_sail_left' "$SLA"
+        grep -q 'design__monaco_refined_flag' "$SLA"
         ;;
       como-sereno)
         grep -q 'design__como_water_1' "$SLA"
@@ -72,8 +91,9 @@ for THEME in "${THEMES[@]}"; do
         ;;
       provence-rose)
         grep -q 'design__provence_stem_top' "$SLA"
-        grep -q 'design__provence_leaf_1' "$SLA"
-        grep -q 'design__provence_bud' "$SLA"
+        grep -q 'design__provence_refined_stem_top' "$SLA"
+        grep -q 'design__provence_refined_leaf_top_1' "$SLA"
+        grep -q 'design__provence_refined_bud_1' "$SLA"
         ;;
       santorini-aegean)
         grep -q 'design__santorini_arch' "$SLA"
@@ -82,8 +102,9 @@ for THEME in "${THEMES[@]}"; do
         ;;
       riviera-garden)
         grep -q 'design__riviera_top_petal_1' "$SLA"
-        grep -q 'design__riviera_stem_top' "$SLA"
-        grep -q 'design__riviera_bottom_center' "$SLA"
+        grep -q 'design__riviera_refined_top_petal_1' "$SLA"
+        grep -q 'design__riviera_refined_stem_top' "$SLA"
+        grep -q 'design__riviera_refined_bottom_center' "$SLA"
         ;;
       vienna-champagne)
         grep -q 'design__vienna_crest_outer' "$SLA"
