@@ -7,11 +7,7 @@
   const storageKey = root.dataset.storageKey || 'loveforlove-suite';
   const languageSelect = document.getElementById('languagePreset');
   const status = document.getElementById('editorSaveStatus');
-
-  const labelKeys = [
-    'invitation','details','venue','address','rsvp','reply_by','menu','first','second','third','dessert',
-    'table','place','program','ceremony','cocktails','dinner','dancing','thank_you','join_us'
-  ];
+  const labelKeys = Object.keys(locales.en || {});
 
   const defaultValue = (field) => (field.dataset.default || '').replace(/\\n/g, '\n');
 
@@ -33,10 +29,17 @@
     if (field.dataset.labelKey) setLabelText(field.dataset.labelKey, field.value);
   };
 
+  const syncOptionalPiece = (toggle) => {
+    const piece = toggle.dataset.togglePiece;
+    document.querySelectorAll(`[data-piece="${piece}"]`).forEach(el => {
+      el.classList.toggle('is-disabled', !toggle.checked);
+    });
+  };
+
   const saveState = () => {
     const state = {};
     root.querySelectorAll('input[id], textarea[id], select[id]').forEach(field => {
-      state[field.id] = field.value;
+      state[field.id] = field.type === 'checkbox' ? field.checked : field.value;
     });
     localStorage.setItem(storageKey, JSON.stringify(state));
     if (status) {
@@ -71,16 +74,29 @@
     Object.entries(state).forEach(([id, value]) => {
       const field = document.getElementById(id);
       if (!field) return;
-      field.value = value;
-      syncField(field);
+      if (field.type === 'checkbox') {
+        field.checked = Boolean(value);
+        syncOptionalPiece(field);
+      } else {
+        field.value = value;
+        syncField(field);
+      }
     });
     applyDirection(state.languagePreset || 'en');
     return true;
   };
 
-  root.querySelectorAll('input[id], textarea[id]').forEach(field => {
+  root.querySelectorAll('input[id]:not([type="checkbox"]), textarea[id]').forEach(field => {
     field.addEventListener('input', () => {
       syncField(field);
+      saveState();
+    });
+  });
+
+  root.querySelectorAll('[data-toggle-piece]').forEach(toggle => {
+    syncOptionalPiece(toggle);
+    toggle.addEventListener('change', () => {
+      syncOptionalPiece(toggle);
       saveState();
     });
   });
@@ -92,8 +108,13 @@
   document.getElementById('resetSuite')?.addEventListener('click', () => {
     localStorage.removeItem(storageKey);
     root.querySelectorAll('[data-default]').forEach(field => {
-      field.value = defaultValue(field);
-      syncField(field);
+      if (field.type === 'checkbox') {
+        field.checked = field.dataset.default === 'true';
+        syncOptionalPiece(field);
+      } else {
+        field.value = defaultValue(field);
+        syncField(field);
+      }
     });
     if (languageSelect) {
       languageSelect.value = 'en';
@@ -107,8 +128,13 @@
   const restored = restoreState();
   if (!restored) {
     root.querySelectorAll('[data-default]').forEach(field => {
-      if (!field.value) field.value = defaultValue(field);
-      syncField(field);
+      if (field.type === 'checkbox') {
+        field.checked = field.dataset.default === 'true';
+        syncOptionalPiece(field);
+      } else if (!field.value) {
+        field.value = defaultValue(field);
+        syncField(field);
+      }
     });
     applyLanguage(languageSelect?.value || 'en', false);
   }
