@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Love For Love — Luxury Wedding Templates{% endblock %}
+{% block title %}Love For Love — Luxury Wedding & Celebration Templates{% endblock %}
 {% block content %}
 <section class="hero">
   <div class="hero-text">
     <div class="hero-kicker">TIMELESS ELEGANCE. MADE FOR YOUR STORY.</div>
     <div class="hero-headline">CELEBRATE<br>YOUR FOREVER</div>
-    <div class="hero-sub">Luxury wedding templates and details to celebrate the most beautiful chapter of your life.</div>
+    <div class="hero-sub">Luxury wedding stationery and a growing collection of coordinated designs for life's most meaningful celebrations.</div>
     <div class="hero-btns">
       <a class="btn-primary" href="{{ url_for('shop') }}">EXPLORE THE COLLECTION</a>
-      <a class="btn-secondary" href="#moments">SHOP BY MOMENT</a>
+      <a class="btn-secondary" href="#occasions">SHOP BY OCCASION</a>
     </div>
   </div>
   <div class="hero-img" style="background-image:url('{{ url_for('static', filename='img/hero.jpg') }}');"></div>
@@ -19,7 +19,7 @@
   <div class="section-head">
     <div class="kicker">JUST ADDED</div>
     <h2>New Arrivals</h2>
-    <p class="section-intro">Fresh designs are added regularly, so the collection can grow without rebuilding the storefront.</p>
+    <p class="section-intro">Fresh designs are added regularly, while every public listing remains tied to a real customer deliverable.</p>
   </div>
   <div class="grid">
     {% for p in new_arrivals %}
@@ -36,7 +36,34 @@
 </section>
 {% endif %}
 
-<div class="moments-title" id="moments">SHOP BY MOMENT</div>
+<section class="occasion-section" id="occasions">
+  <div class="section-head">
+    <div class="kicker">CELEBRATE BEAUTIFULLY</div>
+    <h2>Collections by Occasion</h2>
+    <p class="section-intro">Each occasion is developed as a coordinated family of invitations, guest information and celebration-day pieces — not as isolated cards.</p>
+  </div>
+  <div class="occasion-grid">
+    {% for occasion in occasion_roadmap %}
+      {% if occasion.status == 'live' %}
+      <a class="occasion-card occasion-card-live" href="{{ url_for('shop', occasion=occasion.name) }}">
+        <div class="occasion-status">AVAILABLE</div>
+        <h3>{{ occasion.name }}</h3>
+        <p>{{ occasion.note }}</p>
+        <span>EXPLORE COLLECTION →</span>
+      </a>
+      {% else %}
+      <div class="occasion-card">
+        <div class="occasion-status">{{ 'IN DEVELOPMENT' if occasion.status == 'building' else 'PLANNED' }}</div>
+        <h3>{{ occasion.name }}</h3>
+        <p>{{ occasion.note }}</p>
+        <span>COMING TO LOVE FOR LOVE</span>
+      </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<div class="moments-title" id="moments">WEDDING MOMENTS</div>
 <div class="moments">
   {% for icon_name, label in [("ring","Engagement"),("glasses","Bridal Shower"),("arch","Ceremony"),("fork","Reception"),("plane","Honeymoon"),("heart","Anniversary"),("gift","Gifts"),("envelope","Thank You")] %}
   <a class="moment" href="{{ url_for('shop') }}">
