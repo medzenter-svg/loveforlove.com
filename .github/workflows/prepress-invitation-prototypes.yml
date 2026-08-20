@@ -10,7 +10,7 @@ on:
 jobs:
   invitation-prototypes:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,26 +18,37 @@ jobs:
       - name: Build reproducible prepress image
         run: docker build -f store/prepress/Dockerfile -t loveforlove-prepress .
 
-      - name: Export approved Invitation prototype only
+      - name: Export seven premium Invitation prototype systems
         run: |
           rm -rf .prepress-invitation-prototypes
           mkdir -p .prepress-invitation-prototypes
           docker run --rm \
-            -e LF_AMALFI_SMOKE_ROOT=/out \
+            -e LF_PROTOTYPE_SMOKE_ROOT=/out \
             -v "$PWD/.prepress-invitation-prototypes:/out" \
             loveforlove-prepress \
-            bash prepress/amalfi_prototype_smoke.sh
+            bash prepress/invitation_prototypes_smoke.sh
 
-      - name: Verify gated Amalfi prototype
+      - name: Verify seven themes and 28 professional PDFs
         run: |
-          PACKAGE=.prepress-invitation-prototypes/wedding-day-set/amalfi-invitation-prototype
-          test "$(find "$PACKAGE" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 4
-          test -f "$PACKAGE/INVITATION_EXPORT_SMOKE_MANIFEST.json"
+          test "$(find .prepress-invitation-prototypes -type f -name '*.pdf' | wc -l)" -eq 28
+          for theme in \
+            amalfi-luce \
+            monaco-regatta \
+            como-sereno \
+            provence-rose \
+            santorini-aegean \
+            riviera-garden \
+            vienna-champagne
+          do
+            PACKAGE=".prepress-invitation-prototypes/$theme/export"
+            test "$(find "$PACKAGE" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 4
+            test -f "$PACKAGE/${theme}__MANIFEST.json"
+          done
 
-      - name: Upload approved Invitation prototype
+      - name: Upload premium Invitation prototypes
         uses: actions/upload-artifact@v4
         with:
           name: wedding-invitation-premium-prototypes
-          path: .prepress-invitation-prototypes/wedding-day-set/amalfi-invitation-prototype
+          path: .prepress-invitation-prototypes
           if-no-files-found: error
           retention-days: 5
