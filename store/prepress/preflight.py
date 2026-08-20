@@ -2,7 +2,7 @@
 
 This is intentionally a conservative QA gate, not a substitute for a certified
 PDF/X validator used by a print provider. It verifies file integrity, page boxes,
-font embedding and the presence of PDF/X metadata using standard prepress tools.
+font embedding and PDF/X identification using standard prepress tools.
 """
 
 from __future__ import annotations
@@ -56,7 +56,6 @@ def _expected_bleed_points(size_family):
 
 
 def _parse_box(pdfinfo_text, label):
-    # pdfinfo -box examples: "TrimBox: 0.00 0.00 360.00 504.00"
     match = re.search(
         rf"^{re.escape(label)}:\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)",
         pdfinfo_text,
@@ -86,10 +85,7 @@ def _check_page_boxes(pdf_path, size_family, piece):
     trim_w, trim_h = _box_size(trim)
     expected_w, expected_h = _expected_trim_points(size_family, piece)
 
-    if not (
-        (_near(trim_w, expected_w) and _near(trim_h, expected_h))
-        or (_near(trim_w, expected_h) and _near(trim_h, expected_w))
-    ):
+    if not (_near(trim_w, expected_w) and _near(trim_h, expected_h)):
         raise PreflightError(
             f"Unexpected TrimBox for {piece}/{size_family}: "
             f"{trim_w:.2f}×{trim_h:.2f} pt; expected "
@@ -110,15 +106,19 @@ def _check_fonts(pdf_path):
     output = _run([pdffonts, str(pdf_path)])
     lines = [line for line in output.splitlines() if line.strip()]
     if len(lines) <= 2:
-        # No fonts is valid for an all-vector-outline piece.
         return
 
-    # Poppler table includes an "emb" column. Reject any actual font row with "no".
+    # pdffonts rows end with: emb sub uni object-ID generation-ID.
+    # Type names can contain spaces, so parsing from the right is stable.
     for line in lines:
-        if line.startswith("name") or line.startswith("---"):
+        stripped = line.strip()
+        if stripped.startswith("name") or stripped.startswith("---"):
             continue
-        columns = line.split()
-        if "no" in columns:
+        columns = stripped.split()
+        if len(columns) < 5:
+            raise PreflightError(f"Cannot parse pdffonts row: {line}")
+        embedded = columns[-5].lower()
+        if embedded != "yes":
             raise PreflightError(f"Unembedded font detected: {line}")
 
 
@@ -128,14 +128,20 @@ def _check_pdf_integrity(pdf_path):
 
 
 def _check_pdfx_marker(pdf_path, profile):
-    # PDF/X identity is usually present in document Info/XMP. This lightweight
-    # check confirms the marker is present; certified conformance must still be
-    # verified by the production validator before release.
-    data = pdf_path.read_bytes()
-    expected = b"PDF/X-4" if profile == "pdfx4_worldwide" else b"PDF/X-1"
-    if expected not in data and b"GTS_PDFXVersion" not in data:
+    exiftool = _require_tool("exiftool")
+    metadata = _run([exiftool, "-s", "-G1", str(pdf_path)])
+    expected = "PDF/X-4" if profile == "pdfx4_worldwide" else "PDF/X-1"
+
+    # Different generators expose this under slightly different XMP/Info tags.
+    pdfx_lines = [
+        line for line in metadata.splitlines()
+        if "PDFX" in line.upper() or "GTS_PDFX" in line.upper()
+    ]
+    joined = "\n".join(pdfx_lines)
+    if expected not in joined:
         raise PreflightError(
-            f"PDF/X marker not found for expected profile {profile}: {pdf_path.name}"
+            f"Expected {expected} identification not found in metadata for {pdf_path.name}. "
+            f"PDF/X metadata seen: {joined or 'none'}"
         )
 
 
