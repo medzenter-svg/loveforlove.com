@@ -62,17 +62,26 @@ def valid_customer_email(value):
     return bool(email and "@" in email and "." in email.rsplit("@", 1)[-1])
 
 
-def email_digest(value):
-    return hashlib.sha256(normalize_email(value).encode("utf-8")).hexdigest()
+def email_digest(value, order_id):
+    """Create a private per-order verifier for the purchase email.
+
+    HMAC prevents offline guessing from a leaked access token; including the
+    order ID also prevents the same customer email from producing the same
+    verifier across different purchases.
+    """
+    message = f"{str(order_id)}\n{normalize_email(value)}".encode("utf-8")
+    key = str(app.secret_key).encode("utf-8")
+    return hmac.new(key, message, hashlib.sha256).hexdigest()
 
 
 def make_access_token(order_id, slugs, customer_email, stripe_session_id=None, dev_paid=False):
     customer_email = normalize_email(customer_email)
+    order_id = str(order_id or "")
     if not order_id or not valid_customer_email(customer_email):
         raise ValueError("order_id and valid customer_email are required for paid access")
     return ORDER_SIGNER.dumps({
-        "order_id": str(order_id),
-        "customer_email_hash": email_digest(customer_email),
+        "order_id": order_id,
+        "customer_email_hash": email_digest(customer_email, order_id),
         "slugs": list(slugs),
         "stripe_session_id": stripe_session_id,
         "dev_paid": bool(dev_paid),
@@ -108,6 +117,7 @@ def stripe_session_email(checkout_session):
 def paid_access(access_token, slug=None):
     payload = read_access_token(access_token)
     token_email_hash = str(payload.get("customer_email_hash"))
+    order_id = str(payload.get("order_id"))
 
     if payload.get("dev_paid"):
         paid = not LIVE_PAYMENTS
@@ -119,14 +129,14 @@ def paid_access(access_token, slug=None):
                 checkout_session = stripe.checkout.Session.retrieve(stripe_session_id)
                 metadata = checkout_session.metadata or {}
                 stripe_email = stripe_session_email(checkout_session)
-                stripe_email_hash = email_digest(stripe_email) if stripe_email else ""
+                stripe_email_hash = email_digest(stripe_email, order_id) if stripe_email else ""
                 metadata_order_id = str(metadata.get("order_id") or "")
                 metadata_slugs = [s for s in str(metadata.get("slugs") or "").split(",") if s]
                 paid = (
                     checkout_session.payment_status == "paid"
                     and bool(stripe_email_hash)
                     and hmac.compare_digest(stripe_email_hash, token_email_hash)
-                    and hmac.compare_digest(metadata_order_id, str(payload.get("order_id")))
+                    and hmac.compare_digest(metadata_order_id, order_id)
                     and set(metadata_slugs) == set(payload.get("slugs", []))
                 )
             except Exception:
@@ -223,7 +233,11 @@ def order_access(access_token):
     error = None
     if request.method == "POST":
         entered_email = normalize_email(request.form.get("email"))
-        entered_hash = email_digest(entered_email) if valid_customer_email(entered_email) else ""
+        entered_hash = (
+            email_digest(entered_email, payload["order_id"])
+            if valid_customer_email(entered_email)
+            else ""
+        )
         expected_hash = str(payload["customer_email_hash"])
         if entered_hash and hmac.compare_digest(entered_hash, expected_hash):
             grant_customer_access(payload)
