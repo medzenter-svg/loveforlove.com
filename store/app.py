@@ -44,7 +44,16 @@ def home():
     featured = [p for p in PRODUCTS if p["category"] == "Featured Destinations"][:8]
     stationery = [p for p in PRODUCTS if p["category"] == "Stationery"][:8]
     curated = [p for p in PRODUCTS if p["category"] not in ("Featured Destinations", "Stationery")][:8]
-    return render_template("home.html", featured=featured, stationery=stationery, curated=curated)
+    # The newest catalog entries automatically appear on the homepage.
+    # This keeps the storefront fresh as we add new designs every day.
+    new_arrivals = list(reversed(PRODUCTS[-8:]))
+    return render_template(
+        "home.html",
+        featured=featured,
+        stationery=stationery,
+        curated=curated,
+        new_arrivals=new_arrivals,
+    )
 
 
 @app.route("/shop")
