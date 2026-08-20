@@ -1,0 +1,80 @@
+OPTIONAL_SUITE_LOCALES = {
+    "en": {
+        "accommodation": "Guest Accommodation", "hotel": "Hotel", "check_in": "Check-in", "check_out": "Check-out",
+        "booking": "Booking Details", "transport": "Transport", "guest_contact": "Guest Contact",
+        "coordinator": "Wedding Coordinator", "questions": "For questions and wedding-day assistance",
+        "phone": "Phone", "messenger": "WhatsApp / Messenger", "email": "Email",
+    },
+    "de": {
+        "accommodation": "Unterkunft für Gäste", "hotel": "Hotel", "check_in": "Check-in", "check_out": "Check-out",
+        "booking": "Buchungsdetails", "transport": "Transfer", "guest_contact": "Kontakt für Gäste",
+        "coordinator": "Hochzeitskoordination", "questions": "Für Fragen und Unterstützung rund um den Hochzeitstag",
+        "phone": "Telefon", "messenger": "WhatsApp / Messenger", "email": "E-Mail",
+    },
+    "fr": {
+        "accommodation": "Hébergement des invités", "hotel": "Hôtel", "check_in": "Arrivée", "check_out": "Départ",
+        "booking": "Détails de réservation", "transport": "Transport", "guest_contact": "Contact invités",
+        "coordinator": "Coordinateur de mariage", "questions": "Pour toute question et assistance le jour du mariage",
+        "phone": "Téléphone", "messenger": "WhatsApp / Messenger", "email": "E-mail",
+    },
+    "it": {
+        "accommodation": "Alloggio per gli ospiti", "hotel": "Hotel", "check_in": "Check-in", "check_out": "Check-out",
+        "booking": "Dettagli prenotazione", "transport": "Trasporto", "guest_contact": "Contatto ospiti",
+        "coordinator": "Coordinatore del matrimonio", "questions": "Per domande e assistenza durante il matrimonio",
+        "phone": "Telefono", "messenger": "WhatsApp / Messenger", "email": "E-mail",
+    },
+    "es": {
+        "accommodation": "Alojamiento de invitados", "hotel": "Hotel", "check_in": "Entrada", "check_out": "Salida",
+        "booking": "Datos de reserva", "transport": "Transporte", "guest_contact": "Contacto para invitados",
+        "coordinator": "Coordinador de boda", "questions": "Para preguntas y asistencia durante la boda",
+        "phone": "Teléfono", "messenger": "WhatsApp / Messenger", "email": "Correo electrónico",
+    },
+    "pt": {
+        "accommodation": "Alojamento dos convidados", "hotel": "Hotel", "check_in": "Check-in", "check_out": "Check-out",
+        "booking": "Detalhes da reserva", "transport": "Transporte", "guest_contact": "Contacto dos convidados",
+        "coordinator": "Coordenador do casamento", "questions": "Para dúvidas e apoio no dia do casamento",
+        "phone": "Telefone", "messenger": "WhatsApp / Messenger", "email": "E-mail",
+    },
+    "nl": {
+        "accommodation": "Accommodatie voor gasten", "hotel": "Hotel", "check_in": "Inchecken", "check_out": "Uitchecken",
+        "booking": "Boekingsgegevens", "transport": "Vervoer", "guest_contact": "Contact voor gasten",
+        "coordinator": "Bruiloftscoördinator", "questions": "Voor vragen en hulp op de trouwdag",
+        "phone": "Telefoon", "messenger": "WhatsApp / Messenger", "email": "E-mail",
+    },
+    "pl": {
+        "accommodation": "Nocleg dla gości", "hotel": "Hotel", "check_in": "Zameldowanie", "check_out": "Wymeldowanie",
+        "booking": "Szczegóły rezerwacji", "transport": "Transport", "guest_contact": "Kontakt dla gości",
+        "coordinator": "Koordynator wesela", "questions": "W sprawach organizacyjnych i pomocy w dniu ślubu",
+        "phone": "Telefon", "messenger": "WhatsApp / Messenger", "email": "E-mail",
+    },
+    "el": {
+        "accommodation": "Διαμονή επισκεπτών", "hotel": "Ξενοδοχείο", "check_in": "Άφιξη", "check_out": "Αναχώρηση",
+        "booking": "Στοιχεία κράτησης", "transport": "Μεταφορά", "guest_contact": "Επικοινωνία επισκεπτών",
+        "coordinator": "Συντονιστής γάμου", "questions": "Για ερωτήσεις και βοήθεια την ημέρα του γάμου",
+        "phone": "Τηλέφωνο", "messenger": "WhatsApp / Messenger", "email": "E-mail",
+    },
+    "ru": {
+        "accommodation": "Размещение гостей", "hotel": "Отель", "check_in": "Заезд", "check_out": "Выезд",
+        "booking": "Информация о бронировании", "transport": "Трансфер", "guest_contact": "Контакт для гостей",
+        "coordinator": "Координатор свадьбы", "questions": "По организационным вопросам и помощи в день свадьбы",
+        "phone": "Телефон", "messenger": "WhatsApp / мессенджер", "email": "Электронная почта",
+    },
+    "uk": {
+        "accommodation": "Розміщення гостей", "hotel": "Готель", "check_in": "Заїзд", "check_out": "Виїзд",
+        "booking": "Інформація про бронювання", "transport": "Трансфер", "guest_contact": "Контакт для гостей",
+        "coordinator": "Координатор весілля", "questions": "З організаційних питань та допомоги в день весілля",
+        "phone": "Телефон", "messenger": "WhatsApp / месенджер", "email": "Електронна пошта",
+    },
+    "tr": {
+        "accommodation": "Misafir konaklaması", "hotel": "Otel", "check_in": "Giriş", "check_out": "Çıkış",
+        "booking": "Rezervasyon bilgileri", "transport": "Ulaşım", "guest_contact": "Misafir iletişim",
+        "coordinator": "Düğün koordinatörü", "questions": "Sorular ve düğün günü desteği için",
+        "phone": "Telefon", "messenger": "WhatsApp / Messenger", "email": "E-posta",
+    },
+    "he": {
+        "accommodation": "לינה לאורחים", "hotel": "מלון", "check_in": "כניסה", "check_out": "יציאה",
+        "booking": "פרטי הזמנה", "transport": "הסעה", "guest_contact": "איש קשר לאורחים",
+        "coordinator": "מתאם החתונה", "questions": "לשאלות ולעזרה ביום החתונה",
+        "phone": "טלפון", "messenger": "WhatsApp / Messenger", "email": "דוא״ל",
+    },
+}
