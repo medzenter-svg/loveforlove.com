@@ -4,7 +4,8 @@ import secrets
 from flask import Flask, abort, redirect, render_template, request, send_from_directory, session, url_for
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
-from products import PRODUCTS, PRODUCTS_BY_SLUG, price_display
+from i18n import LANGUAGES, translate
+from products import COLLECTIONS, PRODUCTS, price_display
 
 try:
     import stripe
@@ -20,7 +21,7 @@ app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=os.environ.get("FLASK_ENV") == "production",
+    SESSION_COOKIE_SECURE=os.environ.get("SITE_URL", "").startswith("https://"),
 )
 
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
@@ -41,7 +42,7 @@ def product_file_exists(product, filename):
 
 
 def verified_catalog():
-    return [p for p in PRODUCTS if p["files"] and all(product_file_exists(p, f) for f in p["files"])]
+    return [p for p in PRODUCTS if p.get("sale_ready") is True and p["files"] and all(product_file_exists(p, f) for f in p["files"])]
 
 
 def catalog_by_slug():
@@ -58,10 +59,15 @@ def security_headers(response):
 
 @app.context_processor
 def inject_globals():
+    language = session.get("language", "en")
     return {
         "price_display": price_display,
         "live_payments": LIVE_PAYMENTS,
         "cart_count": len(session.get("cart", [])),
+        "language": language,
+        "languages": LANGUAGES,
+        "page_direction": "rtl" if language == "he" else "ltr",
+        "t": lambda key: translate(language, key),
     }
 
 
@@ -75,7 +81,18 @@ def home():
     featured = [p for p in products if p["category"] == "Collections"][:8]
     stationery = [p for p in products if p["category"] == "Stationery"][:8]
     curated = [p for p in products if p["category"] not in ("Collections", "Stationery")][:8]
-    return render_template("home.html", featured=featured, stationery=stationery, curated=curated)
+    return render_template("home.html", featured=featured, stationery=stationery, curated=curated, collections=COLLECTIONS)
+
+
+@app.post("/language/<code>")
+def set_language(code):
+    if code not in LANGUAGES:
+        abort(404)
+    session["language"] = code
+    target = request.form.get("next", "/")
+    if not target.startswith("/") or target.startswith("//"):
+        target = "/"
+    return redirect(target)
 
 
 @app.route("/shop")

@@ -1,9 +1,3 @@
 {% extends "base.html" %}
-{% block title %}Order not completed — loveforlove.com{% endblock %}
-{% block content %}
-<div class="status-page">
-  <h1>{% if reason == 'payment_incomplete' %}Payment not confirmed yet{% else %}Checkout cancelled{% endif %}</h1>
-  <p>No charge was made. You can return to your cart and try again whenever you're ready.</p>
-  <a href="{{ url_for('shop') }}" class="btn btn-gold">BACK TO SHOP</a>
-</div>
-{% endblock %}
+{% block title %}Love for Love{% endblock %}
+{% block content %}<div class="status-page"><h1>{{ t('payment_pending') if reason == 'payment_incomplete' else t('cancelled') }}</h1><p>{{ t('no_charge') }}</p><a href="{{ url_for('shop') }}" class="btn btn-gold">{{ t('back') }}</a></div>{% endblock %}

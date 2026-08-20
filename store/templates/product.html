@@ -1,21 +1,3 @@
 {% extends "base.html" %}
 {% block title %}{{ product.name }} — loveforlove.com{% endblock %}
-{% block content %}
-<div class="product-detail">
-  <div class="pd-img">
-    <img src="{{ url_for('static', filename='products/' + product.cover) }}" alt="{{ product.name }}">
-  </div>
-  <div class="pd-info">
-    <div class="pd-cat">{{ product.category.upper() }}</div>
-    <h1>{{ product.name }}</h1>
-    <div class="pd-price">{{ price_display(product.price) }}</div>
-    <p class="pd-desc">{{ product.description }}</p>
-    {% if product.files|length > 1 %}
-    <p class="pd-desc" style="margin-top:-20px;font-size:13px;">Includes {{ product.files|length }} matching print-ready files.</p>
-    {% endif %}
-    <form action="{{ url_for('cart_add', slug=product.slug) }}" method="post">
-      <button class="btn btn-gold" type="submit">ADD TO CART</button>
-    </form>
-  </div>
-</div>
-{% endblock %}
+{% block content %}<div class="product-detail"><div class="pd-img"><img src="{{ url_for('static', filename='products/' + product.cover) }}" alt="{{ product.name }}"></div><div class="pd-info"><div class="pd-cat">{{ product.category.upper() }}</div><h1>{{ product.name }}</h1><div class="pd-price">{{ price_display(product.price) }}</div><p class="pd-desc">{{ product.description }}</p><form action="{{ url_for('cart_add', slug=product.slug) }}" method="post"><button class="btn btn-gold" type="submit">{{ t('add') }}</button></form></div></div>{% endblock %}

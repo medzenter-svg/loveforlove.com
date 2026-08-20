@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ language }}" dir="{{ page_direction }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Premium print-ready wedding stationery and romantic digital products by Love for Love.">
+  <meta name="description" content="{{ t('meta') }}">
   <title>{% block title %}Love for Love — Premium Wedding Stationery{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -13,44 +13,42 @@
   <div class="wrap">
     <header class="nav">
       <div class="nav-left">
-        <a href="{{ url_for('shop') }}">SHOP</a>
-        <a href="{{ url_for('shop', category='Stationery') }}">STATIONERY</a>
-        <a href="{{ url_for('home') }}#moments">WEDDING MOMENTS</a>
+        <a href="{{ url_for('shop') }}">{{ t('shop') }}</a>
+        <a href="{{ url_for('home') }}#collections">{{ t('collections') }}</a>
       </div>
       <a class="logo" href="{{ url_for('home') }}">LOVE FOR LOVE</a>
       <div class="nav-right">
-        <span class="lang">EUR</span>
+        <form class="language-form" action="{{ url_for('set_language', code=language) }}" method="post" data-language-form><input type="hidden" name="next" value="{{ request.full_path if request.query_string else request.path }}"><label class="sr-only" for="language-select">Language</label><select id="language-select" aria-label="Language">{% for code, label in languages.items() %}<option value="{{ code }}" {{ 'selected' if code == language }}>{{ label }}</option>{% endfor %}</select></form>
+        <span class="currency">EUR</span>
         <a class="cart-wrap" href="{{ url_for('cart_view') }}" aria-label="Shopping cart">
-          {% include "icons/bag.svg" %}
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l1 13H5L6 8Zm3 0V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
           <span class="cart-badge">{{ cart_count }}</span>
         </a>
       </div>
     </header>
 
     {% if not live_payments %}
-    <div class="dev-banner">Preview mode — real payments are disabled until Stripe is connected and tested.</div>
+    <div class="dev-banner">{{ t('preview') }}</div>
     {% endif %}
 
     <main>{% block content %}{% endblock %}</main>
 
     <footer class="footer">
       <div class="feat">
-        <div class="ic">{% include "icons/download.svg" %}</div>
-        <div class="t">Protected Download</div>
-        <div class="d">Files become available only after a confirmed payment.</div>
+        <div class="ic">↓</div>
+        <div class="t">{{ t('protected') }}</div><div class="d">{{ t('protected_text') }}</div>
       </div>
       <div class="feat">
-        <div class="ic">{% include "icons/envelope.svg" %}</div>
-        <div class="t">Print-ready PDFs</div>
-        <div class="d">Every listing states exactly which finished files are included.</div>
+        <div class="ic">✓</div>
+        <div class="t">{{ t('verified') }}</div><div class="d">{{ t('verified_text') }}</div>
       </div>
       <div class="feat">
-        <div class="ic">{% include "icons/gem.svg" %}</div>
-        <div class="t">Premium Design</div>
-        <div class="d">Thoughtful stationery for elegant, unforgettable celebrations.</div>
+        <div class="ic">◇</div>
+        <div class="t">{{ t('premium') }}</div><div class="d">{{ t('premium_text') }}</div>
       </div>
     </footer>
     <div class="footer-bottom">Designed by loveforlove.com</div>
   </div>
+  <script>document.querySelectorAll('[data-language-form] select').forEach(function(select){select.addEventListener('change',function(){var form=select.form;form.action='/language/'+encodeURIComponent(select.value);form.submit();});});</script>
 </body>
 </html>

@@ -2,12 +2,12 @@
 {% block title %}Thank you — loveforlove.com{% endblock %}
 {% block content %}
 <div class="status-page">
-  <h1>Thank you for your order!</h1>
+  <h1>{{ t('thank_you') }}</h1>
   <p>
     {% if dev_mode %}
-      Preview mode: no payment was taken. The links below are available only for this short test session.
+      {{ t('preview_download') }}
     {% else %}
-      Your payment is confirmed. Your protected download links are ready below and remain valid for a limited time.
+      {{ t('paid_download') }}
     {% endif %}
   </p>
   <div class="download-list">
@@ -15,11 +15,11 @@
       {% for f in p.files %}
       <div class="dl-item">
         <span>{{ p.name }}{% if p.files|length > 1 %} — {{ f }}{% endif %}</span>
-        <a class="btn" href="{{ url_for('download', token=download_token, slug=p.slug, filename=f) }}">DOWNLOAD</a>
+        <a class="btn" href="{{ url_for('download', token=download_token, slug=p.slug, filename=f) }}">{{ t('download') }}</a>
       </div>
       {% endfor %}
     {% endfor %}
   </div>
-  <a href="{{ url_for('shop') }}" class="btn btn-outline">CONTINUE SHOPPING</a>
+  <a href="{{ url_for('shop') }}" class="btn btn-outline">{{ t('continue') }}</a>
 </div>
 {% endblock %}

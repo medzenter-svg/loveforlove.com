@@ -1,68 +1,31 @@
 {% extends "base.html" %}
-{% block title %}Love For Love — Luxury Wedding Templates{% endblock %}
+{% block title %}Love for Love — {{ t('hero_kicker') }}{% endblock %}
 {% block content %}
-<section class="hero">
-  <div class="hero-text">
-    <div class="hero-kicker">TIMELESS ELEGANCE. MADE FOR YOUR STORY.</div>
-    <div class="hero-headline">CELEBRATE<br>YOUR FOREVER</div>
-    <div class="hero-sub">Luxury wedding templates and details to celebrate the most beautiful chapter of your life.</div>
-    <div class="hero-btns">
-      <a class="btn-primary" href="{{ url_for('shop') }}">EXPLORE THE COLLECTION</a>
-      <a class="btn-secondary" href="#moments">SHOP BY MOMENT</a>
+<section class="hero-editorial">
+  <div class="hero-copy">
+    <p class="eyebrow">{{ t('hero_kicker') }}</p>
+    <h1>{{ t('hero_title') }}</h1>
+    <p class="hero-description">{{ t('hero_text') }}</p>
+    <div class="hero-actions">
+      <a class="button button-wine" href="#collections">{{ t('explore') }}</a>
+      <a class="button button-line" href="{{ url_for('shop') }}">{{ t('view_shop') }}</a>
     </div>
   </div>
-  <div class="hero-img" style="background-image:url('{{ url_for('static', filename='img/hero.jpg') }}');"></div>
+  <div class="hero-art" aria-hidden="true">
+    <div class="hero-monogram">L<span>&</span>L</div>
+    <div class="ring ring-one"></div><div class="ring ring-two"></div>
+    <p>LOVE FOR LOVE · 2026</p>
+  </div>
 </section>
-
-<div class="moments-title" id="moments">SHOP BY MOMENT</div>
-<div class="moments">
-  {% for icon_name, label in [("ring","Engagement"),("glasses","Bridal Shower"),("arch","Ceremony"),("fork","Reception"),("plane","Honeymoon"),("heart","Anniversary"),("gift","Gifts"),("envelope","Thank You")] %}
-  <a class="moment" href="{{ url_for('shop') }}">
-    <div class="ic">{% include "icons/" + icon_name + ".svg" %}</div>
-    <div class="lbl">{{ label }}</div>
-  </a>
-  {% endfor %}
-</div>
-
-<div class="grids">
-  <div class="grid-col">
-    <div class="grid-title">Featured Destinations</div>
-    <div class="grid-2x4">
-      {% for p in featured %}
-      <div>
-        <a class="s-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
-          <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}">
-        </a>
-        <div class="tile-cap">{{ p.name }}<br><span class="tile-price">{{ price_display(p.price) }}</span></div>
-      </div>
-      {% endfor %}
-    </div>
+<section class="collection-section" id="collections">
+  <div class="section-intro">
+    <p class="eyebrow">LOVE FOR LOVE</p><h2>{{ t('signature') }}</h2><p>{{ t('signature_text') }}</p>
   </div>
-  <div class="grid-col">
-    <div class="grid-title">Shop Stationery</div>
-    <div class="grid-2x4">
-      {% for p in stationery %}
-      <div>
-        <a class="s-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
-          <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}">
-        </a>
-        <div class="tile-cap">{{ p.name }}<br><span class="tile-price">{{ price_display(p.price) }}</span></div>
-      </div>
-      {% endfor %}
-    </div>
+  <div class="collection-grid">
+    {% for c in collections %}
+    <article class="collection-card tone-{{ c.tone }}"><div class="collection-number">0{{ loop.index }}</div><div><h3>{{ c.name }}</h3><p>{{ c.mood }}</p><span>{{ t('draft_label') }}</span></div></article>
+    {% endfor %}
   </div>
-  <div class="grid-col">
-    <div class="grid-title">Curated Collections</div>
-    <div class="grid-2x4">
-      {% for p in curated %}
-      <div>
-        <a class="s-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
-          <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}">
-        </a>
-        <div class="tile-cap">{{ p.name }}<br><span class="tile-price">{{ price_display(p.price) }}</span></div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</div>
+</section>
+<section class="quality-note"><div class="quality-mark">LFL</div><div><h2>{{ t('coming') }}</h2><p>{{ t('coming_text') }}</p></div></section>
 {% endblock %}
