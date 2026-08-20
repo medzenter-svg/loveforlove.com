@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}loveforlove.com — Luxury Wedding Templates{% endblock %}</title>
+  <title>{% block title %}loveforlove.com — Luxury Wedding & Celebration Templates{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -15,6 +15,7 @@
     <header class="nav">
       <div class="nav-left">
         <a href="{{ url_for('shop') }}">SHOP</a>
+        <a href="{{ url_for('home') }}#occasions">OCCASIONS</a>
         <a href="{{ url_for('shop') }}?category=Featured+Destinations">COLLECTIONS</a>
         <a href="{{ url_for('home') }}#moments">WEDDING MOMENTS</a>
         <a href="{{ url_for('shop') }}?category=Designers">DESIGNERS</a>
@@ -55,17 +56,17 @@
       <div class="feat">
         <div class="ic">{% include "icons/edit.svg" %}</div>
         <div class="t">Editable Collections</div>
-        <div class="d">Selected suites include a coordinated online editor for names, venue, menu and wedding details</div>
+        <div class="d">Selected suites include coordinated editing for names, venue, menu, guest details and event wording</div>
       </div>
       <div class="feat">
         <div class="ic">{% include "icons/globe.svg" %}</div>
-        <div class="t">Made for Modern Weddings</div>
-        <div class="d">A growing collection designed for celebrations, destinations and wedding-day details</div>
+        <div class="t">Meaningful Celebrations</div>
+        <div class="d">A growing premium collection for weddings, anniversaries, milestone birthdays and selected family events</div>
       </div>
       <div class="feat">
         <div class="ic">{% include "icons/gem.svg" %}</div>
         <div class="t">Premium Design</div>
-        <div class="d">Created with love for unforgettable moments</div>
+        <div class="d">Created as coherent visual systems for unforgettable moments</div>
       </div>
     </div>
     <div class="bottom-flourish">
