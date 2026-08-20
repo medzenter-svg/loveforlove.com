@@ -53,6 +53,14 @@ class PrintPackageTests(unittest.TestCase):
         self.assertFalse(product["professional_print_package_ready"])
         self.assertFalse(is_sellable_product(product))
 
+    def test_legacy_wedding_print_products_are_also_gated(self):
+        for slug in ["save-the-date", "invitation-suite", "monogram-pack", "welcome-sign-set"]:
+            with self.subTest(slug=slug):
+                self.assertFalse(is_sellable_product(PRODUCTS_BY_SLUG[slug]))
+
+    def test_non_wedding_gift_is_not_forced_through_wedding_prepress_gate(self):
+        self.assertTrue(is_sellable_product(PRODUCTS_BY_SLUG["love-coupon-book"]))
+
 
 if __name__ == "__main__":
     unittest.main()
