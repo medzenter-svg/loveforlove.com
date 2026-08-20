@@ -15,13 +15,13 @@
       {% if p.editable %}
       <div class="dl-item">
         <span>{{ p.name }} — Online Suite Editor</span>
-        <a class="btn btn-gold" href="{{ url_for('customize', order_id=order_id, slug=p.slug) }}">CUSTOMIZE</a>
+        <a class="btn btn-gold" href="{{ url_for('customize', access_token=access_token, slug=p.slug) }}">CUSTOMIZE</a>
       </div>
       {% endif %}
       {% for f in p.files %}
       <div class="dl-item">
         <span>{{ p.name }}{% if p.files|length > 1 %} — {{ f }}{% endif %}</span>
-        <a class="btn" href="{{ url_for('download', order_id=order_id, slug=p.slug, filename=f) }}">DOWNLOAD</a>
+        <a class="btn" href="{{ url_for('download', access_token=access_token, slug=p.slug, filename=f) }}">DOWNLOAD</a>
       </div>
       {% endfor %}
     {% endfor %}
