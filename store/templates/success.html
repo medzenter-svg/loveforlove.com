@@ -10,6 +10,12 @@
       Your purchased files and any included customization tools are ready below.
     {% endif %}
   </p>
+
+  <div class="order-access-meta" style="margin:18px auto 28px;max-width:620px;">
+    <div><strong>Order:</strong> {{ order_id }}</div>
+    <div style="margin-top:6px;">Editor and download access are protected by this order and its purchase email.</div>
+  </div>
+
   <div class="download-list">
     {% for p in items %}
       {% if p.editable %}
