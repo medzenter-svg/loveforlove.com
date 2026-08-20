@@ -1,0 +1,79 @@
+.preview-protected {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.preview-protected img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+.preview-watermark {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(18px, 3vw, 34px);
+  font-weight: 500;
+  letter-spacing: .28em;
+  color: rgba(80, 61, 46, .16);
+  text-transform: uppercase;
+  transform: rotate(-24deg) scale(1.05);
+  text-shadow: 0 1px 0 rgba(255,255,255,.38);
+  white-space: nowrap;
+}
+
+.preview-watermark::before,
+.preview-watermark::after {
+  content: 'LOVE FOR LOVE';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: .46;
+}
+
+.preview-watermark::before {
+  top: 18%;
+}
+
+.preview-watermark::after {
+  bottom: 18%;
+}
+
+.preview-watermark-small {
+  font-size: clamp(10px, 1.4vw, 18px);
+  letter-spacing: .18em;
+  color: rgba(80, 61, 46, .14);
+}
+
+.section-intro {
+  max-width: 620px;
+  margin: 14px auto 0;
+  color: var(--sub);
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.home-new-arrivals {
+  margin-top: 46px;
+  margin-bottom: 42px;
+}
+
+@media (max-width: 700px) {
+  .preview-watermark {
+    font-size: 18px;
+    letter-spacing: .18em;
+  }
+
+  .preview-watermark-small {
+    font-size: 10px;
+  }
+}
