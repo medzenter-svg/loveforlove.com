@@ -2,7 +2,7 @@
 # price is in USD cents (Stripe wants the smallest currency unit)
 
 OCCASION_ROADMAP = [
-    {"name": "Weddings", "status": "live", "note": "Complete coordinated wedding suites and wedding-day stationery."},
+    {"name": "Weddings", "status": "building", "note": "Complete coordinated wedding suites and wedding-day stationery are being rebuilt to professional worldwide print standards."},
     {"name": "Wedding Anniversaries & Vow Renewals", "status": "building", "note": "Milestone anniversaries, renewal ceremonies and celebration dinners."},
     {"name": "Milestone Birthdays", "status": "building", "note": "Premium adult celebrations including 18, 21, 30, 40, 50, 60, 70 and 80+."},
     {"name": "Engagement & Bridal Events", "status": "building", "note": "Engagement parties, bridal showers, rehearsal dinners and related events."},
@@ -66,7 +66,7 @@ PRODUCTS = [
         "category": "Stationery",
         "occasion": "Weddings",
         "price": 1800,
-        "description": "A classic wedding invitation suite with a coordinating RSVP card, ready to print at home or through any printer.",
+        "description": "A classic wedding invitation suite with a coordinating RSVP card.",
         "cover": "invitation-suite/cover.png",
         "files": ["Invitation_Suite_loveforlove.pdf"],
     },
@@ -111,7 +111,7 @@ PRODUCTS = [
         "category": "Ceremony",
         "occasion": "Weddings",
         "price": 1600,
-        "description": "Large-format welcome and guest book signs, in four coordinating styles, ready to print at 18×24in.",
+        "description": "Large-format welcome and guest book signs in coordinating styles.",
         "cover": "welcome-sign-set/cover.png",
         "files": ["Welcome_GuestBook_Sign_Set_loveforlove.pdf"],
     },
@@ -175,6 +175,9 @@ PRODUCTS = [
 
 def is_sellable_product(product):
     if not product.get("published", True):
+        return False
+    # Every wedding print product is now held to the same professional prepress gate.
+    if product.get("occasion") == "Weddings" and not product.get("professional_print_package_ready", False):
         return False
     if product.get("editable") and not product.get("professional_print_package_ready", False):
         return False
