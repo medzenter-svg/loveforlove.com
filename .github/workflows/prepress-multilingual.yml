@@ -19,7 +19,7 @@ jobs:
       - name: Build reproducible prepress image
         run: docker build -f store/prepress/Dockerfile -t loveforlove-prepress .
 
-      - name: Export and preflight 13 languages x 15 pieces
+      - name: Export and preflight 11 languages x 15 pieces
         run: |
           rm -rf .prepress-multilingual-smoke
           mkdir -p .prepress-multilingual-smoke
@@ -33,9 +33,9 @@ jobs:
         run: |
           PACKAGE=.prepress-multilingual-smoke/wedding-day-set/multilingual
           REVIEW=.prepress-multilingual-smoke/wedding-day-set/multilingual-review
-          test "$(find "$PACKAGE" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 195
+          test "$(find "$PACKAGE" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 165
           test -f "$PACKAGE/MULTILINGUAL_SMOKE_MANIFEST.json"
-          test "$(find "$REVIEW" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 39
+          test "$(find "$REVIEW" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 33
           test -f "$REVIEW/MULTILINGUAL_SMOKE_MANIFEST.json"
 
       - name: Upload multilingual visual-review set
