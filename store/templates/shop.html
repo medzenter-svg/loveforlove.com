@@ -3,8 +3,9 @@
 {% block content %}
 <section class="section">
   <div class="section-head">
-    <div class="kicker">SHOP</div>
+    <div class="kicker">THE LOVE FOR LOVE COLLECTION</div>
     <h2>All designs</h2>
+    <p class="section-intro">A growing collection of wedding stationery, coordinated suites and romantic details. New designs are added regularly.</p>
   </div>
   <div class="category-filter">
     <a href="{{ url_for('shop') }}" class="{{ 'active' if not active_category }}">ALL</a>
@@ -15,7 +16,10 @@
   <div class="grid">
     {% for p in products %}
     <a class="p-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
-      <div class="thumb"><img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}"></div>
+      <div class="thumb preview-protected">
+        <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}" draggable="false">
+        <div class="preview-watermark preview-watermark-small" aria-hidden="true">LOVE FOR LOVE</div>
+      </div>
       <div class="name">{{ p.name }}</div>
       <div class="price">{{ price_display(p.price) }}</div>
     </a>
