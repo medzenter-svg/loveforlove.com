@@ -65,13 +65,15 @@ def record_paid_order(order_id, stripe_session_id, customer_email, slugs):
             db.execute(
                 text(
                     "UPDATE paid_orders SET stripe_session_id = :stripe_session_id, "
-                    "customer_email = :customer_email, slugs_json = :slugs_json, updated_at = :updated_at "
+                    "customer_email = :customer_email, slugs_json = :slugs_json, "
+                    "updated_at = CASE WHEN access_email_status = :sending THEN updated_at ELSE :updated_at END "
                     "WHERE order_id = :order_id"
                 ),
                 {
                     "stripe_session_id": stripe_session_id,
                     "customer_email": customer_email,
                     "slugs_json": slugs_json,
+                    "sending": EMAIL_SENDING,
                     "updated_at": now,
                     "order_id": order_id,
                 },
