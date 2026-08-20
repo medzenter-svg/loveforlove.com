@@ -1,0 +1,47 @@
+name: Prepress Multilingual
+
+on:
+  pull_request:
+    paths:
+      - 'store/prepress/**'
+      - 'store/suite_*locales.py'
+      - 'store/print_*.py'
+      - '.github/workflows/prepress-multilingual.yml'
+
+jobs:
+  multilingual-wedding-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build reproducible prepress image
+        run: docker build -f store/prepress/Dockerfile -t loveforlove-prepress .
+
+      - name: Export and preflight 13 languages x 15 pieces
+        run: |
+          rm -rf .prepress-multilingual-smoke
+          mkdir -p .prepress-multilingual-smoke
+          docker run --rm \
+            -e LF_MULTILINGUAL_SMOKE_ROOT=/out \
+            -v "$PWD/.prepress-multilingual-smoke:/out" \
+            loveforlove-prepress \
+            bash prepress/multilingual_smoke.sh
+
+      - name: Verify multilingual count and manifest
+        run: |
+          PACKAGE=.prepress-multilingual-smoke/wedding-day-set/multilingual
+          REVIEW=.prepress-multilingual-smoke/wedding-day-set/multilingual-review
+          test "$(find "$PACKAGE" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 195
+          test -f "$PACKAGE/MULTILINGUAL_SMOKE_MANIFEST.json"
+          test "$(find "$REVIEW" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 39
+          test -f "$REVIEW/MULTILINGUAL_SMOKE_MANIFEST.json"
+
+      - name: Upload multilingual visual-review set
+        uses: actions/upload-artifact@v4
+        with:
+          name: wedding-day-set-multilingual-review
+          path: .prepress-multilingual-smoke/wedding-day-set/multilingual-review
+          if-no-files-found: error
+          retention-days: 3
