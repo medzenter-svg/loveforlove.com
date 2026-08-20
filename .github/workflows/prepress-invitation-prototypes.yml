@@ -1,0 +1,45 @@
+name: Prepress Invitation Prototypes
+
+on:
+  pull_request:
+    paths:
+      - 'store/prepress/**'
+      - 'store/print_*.py'
+      - '.github/workflows/prepress-invitation-prototypes.yml'
+
+jobs:
+  invitation-prototypes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build reproducible prepress image
+        run: docker build -f store/prepress/Dockerfile -t loveforlove-prepress .
+
+      - name: Export three premium Invitation prototypes
+        run: |
+          rm -rf .prepress-invitation-prototypes
+          mkdir -p .prepress-invitation-prototypes
+          docker run --rm \
+            -e LF_PROTOTYPE_SMOKE_ROOT=/out \
+            -v "$PWD/.prepress-invitation-prototypes:/out" \
+            loveforlove-prepress \
+            bash prepress/invitation_prototypes_smoke.sh
+
+      - name: Verify prototype counts
+        run: |
+          test "$(find .prepress-invitation-prototypes -type f -name '*.pdf' | wc -l)" -eq 12
+          for theme in amalfi-luce monaco-regatta como-sereno; do
+            test "$(find ".prepress-invitation-prototypes/$theme/export" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 4
+            test -f ".prepress-invitation-prototypes/$theme/export/${theme}__MANIFEST.json"
+          done
+
+      - name: Upload premium Invitation prototypes
+        uses: actions/upload-artifact@v4
+        with:
+          name: wedding-invitation-premium-prototypes
+          path: .prepress-invitation-prototypes
+          if-no-files-found: error
+          retention-days: 5
