@@ -3,6 +3,7 @@ import uuid
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort
 
 from products import PRODUCTS, PRODUCTS_BY_SLUG, price_display
+from suite_locales import SUITE_LOCALES, LANGUAGE_NAMES, RTL_LANGUAGES
 
 try:
     import stripe
@@ -23,8 +24,9 @@ if STRIPE_AVAILABLE and STRIPE_SECRET_KEY:
 else:
     LIVE_PAYMENTS = False
 
-# In-memory order store, keyed by our own order id (fine for a small shop;
-# swap for a real database if order volume grows).
+# In-memory order store, keyed by our own order id.
+# This is intentionally still a preview-stage implementation. Before production,
+# move orders to persistent storage so paid links survive application restarts.
 ORDERS = {}
 
 DOWNLOADS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "downloads")
@@ -45,7 +47,6 @@ def home():
     stationery = [p for p in PRODUCTS if p["category"] == "Stationery"][:8]
     curated = [p for p in PRODUCTS if p["category"] not in ("Featured Destinations", "Stationery")][:8]
     # The newest catalog entries automatically appear on the homepage.
-    # This keeps the storefront fresh as we add new designs every day.
     new_arrivals = list(reversed(PRODUCTS[-8:]))
     return render_template(
         "home.html",
@@ -72,6 +73,40 @@ def product_detail(slug):
     if not product:
         abort(404)
     return render_template("product.html", product=product)
+
+
+@app.route("/customize/<order_id>/<slug>")
+def customize(order_id, slug):
+    order = ORDERS.get(order_id)
+    if not order or not order.get("paid") or slug not in order.get("slugs", []):
+        abort(403)
+
+    product = PRODUCTS_BY_SLUG.get(slug)
+    if not product or not product.get("editable"):
+        abort(404)
+
+    allowed_codes = product.get("language_presets") or ["en"]
+    locales = {code: SUITE_LOCALES[code] for code in allowed_codes if code in SUITE_LOCALES}
+    language_names = {code: LANGUAGE_NAMES.get(code, code.upper()) for code in locales}
+    rtl_languages = [code for code in RTL_LANGUAGES if code in locales]
+    theme = product.get("suite_theme") or {
+        "bg": "#F7F3ED",
+        "paper": "#FFFDF9",
+        "ink": "#181716",
+        "accent": "#6F252A",
+        "gold": "#B79A63",
+        "line": "#DED4C7",
+    }
+
+    return render_template(
+        "customize.html",
+        order_id=order_id,
+        product=product,
+        locales=locales,
+        language_names=language_names,
+        rtl_languages=rtl_languages,
+        theme=theme,
+    )
 
 
 @app.route("/cart/add/<slug>", methods=["POST"])
@@ -134,9 +169,8 @@ def checkout():
         session["cart"] = []
         return redirect(checkout_session.url, code=303)
     else:
-        # No Stripe key configured yet — dev/preview mode only.
-        # Marks the order paid immediately so the download flow can be tested
-        # end to end before real payments are wired in.
+        # Preview mode: simulate a paid order so purchase, editor and download
+        # flows can be tested before real Stripe credentials are configured.
         ORDERS[order_id]["paid"] = True
         session["cart"] = []
         return redirect(url_for("success", order_id=order_id))
