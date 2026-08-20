@@ -16,6 +16,8 @@ PRINT_PIECE_SPECS = {
             "dress_code": {"trim_mm": [105, 148], "standard": "A6"},
             "envelope": {"trim_mm": [114, 162], "standard": "C6"},
             "envelope_liner": {"trim_mm": [114, 162], "standard": "C6 liner template"},
+            "program_day_1": {"trim_mm": [105, 148], "standard": "A6"},
+            "program_day_2": {"trim_mm": [105, 148], "standard": "A6"},
         },
     },
     "north_america": {
@@ -35,6 +37,8 @@ PRINT_PIECE_SPECS = {
             "dress_code": {"trim_in": [5.0, 7.0], "standard": "5 x 7 in"},
             "envelope": {"trim_in": [5.25, 7.25], "standard": "A7 envelope"},
             "envelope_liner": {"trim_in": [5.25, 7.25], "standard": "A7 envelope liner template"},
+            "program_day_1": {"trim_in": [5.0, 7.0], "standard": "5 x 7 in"},
+            "program_day_2": {"trim_in": [5.0, 7.0], "standard": "5 x 7 in"},
         },
     },
 }
