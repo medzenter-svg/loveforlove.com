@@ -1,5 +1,8 @@
+import hashlib
+import hmac
 import os
 import uuid
+
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort, jsonify
 from itsdangerous import URLSafeSerializer, BadSignature
 
@@ -35,7 +38,7 @@ if STRIPE_AVAILABLE and STRIPE_SECRET_KEY:
 else:
     LIVE_PAYMENTS = False
 
-ORDER_SIGNER = URLSafeSerializer(app.secret_key, salt="loveforlove-paid-access-v1")
+ORDER_SIGNER = URLSafeSerializer(app.secret_key, salt="loveforlove-paid-access-v2")
 PRODUCTS_DIR = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "products"))
 
 
@@ -48,9 +51,26 @@ def get_cart():
     return session.setdefault("cart", [])
 
 
-def make_access_token(order_id, slugs, stripe_session_id=None, dev_paid=False):
+def normalize_email(value):
+    return str(value or "").strip().lower()
+
+
+def valid_customer_email(value):
+    email = normalize_email(value)
+    return bool(email and "@" in email and "." in email.rsplit("@", 1)[-1])
+
+
+def email_digest(value):
+    return hashlib.sha256(normalize_email(value).encode("utf-8")).hexdigest()
+
+
+def make_access_token(order_id, slugs, customer_email, stripe_session_id=None, dev_paid=False):
+    customer_email = normalize_email(customer_email)
+    if not order_id or not customer_email:
+        raise ValueError("order_id and customer_email are required for paid access")
     return ORDER_SIGNER.dumps({
-        "order_id": order_id,
+        "order_id": str(order_id),
+        "customer_email": customer_email,
         "slugs": list(slugs),
         "stripe_session_id": stripe_session_id,
         "dev_paid": bool(dev_paid),
@@ -64,11 +84,26 @@ def read_access_token(access_token):
         abort(403)
     if not isinstance(payload, dict) or not isinstance(payload.get("slugs"), list):
         abort(403)
+    if not payload.get("order_id") or not valid_customer_email(payload.get("customer_email")):
+        abort(403)
     return payload
+
+
+def stripe_session_email(checkout_session):
+    details = getattr(checkout_session, "customer_details", None)
+    if details:
+        if isinstance(details, dict):
+            email = details.get("email")
+        else:
+            email = getattr(details, "email", None)
+        if email:
+            return normalize_email(email)
+    return normalize_email(getattr(checkout_session, "customer_email", None))
 
 
 def paid_access(access_token, slug=None):
     payload = read_access_token(access_token)
+    token_email = normalize_email(payload.get("customer_email"))
 
     if payload.get("dev_paid"):
         paid = not LIVE_PAYMENTS
@@ -78,7 +113,17 @@ def paid_access(access_token, slug=None):
         if LIVE_PAYMENTS and stripe_session_id:
             try:
                 checkout_session = stripe.checkout.Session.retrieve(stripe_session_id)
-                paid = checkout_session.payment_status == "paid"
+                metadata = checkout_session.metadata or {}
+                stripe_email = stripe_session_email(checkout_session)
+                metadata_order_id = str(metadata.get("order_id") or "")
+                metadata_slugs = [s for s in str(metadata.get("slugs") or "").split(",") if s]
+                paid = (
+                    checkout_session.payment_status == "paid"
+                    and bool(stripe_email)
+                    and hmac.compare_digest(stripe_email, token_email)
+                    and hmac.compare_digest(metadata_order_id, str(payload.get("order_id")))
+                    and set(metadata_slugs) == set(payload.get("slugs", []))
+                )
             except Exception:
                 paid = False
 
@@ -87,6 +132,34 @@ def paid_access(access_token, slug=None):
     if slug and slug not in payload.get("slugs", []):
         abort(403)
     return payload
+
+
+def grant_customer_access(payload):
+    order_id = str(payload["order_id"])
+    verified = dict(session.get("verified_orders") or {})
+    verified[order_id] = email_digest(payload["customer_email"])
+    session["verified_orders"] = verified
+    session.modified = True
+
+
+def customer_access_verified(payload):
+    order_id = str(payload.get("order_id") or "")
+    verified = session.get("verified_orders") or {}
+    stored = str(verified.get(order_id) or "")
+    expected = email_digest(payload.get("customer_email"))
+    return bool(stored) and hmac.compare_digest(stored, expected)
+
+
+def safe_next_path(value):
+    value = str(value or "")
+    if value.startswith("/") and not value.startswith("//"):
+        return value
+    return ""
+
+
+def access_redirect(access_token, next_path=None):
+    next_path = safe_next_path(next_path)
+    return redirect(url_for("order_access", access_token=access_token, next=next_path or None))
 
 
 @app.route("/")
@@ -134,9 +207,38 @@ def product_detail(slug):
     return render_template("product.html", product=product)
 
 
+@app.route("/access/<access_token>", methods=["GET", "POST"])
+def order_access(access_token):
+    payload = paid_access(access_token)
+    next_path = safe_next_path(request.values.get("next"))
+
+    if customer_access_verified(payload):
+        return redirect(next_path or url_for("success", access_token=access_token))
+
+    error = None
+    if request.method == "POST":
+        entered_email = normalize_email(request.form.get("email"))
+        expected_email = normalize_email(payload["customer_email"])
+        if entered_email and hmac.compare_digest(entered_email, expected_email):
+            grant_customer_access(payload)
+            return redirect(next_path or url_for("success", access_token=access_token))
+        error = "The email address does not match this paid order."
+
+    return render_template(
+        "access.html",
+        access_token=access_token,
+        order_id=payload["order_id"],
+        next_path=next_path,
+        error=error,
+    )
+
+
 @app.route("/customize/<access_token>/<slug>")
 def customize(access_token, slug):
     payload = paid_access(access_token, slug)
+    if not customer_access_verified(payload):
+        return access_redirect(access_token, request.path)
+
     product = PRODUCTS_BY_SLUG.get(slug)
     if not product or not product.get("editable"):
         abort(404)
@@ -172,17 +274,20 @@ def customize(access_token, slug):
 
 @app.route("/customize/<access_token>/<slug>/print-job/validate", methods=["POST"])
 def validate_print_job(access_token, slug):
-    paid_access(access_token, slug)
+    payload = paid_access(access_token, slug)
+    if not customer_access_verified(payload):
+        return jsonify({"ok": False, "error": "Purchase email verification is required."}), 403
+
     product = PRODUCTS_BY_SLUG.get(slug)
     if not product or not product.get("editable"):
         abort(404)
 
-    payload = request.get_json(silent=True)
-    if payload is None:
+    job_payload = request.get_json(silent=True)
+    if job_payload is None:
         return jsonify({"ok": False, "error": "Print job must be JSON."}), 400
 
     try:
-        job = normalize_print_job(slug, payload)
+        job = normalize_print_job(slug, job_payload)
     except PrintJobValidationError as exc:
         return jsonify({"ok": False, "error": str(exc)}), 400
 
@@ -262,7 +367,13 @@ def checkout():
         session["cart"] = []
         return redirect(checkout_session.url, code=303)
 
-    access_token = make_access_token(order_id, slugs, dev_paid=True)
+    customer_email = normalize_email(request.form.get("email"))
+    if not valid_customer_email(customer_email):
+        session["checkout_error"] = "Enter a valid email address to test paid access."
+        return redirect(url_for("cart_view"))
+
+    access_token = make_access_token(order_id, slugs, customer_email, dev_paid=True)
+    grant_customer_access(read_access_token(access_token))
     session["cart"] = []
     return redirect(url_for("success", access_token=access_token))
 
@@ -273,6 +384,8 @@ def success():
 
     if access_token:
         payload = paid_access(access_token)
+        if not customer_access_verified(payload):
+            return access_redirect(access_token, request.path + "?access_token=" + access_token)
     else:
         stripe_session_id = request.args.get("stripe_session")
         if not LIVE_PAYMENTS or not stripe_session_id:
@@ -285,13 +398,29 @@ def success():
             return render_template("cancel.html", reason="payment_incomplete")
 
         metadata = checkout_session.metadata or {}
-        slugs = [slug for slug in (metadata.get("slugs") or "").split(",") if slug]
-        order_id = metadata.get("order_id") or uuid.uuid4().hex
-        access_token = make_access_token(order_id, slugs, stripe_session_id=checkout_session.id)
-        payload = {"order_id": order_id, "slugs": slugs}
+        slugs = [slug for slug in str(metadata.get("slugs") or "").split(",") if slug]
+        order_id = str(metadata.get("order_id") or uuid.uuid4().hex)
+        customer_email = stripe_session_email(checkout_session)
+        if not valid_customer_email(customer_email):
+            return render_template("cancel.html", reason="missing_customer_email")
+
+        access_token = make_access_token(
+            order_id,
+            slugs,
+            customer_email,
+            stripe_session_id=checkout_session.id,
+        )
+        payload = paid_access(access_token)
+        grant_customer_access(payload)
 
     items = [PRODUCTS_BY_SLUG[s] for s in payload.get("slugs", []) if s in PRODUCTS_BY_SLUG]
-    return render_template("success.html", items=items, access_token=access_token, dev_mode=not LIVE_PAYMENTS)
+    return render_template(
+        "success.html",
+        items=items,
+        access_token=access_token,
+        order_id=payload["order_id"],
+        dev_mode=not LIVE_PAYMENTS,
+    )
 
 
 @app.route("/cancel")
@@ -301,7 +430,10 @@ def cancel():
 
 @app.route("/download/<access_token>/<slug>/<path:filename>")
 def download(access_token, slug, filename):
-    paid_access(access_token, slug)
+    payload = paid_access(access_token, slug)
+    if not customer_access_verified(payload):
+        return access_redirect(access_token, request.path)
+
     product = PRODUCTS_BY_SLUG.get(slug)
     if not product or filename not in product.get("files", []):
         abort(404)
