@@ -11,6 +11,7 @@
   let hydrating = false;
   let saveTimer = null;
   let latestRevision = null;
+  let conflicted = false;
 
   if (introNote) {
     introNote.textContent = 'Your purchased copy stays editable. Changes are saved to this order, so you can return later, verify the purchase email and continue editing. Recent versions can also be restored.';
@@ -25,6 +26,7 @@
     root.querySelectorAll('input[id], textarea[id], select[id]').forEach(field => {
       state[field.id] = field.type === 'checkbox' ? field.checked : field.value;
     });
+    state.__draft_expected_revision = latestRevision ?? 0;
     return state;
   };
 
@@ -48,8 +50,35 @@
     }
   };
 
+  const reloadButton = document.createElement('button');
+  reloadButton.type = 'button';
+  reloadButton.className = 'btn btn-outline';
+  reloadButton.textContent = 'LOAD LATEST SAVED VERSION';
+  reloadButton.hidden = true;
+
+  const loadRemote = async () => {
+    setStatus('Loading your saved version…');
+    try {
+      const response = await fetch(draftEndpoint, {credentials: 'same-origin'});
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || !result.ok) throw new Error(result.error || 'Could not load saved changes.');
+      if (result.draft?.state) {
+        applyState(result.draft.state);
+        latestRevision = result.draft.revision;
+        setStatus(`Saved version ${result.draft.revision} restored`);
+      } else {
+        latestRevision = 0;
+        setStatus('Ready to edit · changes will be saved automatically');
+      }
+      conflicted = false;
+      reloadButton.hidden = true;
+    } catch (error) {
+      setStatus(error.message || 'Could not load saved changes.');
+    }
+  };
+
   const saveRemote = async () => {
-    if (hydrating) return;
+    if (hydrating || conflicted) return;
     setStatus('Saving your editable copy…');
     try {
       const response = await fetch(draftEndpoint, {
@@ -63,34 +92,25 @@
       latestRevision = result.revision;
       setStatus(`Saved to your order · version ${result.revision}`);
     } catch (error) {
-      setStatus(error.message || 'Could not save changes.');
+      const message = error.message || 'Could not save changes.';
+      if (message.includes('newer saved version')) {
+        conflicted = true;
+        reloadButton.hidden = false;
+        setStatus('A newer version was saved on another device. Load it before continuing so nothing is overwritten.');
+      } else {
+        setStatus(message);
+      }
     }
   };
 
   const scheduleSave = () => {
-    if (hydrating) return;
+    if (hydrating || conflicted) return;
     clearTimeout(saveTimer);
     setStatus('Saving…');
     saveTimer = setTimeout(saveRemote, 900);
   };
 
-  const loadRemote = async () => {
-    setStatus('Loading your saved version…');
-    try {
-      const response = await fetch(draftEndpoint, {credentials: 'same-origin'});
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok || !result.ok) throw new Error(result.error || 'Could not load saved changes.');
-      if (result.draft?.state) {
-        applyState(result.draft.state);
-        latestRevision = result.draft.revision;
-        setStatus(`Saved version ${result.draft.revision} restored`);
-      } else {
-        setStatus('Ready to edit · changes will be saved automatically');
-      }
-    } catch (error) {
-      setStatus(error.message || 'Could not load saved changes.');
-    }
-  };
+  reloadButton.addEventListener('click', loadRemote);
 
   const createHistoryControls = () => {
     if (!actions || document.getElementById('draftHistoryButton')) return;
@@ -153,6 +173,8 @@
         if (!response.ok || !result.ok) throw new Error(result.error || 'Could not restore version.');
         applyState(result.state);
         latestRevision = result.revision;
+        conflicted = false;
+        reloadButton.hidden = true;
         setStatus(`Previous version restored and saved as version ${result.revision}`);
       } catch (error) {
         setStatus(error.message || 'Could not restore version.');
@@ -160,6 +182,7 @@
     });
 
     actions.appendChild(button);
+    actions.appendChild(reloadButton);
     actions.appendChild(panel);
   };
 
