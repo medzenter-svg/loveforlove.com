@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import argparse
+import os
 import re
 import shutil
 import subprocess
@@ -20,6 +22,12 @@ OPTIONAL_HEADLESS_TOOLS = {
     "xvfb-run": "X virtual framebuffer wrapper",
 }
 
+PROFILE_ENV = {
+    "LF_RGB_PROFILE_NAME": "RGB input profile",
+    "LF_CMYK_PROFILE_NAME": "CMYK input/exchange profile",
+    "LF_OUTPUT_PROFILE_NAME": "PDF/X output intent profile",
+}
+
 
 def _version(command):
     proc = subprocess.run(command, text=True, capture_output=True)
@@ -34,7 +42,21 @@ def _scribus_version_ok(output):
     return version >= (1, 6, 0), version
 
 
-def main():
+def _profile_listing(scribus_path):
+    command = [scribus_path, "-g", "-pi"]
+    proc = subprocess.run(command, text=True, capture_output=True)
+    return proc.returncode, (proc.stdout + "\n" + proc.stderr)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--require-profiles",
+        action="store_true",
+        help="Fail unless configured ICC profile names are present and visible to Scribus.",
+    )
+    args = parser.parse_args(argv)
+
     failed = False
     print("Love For Love prepress environment check")
     print("=" * 44)
@@ -75,12 +97,38 @@ def main():
         print(("OK   " if code == 0 else "FAIL ") + f"ExifTool version: {output}")
         failed = failed or code != 0
 
+    configured_profiles = {name: os.environ.get(name) for name in PROFILE_ENV}
+    missing_profiles = [name for name, value in configured_profiles.items() if not value]
+
+    if missing_profiles:
+        message = "CMS profile variables not configured: " + ", ".join(missing_profiles)
+        if args.require_profiles:
+            failed = True
+            print("FAIL " + message)
+        else:
+            print("WARN " + message)
+    elif paths.get("scribus"):
+        code, listing = _profile_listing(paths["scribus"])
+        if code != 0:
+            failed = True
+            print("FAIL Could not read Scribus color profile listing")
+        else:
+            for env_name, profile_name in configured_profiles.items():
+                if profile_name in listing:
+                    print(f"OK   {PROFILE_ENV[env_name]}: {profile_name}")
+                else:
+                    failed = True
+                    print(f"FAIL {PROFILE_ENV[env_name]} not visible to Scribus: {profile_name}")
+
     if failed:
         print("\nEnvironment is NOT ready for professional export.")
         return 1
 
     print("\nEnvironment has the required prepress executables.")
-    print("ICC profiles, approved fonts and actual PDF/X output are still validated per collection.")
+    if not missing_profiles:
+        print("Configured ICC profile names are visible to Scribus.")
+    else:
+        print("Run again with --require-profiles after approved ICC profiles are configured.")
     return 0
 
 
