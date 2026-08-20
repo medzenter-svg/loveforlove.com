@@ -20,6 +20,10 @@ xvfb-run -a scribus -g -ns -py \
 test "$(find "$PREPRESS_ROOT" -type f -name '*.sla' | wc -l | tr -d ' ')" = "30"
 
 xvfb-run -a scribus -g -ns -py \
+  prepress/apply_premium_design.py \
+  "$PREPRESS_ROOT"
+
+xvfb-run -a scribus -g -ns -py \
   prepress/check_template_fonts.py \
   "$PREPRESS_ROOT"
 
@@ -48,5 +52,5 @@ done
 
 chmod -R a+rX "$ROOT/$COLLECTION"
 
-echo "Validated 165 multilingual PDFs with approved premium fonts."
+echo "Validated 165 multilingual PDFs with approved premium fonts and design layer."
 echo "Review artifact ready at: $REVIEW_ROOT"
