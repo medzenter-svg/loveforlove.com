@@ -20,6 +20,12 @@ import sys
 
 import scribus
 
+STORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if STORE_DIR not in sys.path:
+    sys.path.insert(0, STORE_DIR)
+
+from prepress.template_contract import required_frame_names
+
 
 PDF_VERSION = {
     # Current Scribus Scripter enum from objpdffile.cpp:
@@ -49,6 +55,21 @@ def _load_job(path):
     return job
 
 
+def _piece_from_template(template):
+    return os.path.splitext(os.path.basename(template))[0]
+
+
+def _check_required_frames(piece):
+    missing = sorted(
+        frame for frame in required_frame_names(piece)
+        if not scribus.objectExists(frame)
+    )
+    if missing:
+        raise RuntimeError(
+            f"Template {piece} is missing required editable frames: " + ", ".join(missing)
+        )
+
+
 def _replace_frames(prefix, values):
     for key, value in (values or {}).items():
         frame_name = f"{prefix}{key}"
@@ -71,19 +92,44 @@ def _check_text_overflow():
         raise RuntimeError("Text overflow in frames: " + ", ".join(sorted(overflow)))
 
 
-def _export_pdf(output_path, profile):
+def _required_cms_profiles():
+    profiles = {
+        "output": os.environ.get("LF_OUTPUT_PROFILE_NAME"),
+        "rgb": os.environ.get("LF_RGB_PROFILE_NAME"),
+        "cmyk": os.environ.get("LF_CMYK_PROFILE_NAME"),
+    }
+    missing = [key for key, value in profiles.items() if not value]
+    if missing:
+        raise RuntimeError(
+            "Missing CMS environment configuration: " + ", ".join(missing)
+        )
+    return profiles
+
+
+def _export_pdf(output_path, profile, piece):
+    cms = _required_cms_profiles()
     pdf = scribus.PDFfile()
     pdf.file = output_path
     pdf.version = PDF_VERSION[profile]
 
-    # Preserve the SLA template's professional color-management and font lists,
-    # while making the non-negotiable production settings explicit.
     pdf.resolution = 300
     pdf.downsample = 0
     pdf.quality = 0
     pdf.compress = 1
     pdf.outdst = 1
     pdf.useDocBleeds = True
+
+    # Explicit color-management inputs/output. The SLA preflight already checks
+    # that document CMS is enabled and uses the same profile names.
+    pdf.profiles = 1
+    pdf.profilei = 1
+    pdf.noembicc = 0
+    pdf.solidpr = cms["cmyk"]
+    pdf.imagepr = cms["rgb"]
+    pdf.printprofc = cms["output"]
+    pdf.intents = 1   # relative colorimetric for solid/vector colors
+    pdf.intenti = 0   # perceptual for photographic/raster imagery
+    pdf.info = f"Love For Love — {piece} — professional print master"
 
     # Universal masters are delivered without printer marks. The receiving
     # printer imposes the piece and adds marks for its own sheet/finishing flow.
@@ -93,7 +139,8 @@ def _export_pdf(output_path, profile):
     pdf.colorMarks = False
     pdf.docInfoMarks = False
 
-    # Embed/subset fonts according to the template's configured font lists.
+    # PDF/X forces proper font embedding in Scribus. Keep mode 0 so Scribus can
+    # fully embed or subset each used font according to its own compatibility rules.
     pdf.fontEmbedding = 0
     pdf.save()
 
@@ -103,6 +150,7 @@ def main():
     template = os.path.abspath(template)
     output = os.path.abspath(output)
     job_path = os.path.abspath(job_path)
+    piece = _piece_from_template(template)
 
     if not os.path.isfile(template):
         raise RuntimeError(f"Template not found: {template}")
@@ -114,10 +162,11 @@ def main():
 
     scribus.openDoc(template)
     try:
+        _check_required_frames(piece)
         _replace_frames("txt__", job.get("fields"))
         _replace_frames("lbl__", job.get("labels"))
         _check_text_overflow()
-        _export_pdf(output, profile)
+        _export_pdf(output, profile, piece)
     finally:
         scribus.closeDoc()
 
