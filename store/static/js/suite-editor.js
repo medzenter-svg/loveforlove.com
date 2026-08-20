@@ -13,6 +13,8 @@
     'table','place','program','ceremony','cocktails','dinner','dancing','thank_you','join_us'
   ];
 
+  const defaultValue = (field) => (field.dataset.default || '').replace(/\\n/g, '\n');
+
   const setBoundText = (key, value) => {
     document.querySelectorAll(`[data-bind="${key}"]`).forEach(el => {
       el.textContent = value || '';
@@ -90,7 +92,7 @@
   document.getElementById('resetSuite')?.addEventListener('click', () => {
     localStorage.removeItem(storageKey);
     root.querySelectorAll('[data-default]').forEach(field => {
-      field.value = field.dataset.default || '';
+      field.value = defaultValue(field);
       syncField(field);
     });
     if (languageSelect) {
@@ -105,7 +107,7 @@
   const restored = restoreState();
   if (!restored) {
     root.querySelectorAll('[data-default]').forEach(field => {
-      if (!field.value) field.value = field.dataset.default || '';
+      if (!field.value) field.value = defaultValue(field);
       syncField(field);
     });
     applyLanguage(languageSelect?.value || 'en', false);
