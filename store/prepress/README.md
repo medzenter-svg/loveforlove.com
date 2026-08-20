@@ -127,6 +127,7 @@ The worker running `build_package.py` needs:
 - Scribus with PDF/X-4 and PDF/X-1a support
 - Ghostscript (`gs`)
 - Poppler utilities (`pdfinfo`, `pdffonts`)
+- ExifTool (`exiftool`) for PDF/X metadata identification during structural preflight
 - `xvfb-run` on headless Linux systems where Scribus requires a display
 - the approved fonts used by the collection
 - the approved ICC profiles used by the Scribus templates
