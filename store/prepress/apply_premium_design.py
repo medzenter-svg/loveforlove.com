@@ -18,12 +18,7 @@ STORE_DIR = Path(__file__).resolve().parents[1]
 if str(STORE_DIR) not in sys.path:
     sys.path.insert(0, str(STORE_DIR))
 
-from prepress.design_themes import (
-    DEFAULT_PREPRESS_THEME,
-    get_prepress_theme,
-    get_prototype_theme,
-)
-
+from prepress.design_themes import DEFAULT_PREPRESS_THEME, get_prepress_theme, get_prototype_theme
 
 COLOR_IVORY = "LF Ivory"
 COLOR_BURGUNDY = "LF Burgundy"
@@ -99,12 +94,25 @@ def _dot(name, x, y, diameter, color=COLOR_GOLD):
     scribus.setLineWidth(0.08, name)
 
 
+def _oval(name, x, y, width, height, color):
+    if not scribus.objectExists(name):
+        scribus.createEllipse(x - width / 2.0, y - height / 2.0, width, height, name)
+    scribus.setFillColor(color, name)
+    scribus.setLineColor(color, name)
+    scribus.setLineWidth(0.05, name)
+
+
 def _rect(name, x, y, width, height, color):
     if not scribus.objectExists(name):
         scribus.createRect(x, y, width, height, name)
     scribus.setFillColor(color, name)
     scribus.setLineColor(color, name)
     scribus.setLineWidth(0.01, name)
+
+
+def _diamond(name, cx, cy, half_w, half_h, color, width=0.28):
+    points = [cx, cy - half_h, cx + half_w, cy, cx, cy + half_h, cx - half_w, cy, cx, cy - half_h]
+    _polyline(name, points, color, width)
 
 
 def _hide_legacy_frame():
@@ -176,54 +184,8 @@ def _arch_points(left, right, shoulder_y, apex_y, samples=35):
     for index in range(samples):
         fraction = index / float(samples - 1)
         angle = math.pi * (1.0 - fraction)
-        points.extend([
-            center_x + radius_x * math.cos(angle),
-            shoulder_y - radius_y * math.sin(angle),
-        ])
+        points.extend([center_x + radius_x * math.cos(angle), shoulder_y - radius_y * math.sin(angle)])
     return points
-
-
-def _amalfi_arch():
-    """Tall Mediterranean terrace arch with olive inner rails and coral punctuation."""
-    _hide_legacy_frame()
-    width, height, inset = _page_geometry()
-    left = inset * 1.20
-    right = width - inset * 1.20
-    shoulder_y = height * 0.285
-    apex_y = height * 0.055
-    base_y = height * 0.865
-    _line("design__amalfi_left", left, shoulder_y, left, base_y, width=0.30)
-    _line("design__amalfi_right", right, shoulder_y, right, base_y, width=0.30)
-    _polyline("design__amalfi_arch", _arch_points(left, right, shoulder_y, apex_y), COLOR_GOLD, 0.30)
-
-    inner_left = inset * 1.85
-    inner_right = width - inset * 1.85
-    inner_shoulder = height * 0.325
-    inner_base = height * 0.805
-    _line("design__amalfi_olive_left", inner_left, inner_shoulder, inner_left, inner_base, width=0.18, color=COLOR_SECONDARY)
-    _line("design__amalfi_olive_right", inner_right, inner_shoulder, inner_right, inner_base, width=0.18, color=COLOR_SECONDARY)
-
-    center_x = width / 2.0
-    coral_y = height * 0.11
-    diameter = min(width, height) * 0.009
-    _dot("design__amalfi_coral_mark", center_x, coral_y, diameter, COLOR_TERTIARY)
-    _line("design__amalfi_coral_rule_left", center_x - width * 0.055, coral_y, center_x - width * 0.016, coral_y, width=0.22, color=COLOR_TERTIARY)
-    _line("design__amalfi_coral_rule_right", center_x + width * 0.016, coral_y, center_x + width * 0.055, coral_y, width=0.22, color=COLOR_TERTIARY)
-    _line("design__amalfi_baseline", width * 0.33, height * 0.91, width * 0.67, height * 0.91, width=0.24)
-
-
-def _monaco_regatta():
-    """Tailored Riviera geometry with navy mast, signal red and champagne finish."""
-    _hide_legacy_frame()
-    width, height, inset = _page_geometry()
-    mast_x = inset * 1.15
-    _line("design__monaco_mast", mast_x, height * 0.065, mast_x, height * 0.935, width=0.92, color=COLOR_BURGUNDY)
-    _line("design__monaco_top", mast_x, height * 0.065, width * 0.64, height * 0.065, width=0.55, color=COLOR_BURGUNDY)
-    _line("design__monaco_diagonal", width * 0.64, height * 0.065, width * 0.72, height * 0.12, width=0.42, color=COLOR_BURGUNDY)
-    _rect("design__monaco_signal", width * 0.75, height * 0.057, width * 0.14, max(height * 0.006, 0.7), COLOR_SECONDARY)
-    _line("design__monaco_bottom", width * 0.58, height * 0.915, width - inset, height * 0.915, width=0.45, color=COLOR_GOLD)
-    _dot("design__monaco_gold_dot", width * 0.55, height * 0.915, min(width, height) * 0.009, COLOR_GOLD)
-    _paired_rule_ornament()
 
 
 def _wave_points(left, right, center_y, amplitude, cycles=2.2, samples=41):
@@ -236,8 +198,43 @@ def _wave_points(left, right, center_y, amplitude, cycles=2.2, samples=41):
     return points
 
 
+def _amalfi_arch():
+    _hide_legacy_frame()
+    width, height, inset = _page_geometry()
+    left = inset * 1.20
+    right = width - inset * 1.20
+    shoulder_y = height * 0.285
+    apex_y = height * 0.055
+    base_y = height * 0.865
+    _line("design__amalfi_left", left, shoulder_y, left, base_y, width=0.30)
+    _line("design__amalfi_right", right, shoulder_y, right, base_y, width=0.30)
+    _polyline("design__amalfi_arch", _arch_points(left, right, shoulder_y, apex_y), COLOR_GOLD, 0.30)
+    inner_left = inset * 1.85
+    inner_right = width - inset * 1.85
+    _line("design__amalfi_olive_left", inner_left, height * 0.325, inner_left, height * 0.805, width=0.18, color=COLOR_SECONDARY)
+    _line("design__amalfi_olive_right", inner_right, height * 0.325, inner_right, height * 0.805, width=0.18, color=COLOR_SECONDARY)
+    center_x = width / 2.0
+    coral_y = height * 0.11
+    _dot("design__amalfi_coral_mark", center_x, coral_y, min(width, height) * 0.009, COLOR_TERTIARY)
+    _line("design__amalfi_coral_rule_left", center_x - width * 0.055, coral_y, center_x - width * 0.016, coral_y, width=0.22, color=COLOR_TERTIARY)
+    _line("design__amalfi_coral_rule_right", center_x + width * 0.016, coral_y, center_x + width * 0.055, coral_y, width=0.22, color=COLOR_TERTIARY)
+    _line("design__amalfi_baseline", width * 0.33, height * 0.91, width * 0.67, height * 0.91, width=0.24)
+
+
+def _monaco_regatta():
+    _hide_legacy_frame()
+    width, height, inset = _page_geometry()
+    mast_x = inset * 1.15
+    _line("design__monaco_mast", mast_x, height * 0.065, mast_x, height * 0.935, width=0.92, color=COLOR_BURGUNDY)
+    _line("design__monaco_top", mast_x, height * 0.065, width * 0.64, height * 0.065, width=0.55, color=COLOR_BURGUNDY)
+    _line("design__monaco_diagonal", width * 0.64, height * 0.065, width * 0.72, height * 0.12, width=0.42, color=COLOR_BURGUNDY)
+    _rect("design__monaco_signal", width * 0.75, height * 0.057, width * 0.14, max(height * 0.006, 0.7), COLOR_SECONDARY)
+    _line("design__monaco_bottom", width * 0.58, height * 0.915, width - inset, height * 0.915, width=0.45, color=COLOR_GOLD)
+    _dot("design__monaco_gold_dot", width * 0.55, height * 0.915, min(width, height) * 0.009, COLOR_GOLD)
+    _paired_rule_ornament()
+
+
 def _como_lake_line():
-    """Quiet Lake Como water rhythm with sage punctuation and restrained top mark."""
     _hide_legacy_frame()
     width, height, inset = _page_geometry()
     y = height * 0.875
@@ -250,17 +247,95 @@ def _como_lake_line():
     _paired_rule_ornament()
 
 
+def _provence_botanical():
+    _hide_legacy_frame()
+    width, height, inset = _page_geometry()
+    # Sparse upper-right botanical punctuation; never a full floral border.
+    _line("design__provence_stem_top", width * 0.865, height * 0.055, width * 0.935, height * 0.185, width=0.24, color=COLOR_GOLD)
+    _oval("design__provence_leaf_1", width * 0.885, height * 0.095, width * 0.038, height * 0.018, COLOR_SECONDARY)
+    _oval("design__provence_leaf_2", width * 0.913, height * 0.138, width * 0.032, height * 0.016, COLOR_BURGUNDY)
+    _dot("design__provence_bud", width * 0.936, height * 0.181, min(width, height) * 0.010, COLOR_TERTIARY)
+    # Small mirrored lower-left mark for balance.
+    _line("design__provence_stem_bottom", width * 0.075, height * 0.865, width * 0.135, height * 0.925, width=0.22, color=COLOR_GOLD)
+    _oval("design__provence_leaf_3", width * 0.098, height * 0.888, width * 0.030, height * 0.015, COLOR_BURGUNDY)
+    _dot("design__provence_bud_bottom", width * 0.073, height * 0.863, min(width, height) * 0.008, COLOR_SECONDARY)
+    _line("design__provence_top_rule", width * 0.39, height * 0.065, width * 0.61, height * 0.065, width=0.24, color=COLOR_GOLD)
+    _paired_rule_ornament()
+
+
+def _santorini_arch_sun():
+    _hide_legacy_frame()
+    width, height, inset = _page_geometry()
+    left = width * 0.36
+    right = width * 0.64
+    shoulder = height * 0.105
+    apex = height * 0.035
+    _polyline("design__santorini_arch", _arch_points(left, right, shoulder, apex, samples=29), COLOR_BURGUNDY, 0.56)
+    _line("design__santorini_left", left, shoulder, left, height * 0.135, width=0.56, color=COLOR_BURGUNDY)
+    _line("design__santorini_right", right, shoulder, right, height * 0.135, width=0.56, color=COLOR_BURGUNDY)
+    _dot("design__santorini_sun", width / 2.0, height * 0.078, min(width, height) * 0.021, COLOR_TERTIARY)
+    _line("design__santorini_horizon", inset, height * 0.905, width - inset, height * 0.905, width=0.34, color=COLOR_BURGUNDY)
+    _line("design__santorini_gold_horizon", width * 0.37, height * 0.923, width * 0.63, height * 0.923, width=0.22, color=COLOR_GOLD)
+    _paired_rule_ornament()
+
+
+def _flower(prefix, cx, cy, scale, petal_color, center_color):
+    petal_w = scale * 0.80
+    petal_h = scale * 0.48
+    radius = scale * 0.54
+    positions = [(0, -radius), (radius, 0), (0, radius), (-radius, 0)]
+    for index, (dx, dy) in enumerate(positions, 1):
+        _oval(f"{prefix}_petal_{index}", cx + dx, cy + dy, petal_w, petal_h, petal_color)
+    _dot(f"{prefix}_center", cx, cy, scale * 0.34, center_color)
+
+
+def _riviera_floral():
+    _hide_legacy_frame()
+    width, height, inset = _page_geometry()
+    scale = min(width, height) * 0.050
+    # Fashion-editorial, asymmetric floral punctuation rather than a frame.
+    _line("design__riviera_stem_top", width * 0.885, height * 0.045, width * 0.835, height * 0.205, width=0.34, color=COLOR_SECONDARY)
+    _flower("design__riviera_top", width * 0.875, height * 0.105, scale, COLOR_BURGUNDY, COLOR_GOLD)
+    _oval("design__riviera_leaf_top", width * 0.846, height * 0.174, scale * 0.75, scale * 0.34, COLOR_SECONDARY)
+    _line("design__riviera_stem_bottom", width * 0.105, height * 0.805, width * 0.075, height * 0.945, width=0.30, color=COLOR_SECONDARY)
+    _flower("design__riviera_bottom", width * 0.105, height * 0.875, scale * 0.75, COLOR_TERTIARY, COLOR_GOLD)
+    _line("design__riviera_gold_rule", width * 0.36, height * 0.925, width * 0.64, height * 0.925, width=0.24, color=COLOR_GOLD)
+    _paired_rule_ornament()
+
+
+def _vienna_crest():
+    _hide_legacy_frame()
+    width, height, inset = _page_geometry()
+    cx = width / 2.0
+    cy = height * 0.072
+    _diamond("design__vienna_crest_outer", cx, cy, width * 0.060, height * 0.034, COLOR_GOLD, 0.32)
+    _diamond("design__vienna_crest_inner", cx, cy, width * 0.034, height * 0.019, COLOR_SECONDARY, 0.22)
+    _dot("design__vienna_crest_mark", cx, cy, min(width, height) * 0.008, COLOR_BURGUNDY)
+    _line("design__vienna_axis_top", cx, height * 0.025, cx, cy - height * 0.036, width=0.20, color=COLOR_GOLD)
+    _line("design__vienna_axis_bottom", cx, cy + height * 0.036, cx, height * 0.135, width=0.20, color=COLOR_GOLD)
+    _line("design__vienna_lower_1", width * 0.31, height * 0.905, width * 0.69, height * 0.905, width=0.24, color=COLOR_GOLD)
+    _line("design__vienna_lower_2", width * 0.38, height * 0.918, width * 0.62, height * 0.918, width=0.18, color=COLOR_SECONDARY)
+    _paired_rule_ornament()
+
+
 def _apply_motif(theme):
     motif = theme.get("motif")
     if motif == "open_corners":
-        _open_corner_border()
-        _paired_rule_ornament()
+        _open_corner_border(); _paired_rule_ornament()
     elif motif == "amalfi_arch":
         _amalfi_arch()
     elif motif == "regatta_rules":
         _monaco_regatta()
     elif motif == "lake_line":
         _como_lake_line()
+    elif motif == "botanical_punctuation":
+        _provence_botanical()
+    elif motif == "aegean_arch_sun":
+        _santorini_arch_sun()
+    elif motif == "asymmetric_floral":
+        _riviera_floral()
+    elif motif == "ceremonial_crest":
+        _vienna_crest()
     else:
         raise RuntimeError(f"Theme motif is not implemented in Scribus: {motif}")
 
@@ -284,7 +359,6 @@ def main():
     marker = _prototype_marker(root, theme_code)
     if marker.exists():
         marker.unlink()
-
     if prototype:
         if not piece:
             raise RuntimeError("Prototype mode requires --piece=<piece>")
@@ -297,16 +371,13 @@ def main():
         templates = sorted(root.glob("*/*.sla"))
         if len(templates) != 30:
             raise RuntimeError(f"Expected 30 SLA templates, found {len(templates)}")
-
     for template in templates:
         _apply_one(template, theme)
-
     if prototype:
         marker.write_text(
             f"theme={theme_code}\npiece={piece}\ntemplates={len(templates)}\nmotif={theme.get('motif')}\n",
             encoding="utf-8",
         )
-
     mode = "prototype" if prototype else "production"
     print(f"Theme '{theme_code}' applied to {len(templates)} Scribus templates in {mode} mode.")
 
