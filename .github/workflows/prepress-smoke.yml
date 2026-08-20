@@ -1,0 +1,31 @@
+name: Prepress Smoke
+
+on:
+  push:
+    branches:
+      - loveforlove-catalog-expansion
+    paths:
+      - 'store/prepress/**'
+      - 'store/print_*.py'
+      - '.github/workflows/prepress-smoke.yml'
+  pull_request:
+    paths:
+      - 'store/prepress/**'
+      - 'store/print_*.py'
+      - '.github/workflows/prepress-smoke.yml'
+
+jobs:
+  scribus-template-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build reproducible prepress image
+        run: docker build -f store/prepress/Dockerfile -t loveforlove-prepress .
+
+      - name: Verify prepress executables
+        run: docker run --rm loveforlove-prepress python3 prepress/check_environment.py
+
+      - name: Generate all 30 Scribus base templates
+        run: docker run --rm loveforlove-prepress bash prepress/smoke_test.sh
