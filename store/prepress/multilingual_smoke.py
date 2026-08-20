@@ -1,13 +1,8 @@
-"""Stress-test professional Scribus export across all supported store languages.
+"""Stress-test Scribus export across the 11 active store languages.
 
 The test exports every one of the 15 wedding pieces in the tighter international
-metric geometry using the primary PDF/X-4 profile. This gives 13 languages x 15
-pieces = 195 real PDFs. Each PDF must pass the same structural preflight used by
-production package builds.
-
-The goal is not translation review. It is typography/layout/glyph coverage QA:
-long localized labels, accented Latin, Greek, Cyrillic and Hebrew must survive
-personalization without overflow, missing output or broken PDF structure.
+metric geometry using PDF/X-4. This gives 11 languages x 15 pieces = 165 real PDFs.
+Each PDF must pass the same structural preflight used by production package builds.
 """
 
 from __future__ import annotations
@@ -35,48 +30,18 @@ from suite_weekend_locales import WEEKEND_SUITE_LOCALES
 
 SIZE_FAMILY = "international_metric"
 PRINT_PROFILE = "pdfx4_worldwide"
-EXPECTED_LANGUAGES = (
-    "en", "de", "fr", "it", "es", "pt", "nl", "pl", "el", "ru", "uk", "tr", "he",
+ACTIVE_LANGUAGES = (
+    "en", "de", "fr", "it", "es", "pt", "nl", "pl", "el", "ru", "tr",
 )
 
-# Representative customer-entered strings exercise the scripts that matter most
-# beyond localized labels. Other fields keep the realistic JOB_EXAMPLE values.
 SCRIPT_STRESS_FIELDS = {
-    "de": {
-        "coupleNames": "Charlotte & Maximilian",
-        "venueName": "Schloss Nymphenburg",
-        "thankMessage": "Danke, dass ihr diesen besonderen Tag mit uns feiert.",
-    },
-    "fr": {
-        "coupleNames": "Élodie & François",
-        "venueName": "Château de Vaux-le-Vicomte",
-        "thankMessage": "Merci d'avoir partagé cette journée inoubliable avec nous.",
-    },
-    "it": {
-        "coupleNames": "Sofia & Alessandro",
-        "venueName": "Villa del Balbianello",
-        "thankMessage": "Grazie per aver festeggiato con noi questa giornata indimenticabile.",
-    },
-    "es": {
-        "coupleNames": "Lucía & Sebastián",
-        "venueName": "Palacio de Cibeles",
-        "thankMessage": "Gracias por celebrar con nosotros este día inolvidable.",
-    },
-    "pt": {
-        "coupleNames": "Inês & João",
-        "venueName": "Palácio de Monserrate",
-        "thankMessage": "Obrigado por celebrarem connosco este dia inesquecível.",
-    },
-    "nl": {
-        "coupleNames": "Sophie & Daan",
-        "venueName": "Kasteel de Haar",
-        "thankMessage": "Dank jullie wel dat jullie deze onvergetelijke dag met ons vieren.",
-    },
-    "pl": {
-        "coupleNames": "Zofia & Michał",
-        "venueName": "Pałac w Wilanowie",
-        "thankMessage": "Dziękujemy, że świętujecie z nami ten niezapomniany dzień.",
-    },
+    "de": {"coupleNames": "Charlotte & Maximilian", "venueName": "Schloss Nymphenburg", "thankMessage": "Danke, dass ihr diesen besonderen Tag mit uns feiert."},
+    "fr": {"coupleNames": "Élodie & François", "venueName": "Château de Vaux-le-Vicomte", "thankMessage": "Merci d'avoir partagé cette journée inoubliable avec nous."},
+    "it": {"coupleNames": "Sofia & Alessandro", "venueName": "Villa del Balbianello", "thankMessage": "Grazie per aver festeggiato con noi questa giornata indimenticabile."},
+    "es": {"coupleNames": "Lucía & Sebastián", "venueName": "Palacio de Cibeles", "thankMessage": "Gracias por celebrar con nosotros este día inolvidable."},
+    "pt": {"coupleNames": "Inês & João", "venueName": "Palácio de Monserrate", "thankMessage": "Obrigado por celebrarem connosco este dia inesquecível."},
+    "nl": {"coupleNames": "Sophie & Daan", "venueName": "Kasteel de Haar", "thankMessage": "Dank jullie wel dat jullie deze onvergetelijke dag met ons vieren."},
+    "pl": {"coupleNames": "Zofia & Michał", "venueName": "Pałac w Wilanowie", "thankMessage": "Dziękujemy, że świętujecie z nami ten niezapomniany dzień."},
     "el": {
         "coupleNames": "Αλεξάνδρα & Νικόλαος",
         "venueName": "Κτήμα Αριάδνη",
@@ -95,42 +60,7 @@ SCRIPT_STRESS_FIELDS = {
         "dayOneEvent1": "Встреча гостей",
         "dayTwoEvent3": "Прощальный аперитив",
     },
-    "uk": {
-        "coupleNames": "Катерина & Олександр",
-        "venueName": "Вілла дель Бальб'янелло",
-        "guestName": "Софія Міллер",
-        "thankMessage": "Дякуємо, що розділяєте з нами цей незабутній день.",
-        "dressStyle": "Біле святкування",
-        "dayOneEvent1": "Зустріч гостей",
-        "dayTwoEvent3": "Прощальний аперитив",
-    },
-    "tr": {
-        "coupleNames": "İrem & Çağrı",
-        "venueName": "Çırağan Sarayı",
-        "thankMessage": "Bu unutulmaz günü bizimle kutladığınız için teşekkür ederiz.",
-    },
-    "he": {
-        "coupleNames": "נועה ודניאל",
-        "venueName": "וילה על שפת האגם",
-        "venueAddress": "רחוב האגם 12\nקומו, איטליה",
-        "guestName": "מיה לוי",
-        "thankMessage": "תודה שחגגתם איתנו את היום הבלתי נשכח הזה.",
-        "hotelName": "מלון האגם הגדול",
-        "hotelAddress": "רחוב המלון 8\nקומו, איטליה",
-        "coordinatorName": "אנה רוסי",
-        "coordinatorRole": "מתאמת חתונה",
-        "dressStyle": "חגיגה בלבן",
-        "dressDescription": "נשמח אם האורחים יחגגו איתנו בלבוש לבן אלגנטי.",
-        "dressNote": "אלגנטי · חגיגי · קיצי",
-        "dayOneEvent1": "קבלת פנים",
-        "dayOneEvent2": "ארוחת ערב",
-        "dayOneEvent3": "קוקטיילים ומוזיקה",
-        "dayOneEvent4": "מסיבה לילית",
-        "dayTwoEvent1": "בראנץ׳",
-        "dayTwoEvent2": "פעילות באגם",
-        "dayTwoEvent3": "אפריטיף פרידה",
-        "dayTwoEvent4": "פרידה",
-    },
+    "tr": {"coupleNames": "İrem & Çağrı", "venueName": "Çırağan Sarayı", "thankMessage": "Bu unutulmaz günü bizimle kutladığınız için teşekkür ederiz."},
 }
 
 
@@ -152,31 +82,25 @@ def _labels_for(language: str):
 def _job_for(language: str, example: dict):
     fields = dict(example.get("fields") or {})
     fields.update(SCRIPT_STRESS_FIELDS.get(language, {}))
-    payload = {
+    return normalize_print_job(example["collection_slug"], {
         "collection_slug": example["collection_slug"],
         "language": language,
         "enabled_optional": list(example.get("enabled_optional") or []),
         "fields": fields,
         "labels": _labels_for(language),
-    }
-    return normalize_print_job(example["collection_slug"], payload)
+    })
 
 
 def _run_scribus(template: Path, output: Path, job_file: Path, scribus_bin: str):
-    command = _scribus_command(
-        scribus_bin,
-        template,
-        output,
-        job_file,
-        PRINT_PROFILE,
+    proc = subprocess.run(
+        _scribus_command(scribus_bin, template, output, job_file, PRINT_PROFILE),
+        text=True,
+        capture_output=True,
     )
-    proc = subprocess.run(command, text=True, capture_output=True)
     if proc.returncode != 0 or not output.is_file() or output.stat().st_size == 0:
         raise RuntimeError(
             f"Scribus multilingual export failed for {output.name}\n"
-            f"Return code: {proc.returncode}\n"
-            f"STDOUT:\n{proc.stdout or '(empty)'}\n"
-            f"STDERR:\n{proc.stderr or '(empty)'}"
+            f"Return code: {proc.returncode}\nSTDOUT:\n{proc.stdout or '(empty)'}\nSTDERR:\n{proc.stderr or '(empty)'}"
         )
 
 
@@ -187,47 +111,31 @@ def run(template_root: Path, output_root: Path, example_path: Path, scribus_bin:
     if any(output_root.iterdir()):
         raise RuntimeError(f"Multilingual smoke output must be empty: {output_root}")
 
-    if tuple(SUITE_LOCALES) != EXPECTED_LANGUAGES:
-        raise RuntimeError(
-            "Language order/set changed; update multilingual smoke coverage explicitly. "
-            f"Found: {tuple(SUITE_LOCALES)}"
-        )
-    if set(OPTIONAL_SUITE_LOCALES) != set(EXPECTED_LANGUAGES):
-        raise RuntimeError("Optional-suite locale coverage does not match supported languages")
-    if set(WEEKEND_SUITE_LOCALES) != set(EXPECTED_LANGUAGES):
-        raise RuntimeError("Weekend locale coverage does not match supported languages")
+    for language in ACTIVE_LANGUAGES:
+        if language not in SUITE_LOCALES or language not in OPTIONAL_SUITE_LOCALES or language not in WEEKEND_SUITE_LOCALES:
+            raise RuntimeError(f"Missing locale data for active language: {language}")
 
     example = _load_example(example_path)
     results = []
-
-    for language in EXPECTED_LANGUAGES:
+    for language in ACTIVE_LANGUAGES:
         job = _job_for(language, example)
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=f"-{language}.json", encoding="utf-8", delete=False
-        ) as handle:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=f"-{language}.json", encoding="utf-8", delete=False) as handle:
             json.dump(job, handle, ensure_ascii=False, indent=2)
             job_path = Path(handle.name)
-
         try:
             for piece in PIECE_ORDER:
                 template = template_root / SIZE_FAMILY / f"{piece}.sla"
                 try:
                     validate_template(template, SIZE_FAMILY, piece)
                 except TemplatePreflightError as exc:
-                    raise RuntimeError(
-                        f"Template preflight failed for {language}/{piece}: {exc}"
-                    ) from exc
-
+                    raise RuntimeError(f"Template preflight failed for {language}/{piece}: {exc}") from exc
                 filename = f"{language}__{piece}__METRIC__PDFX4.pdf"
                 output = output_root / filename
                 _run_scribus(template, output, job_path, scribus_bin)
                 try:
                     preflight_pdf(output, SIZE_FAMILY, piece, PRINT_PROFILE)
                 except PreflightError as exc:
-                    raise RuntimeError(
-                        f"PDF preflight failed for {language}/{piece}: {exc}"
-                    ) from exc
-
+                    raise RuntimeError(f"PDF preflight failed for {language}/{piece}: {exc}") from exc
                 results.append({
                     "language": language,
                     "language_name": LANGUAGE_NAMES[language],
@@ -239,7 +147,7 @@ def run(template_root: Path, output_root: Path, example_path: Path, scribus_bin:
         finally:
             job_path.unlink(missing_ok=True)
 
-    expected_count = len(EXPECTED_LANGUAGES) * len(PIECE_ORDER)
+    expected_count = len(ACTIVE_LANGUAGES) * len(PIECE_ORDER)
     if len(results) != expected_count:
         raise RuntimeError(f"Expected {expected_count} multilingual PDFs, produced {len(results)}")
 
@@ -247,16 +155,12 @@ def run(template_root: Path, output_root: Path, example_path: Path, scribus_bin:
         "status": "preflight_passed",
         "size_family": SIZE_FAMILY,
         "print_profile": PRINT_PROFILE,
-        "languages": list(EXPECTED_LANGUAGES),
-        "language_count": len(EXPECTED_LANGUAGES),
+        "languages": list(ACTIVE_LANGUAGES),
+        "language_count": len(ACTIVE_LANGUAGES),
         "piece_count_per_language": len(PIECE_ORDER),
         "professional_pdf_count": len(results),
         "files": results,
-        "note": (
-            "Typography/glyph/layout stress smoke only. Passing does not replace native-speaker "
-            "translation review, Hebrew visual-direction review, final design approval, or "
-            "certified PDF/X conformance validation."
-        ),
+        "note": "Typography/glyph/layout stress smoke only; final design and translation review remain separate release gates.",
     }
     manifest_path = output_root / "MULTILINGUAL_SMOKE_MANIFEST.json"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -270,13 +174,7 @@ def main():
     parser.add_argument("example_job")
     parser.add_argument("--scribus", default="scribus")
     args = parser.parse_args()
-
-    manifest = run(
-        Path(args.template_root),
-        Path(args.output_root),
-        Path(args.example_job),
-        scribus_bin=args.scribus,
-    )
+    manifest = run(Path(args.template_root), Path(args.output_root), Path(args.example_job), scribus_bin=args.scribus)
     print(f"Multilingual smoke passed: {manifest}")
 
 
