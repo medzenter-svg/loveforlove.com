@@ -14,6 +14,7 @@ for THEME in "${THEMES[@]}"; do
   THEME_ROOT="$ROOT/$THEME"
   PREPRESS_ROOT="$THEME_ROOT/$COLLECTION/prepress"
   EXPORT_ROOT="$THEME_ROOT/export"
+  MARKER="$PREPRESS_ROOT/.loveforlove-prototype-$THEME"
 
   mkdir -p "$THEME_ROOT"
 
@@ -30,6 +31,40 @@ for THEME in "${THEMES[@]}"; do
     "$THEME" \
     --prototype \
     --piece=invitation
+
+  # Scribus can occasionally exit 0 after an internal Scripter exception. Require
+  # an explicit success marker plus theme-specific vector objects in both sizes.
+  test -f "$MARKER"
+  grep -q "^theme=$THEME$" "$MARKER"
+  grep -q '^piece=invitation$' "$MARKER"
+  grep -q '^templates=2$' "$MARKER"
+
+  for SLA in \
+    "$PREPRESS_ROOT/international_metric/invitation.sla" \
+    "$PREPRESS_ROOT/north_america/invitation.sla"
+  do
+    case "$THEME" in
+      amalfi-luce)
+        grep -q 'design__amalfi_arch' "$SLA"
+        grep -q 'design__amalfi_olive_left' "$SLA"
+        grep -q 'design__amalfi_coral_mark' "$SLA"
+        ;;
+      monaco-regatta)
+        grep -q 'design__monaco_mast' "$SLA"
+        grep -q 'design__monaco_signal' "$SLA"
+        grep -q 'design__monaco_diagonal' "$SLA"
+        ;;
+      como-sereno)
+        grep -q 'design__como_water_1' "$SLA"
+        grep -q 'design__como_water_2' "$SLA"
+        grep -q 'design__como_sage' "$SLA"
+        ;;
+      *)
+        echo "Unknown prototype theme: $THEME" >&2
+        exit 1
+        ;;
+    esac
+  done
 
   xvfb-run -a scribus -g -ns -py \
     prepress/check_template_fonts.py \
