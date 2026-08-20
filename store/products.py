@@ -172,7 +172,16 @@ PRODUCTS = [
     },
 ]
 
-PUBLISHED_PRODUCTS = [p for p in PRODUCTS if p.get("published", True)]
+
+def is_sellable_product(product):
+    if not product.get("published", True):
+        return False
+    if product.get("editable") and not product.get("professional_print_package_ready", False):
+        return False
+    return True
+
+
+PUBLISHED_PRODUCTS = [p for p in PRODUCTS if is_sellable_product(p)]
 PRODUCTS_BY_SLUG = {p["slug"]: p for p in PRODUCTS}
 
 
