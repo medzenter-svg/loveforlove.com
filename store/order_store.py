@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import text
 
@@ -10,10 +10,15 @@ EMAIL_PENDING = "pending"
 EMAIL_SENDING = "sending"
 EMAIL_SENT = "sent"
 EMAIL_FAILED = "failed"
+EMAIL_DELIVERY_LEASE_MINUTES = 10
+
+
+def _now_dt():
+    return datetime.now(timezone.utc)
 
 
 def _now():
-    return datetime.now(timezone.utc).isoformat()
+    return _now_dt().isoformat()
 
 
 def init_order_store():
@@ -106,23 +111,32 @@ def get_paid_order(order_id):
 def begin_access_email_delivery(order_id):
     """Atomically reserve one email delivery attempt.
 
-    Returns False when the order email is already sent or another worker is
-    currently sending it. Failed deliveries are eligible for a later retry.
+    Pending and failed deliveries can be reserved immediately. A delivery left
+    in `sending` for more than EMAIL_DELIVERY_LEASE_MINUTES is treated as an
+    abandoned worker reservation and may be retried. `sent` is never retried.
     """
     init_order_store()
-    now = _now()
+    now_dt = _now_dt()
+    now = now_dt.isoformat()
+    stale_before = (now_dt - timedelta(minutes=EMAIL_DELIVERY_LEASE_MINUTES)).isoformat()
+
     with _engine().begin() as db:
         result = db.execute(
             text(
                 "UPDATE paid_orders SET access_email_status = :sending, "
                 "access_email_attempts = access_email_attempts + 1, updated_at = :updated_at "
-                "WHERE order_id = :order_id AND access_email_status IN (:pending, :failed)"
+                "WHERE order_id = :order_id AND ("
+                "access_email_status IN (:pending, :failed) "
+                "OR (access_email_status = :sending_status AND updated_at < :stale_before)"
+                ")"
             ),
             {
                 "sending": EMAIL_SENDING,
+                "sending_status": EMAIL_SENDING,
                 "pending": EMAIL_PENDING,
                 "failed": EMAIL_FAILED,
                 "updated_at": now,
+                "stale_before": stale_before,
                 "order_id": str(order_id),
             },
         )
