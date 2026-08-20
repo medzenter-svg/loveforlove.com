@@ -9,6 +9,15 @@ from sqlalchemy import create_engine, text
 MAX_STATE_BYTES = 128 * 1024
 MAX_REVISIONS_PER_DRAFT = 20
 _ENGINE_CACHE = {}
+DRAFT_REVISION_KEY = "__draft_expected_revision"
+
+
+class DraftConflictError(ValueError):
+    def __init__(self, current_revision):
+        self.current_revision = int(current_revision)
+        super().__init__(
+            f"A newer saved version exists (version {self.current_revision}). Reload the latest version before saving again."
+        )
 
 
 def _database_url():
@@ -93,9 +102,24 @@ def draft_store_healthcheck():
     return {"ok": True, "mode": draft_storage_mode()}
 
 
-def _serialize_state(state):
+def _prepare_state(state):
     if not isinstance(state, dict):
         raise ValueError("Editor state must be an object")
+    cleaned = dict(state)
+    expected_revision = cleaned.pop(DRAFT_REVISION_KEY, None)
+    if expected_revision in ("", None):
+        expected_revision = None
+    else:
+        try:
+            expected_revision = int(expected_revision)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Invalid draft revision") from exc
+        if expected_revision < 0:
+            raise ValueError("Invalid draft revision")
+    return cleaned, expected_revision
+
+
+def _serialize_state(state):
     encoded = json.dumps(state, ensure_ascii=False, separators=(",", ":"))
     if len(encoded.encode("utf-8")) > MAX_STATE_BYTES:
         raise ValueError("Editor state is too large")
@@ -133,7 +157,8 @@ def save_draft(order_id, slug, state):
     init_draft_store()
     order_id = str(order_id)
     slug = str(slug)
-    encoded = _serialize_state(state)
+    cleaned_state, expected_revision = _prepare_state(state)
+    encoded = _serialize_state(cleaned_state)
     now = datetime.now(timezone.utc).isoformat()
 
     with _engine().begin() as db:
@@ -145,8 +170,12 @@ def save_draft(order_id, slug, state):
             ),
             {"order_id": order_id, "slug": slug},
         ).mappings().first()
-        revision = (int(row["revision"]) if row else 0) + 1
+        current_revision = int(row["revision"]) if row else 0
 
+        if expected_revision is not None and expected_revision != current_revision:
+            raise DraftConflictError(current_revision)
+
+        revision = current_revision + 1
         if row:
             db.execute(
                 text(
