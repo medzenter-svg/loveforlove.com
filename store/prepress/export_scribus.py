@@ -82,12 +82,20 @@ def _relayout_text_frame(frame_name):
         layout_text(frame_name)
         return
 
-    # Older/variant Scripter builds may lack layoutText. A redraw is not as strong
-    # as an explicit relayout, but it is a safe compatibility fallback; the later
-    # overflow gate still fails closed if the frame cannot be validated.
+    layout_chain = getattr(scribus, "layoutTextChain", None)
+    if callable(layout_chain):
+        layout_chain(frame_name)
+        return
+
+    # Older/variant Scripter builds may lack explicit relayout APIs. A redraw is
+    # the last compatibility fallback; the subsequent overflow check still has to
+    # complete successfully, otherwise export fails closed.
     redraw_all = getattr(scribus, "redrawAll", None)
     if callable(redraw_all):
         redraw_all()
+        return
+
+    raise RuntimeError("Scribus does not expose a text relayout API")
 
 
 def _replace_frames(prefix, values):
@@ -108,6 +116,7 @@ def _replace_frames(prefix, values):
 
 def _check_text_overflow():
     overflow = []
+    checked = 0
     for item in scribus.getAllObjects():
         if not (item.startswith("txt__") or item.startswith("lbl__")):
             continue
@@ -115,12 +124,15 @@ def _check_text_overflow():
             # Refresh immediately before the layout-dependent query as a final
             # guard against stale layout after multiple field/label replacements.
             _relayout_text_frame(item)
-            if scribus.textOverflows(item, 1):
-                overflow.append(item)
-        except Exception:
-            # Preserve historical behavior for non-text/unsupported objects here;
-            # required editable frames are validated separately before export.
-            continue
+            is_overflow = scribus.textOverflows(item, 1)
+        except Exception as exc:
+            raise RuntimeError(f"Could not validate text layout for frame {item}: {exc}") from exc
+        checked += 1
+        if is_overflow:
+            overflow.append(item)
+
+    if checked == 0:
+        raise RuntimeError("Template contains no editable text frames to validate")
     if overflow:
         raise RuntimeError("Text overflow in frames: " + ", ".join(sorted(overflow)))
 
