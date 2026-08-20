@@ -4,12 +4,17 @@
 
   const status = document.getElementById('editorSaveStatus');
   const actions = root.querySelector('.editor-actions');
+  const introNote = root.querySelector('.editor-panel > .editor-note');
   const basePath = window.location.pathname.replace(/\/$/, '');
   const draftEndpoint = `${basePath}/draft`;
   const revisionsEndpoint = `${draftEndpoint}/revisions`;
   let hydrating = false;
   let saveTimer = null;
   let latestRevision = null;
+
+  if (introNote) {
+    introNote.textContent = 'Your purchased copy stays editable. Changes are saved to this order, so you can return later, verify the purchase email and continue editing. Recent versions can also be restored.';
+  }
 
   const setStatus = (text) => {
     if (status) status.textContent = text;
