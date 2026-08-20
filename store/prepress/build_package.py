@@ -98,6 +98,15 @@ def _ensure_clean_destination(output_dir):
         )
 
 
+def _scribus_diagnostics(item, proc):
+    return (
+        f"Scribus command diagnostics for {item['filename']}\n"
+        f"Return code: {proc.returncode}\n"
+        f"STDOUT:\n{proc.stdout or '(empty)'}\n"
+        f"STDERR:\n{proc.stderr or '(empty)'}"
+    )
+
+
 def build(job_file, output_dir, scribus_bin="scribus", product_root=None):
     job_file = Path(job_file).resolve()
     output_dir = Path(output_dir).resolve()
@@ -140,7 +149,17 @@ def build(job_file, output_dir, scribus_bin="scribus", product_root=None):
                 if proc.returncode != 0:
                     raise RuntimeError(
                         f"Scribus export failed for {item['filename']}\n"
-                        f"STDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
+                        + _scribus_diagnostics(item, proc)
+                    )
+
+                # Scribus can report process success even when a Scripter exception
+                # prevents PDFfile.save() from writing the requested output. Treat a
+                # missing/empty result as an export failure and preserve the captured
+                # Scripter traceback so the exact frame/template problem is visible.
+                if not staged_output.is_file() or staged_output.stat().st_size == 0:
+                    raise RuntimeError(
+                        f"Scribus returned success but created no usable PDF for {item['filename']}\n"
+                        + _scribus_diagnostics(item, proc)
                     )
 
                 try:
