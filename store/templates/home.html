@@ -14,6 +14,28 @@
   <div class="hero-img" style="background-image:url('{{ url_for('static', filename='img/hero.jpg') }}');"></div>
 </section>
 
+{% if new_arrivals %}
+<section class="section home-new-arrivals">
+  <div class="section-head">
+    <div class="kicker">JUST ADDED</div>
+    <h2>New Arrivals</h2>
+    <p class="section-intro">Fresh designs are added regularly, so the collection can grow without rebuilding the storefront.</p>
+  </div>
+  <div class="grid">
+    {% for p in new_arrivals %}
+    <a class="p-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
+      <div class="thumb preview-protected">
+        <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}" draggable="false">
+        <div class="preview-watermark preview-watermark-small" aria-hidden="true">LOVE FOR LOVE</div>
+      </div>
+      <div class="name">{{ p.name }}</div>
+      <div class="price">{{ price_display(p.price) }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 <div class="moments-title" id="moments">SHOP BY MOMENT</div>
 <div class="moments">
   {% for icon_name, label in [("ring","Engagement"),("glasses","Bridal Shower"),("arch","Ceremony"),("fork","Reception"),("plane","Honeymoon"),("heart","Anniversary"),("gift","Gifts"),("envelope","Thank You")] %}
@@ -30,8 +52,9 @@
     <div class="grid-2x4">
       {% for p in featured %}
       <div>
-        <a class="s-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
-          <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}">
+        <a class="s-tile preview-protected" href="{{ url_for('product_detail', slug=p.slug) }}">
+          <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}" draggable="false">
+          <div class="preview-watermark preview-watermark-small" aria-hidden="true">LOVE FOR LOVE</div>
         </a>
         <div class="tile-cap">{{ p.name }}<br><span class="tile-price">{{ price_display(p.price) }}</span></div>
       </div>
@@ -43,8 +66,9 @@
     <div class="grid-2x4">
       {% for p in stationery %}
       <div>
-        <a class="s-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
-          <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}">
+        <a class="s-tile preview-protected" href="{{ url_for('product_detail', slug=p.slug) }}">
+          <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}" draggable="false">
+          <div class="preview-watermark preview-watermark-small" aria-hidden="true">LOVE FOR LOVE</div>
         </a>
         <div class="tile-cap">{{ p.name }}<br><span class="tile-price">{{ price_display(p.price) }}</span></div>
       </div>
@@ -56,8 +80,9 @@
     <div class="grid-2x4">
       {% for p in curated %}
       <div>
-        <a class="s-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
-          <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}">
+        <a class="s-tile preview-protected" href="{{ url_for('product_detail', slug=p.slug) }}">
+          <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}" draggable="false">
+          <div class="preview-watermark preview-watermark-small" aria-hidden="true">LOVE FOR LOVE</div>
         </a>
         <div class="tile-cap">{{ p.name }}<br><span class="tile-price">{{ price_display(p.price) }}</span></div>
       </div>
