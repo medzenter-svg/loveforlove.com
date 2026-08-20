@@ -81,7 +81,7 @@ PRODUCTS = [
         "files": ["Wedding_Day_Set_loveforlove.pdf"],
         "editable": True,
         "custom_language": True,
-        "language_presets": ["en", "de", "fr", "it", "es", "pt", "nl", "pl", "el", "ru", "uk", "tr", "he"],
+        "language_presets": ["en", "de", "fr", "it", "es", "pt", "nl", "pl", "el", "ru", "tr"],
         "suite_items": FULL_SUITE_ITEMS,
         "print_spec": PRO_PRINT_SPEC,
         "professional_print_package_ready": False,
