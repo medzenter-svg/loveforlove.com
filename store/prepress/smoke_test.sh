@@ -22,6 +22,10 @@ if [ "$COUNT" != "30" ]; then
   exit 1
 fi
 
+xvfb-run -a scribus -g -ns -py \
+  prepress/check_template_fonts.py \
+  "$PREPRESS_ROOT"
+
 python3 prepress/configure_template_cms.py "$PREPRESS_ROOT"
 
 python3 - "$PREPRESS_ROOT" <<'PY'
@@ -47,7 +51,6 @@ if validated != 30:
 print(f"Validated {validated} Scribus templates: geometry, bleed and CMS all passed.")
 PY
 
-# Prove the actual export path before scaling to all 60 professional files.
 python3 prepress/export_smoke.py \
   "$PREPRESS_ROOT" \
   "$EXPORT_ROOT" \
@@ -59,9 +62,6 @@ if [ "$PDF_COUNT" != "4" ]; then
   exit 1
 fi
 
-# Files are created by the container's root user on a bind-mounted host path.
-# Make validated smoke artifacts readable/traversable by the GitHub runner so
-# actions/upload-artifact can zip them without changing their contents.
 chmod -R a+rX "$ROOT/$COLLECTION"
 
 echo "Smoke package ready at: $PREPRESS_ROOT"
