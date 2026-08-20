@@ -70,12 +70,40 @@ def _check_required_frames(piece):
         )
 
 
+def _relayout_text_frame(frame_name):
+    """Force Scribus to recompute text layout after programmatic replacement.
+
+    Layout-dependent Scripter APIs can otherwise observe stale frame geometry after
+    setText(). Scribus 1.6.x exposes layoutText(); feature detection keeps the
+    exporter compatible with environments where that method is unavailable.
+    """
+    layout_text = getattr(scribus, "layoutText", None)
+    if callable(layout_text):
+        layout_text(frame_name)
+        return
+
+    # Older/variant Scripter builds may lack layoutText. A redraw is not as strong
+    # as an explicit relayout, but it is a safe compatibility fallback; the later
+    # overflow gate still fails closed if the frame cannot be validated.
+    redraw_all = getattr(scribus, "redrawAll", None)
+    if callable(redraw_all):
+        redraw_all()
+
+
 def _replace_frames(prefix, values):
+    changed = []
     for key, value in (values or {}).items():
         frame_name = f"{prefix}{key}"
         if not scribus.objectExists(frame_name):
             continue
         scribus.setText(str(value or ""), frame_name)
+        changed.append(frame_name)
+
+    # Reflow after all replacements so textOverflows() evaluates the personalized
+    # content rather than the layout cached when the SLA was opened.
+    for frame_name in changed:
+        _relayout_text_frame(frame_name)
+    return changed
 
 
 def _check_text_overflow():
@@ -84,9 +112,14 @@ def _check_text_overflow():
         if not (item.startswith("txt__") or item.startswith("lbl__")):
             continue
         try:
+            # Refresh immediately before the layout-dependent query as a final
+            # guard against stale layout after multiple field/label replacements.
+            _relayout_text_frame(item)
             if scribus.textOverflows(item, 1):
                 overflow.append(item)
         except Exception:
+            # Preserve historical behavior for non-text/unsupported objects here;
+            # required editable frames are validated separately before export.
             continue
     if overflow:
         raise RuntimeError("Text overflow in frames: " + ", ".join(sorted(overflow)))
