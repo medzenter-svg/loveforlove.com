@@ -71,12 +71,7 @@ def _check_required_frames(piece):
 
 
 def _relayout_text_frame(frame_name):
-    """Force Scribus to recompute text layout after programmatic replacement.
-
-    Layout-dependent Scripter APIs can otherwise observe stale frame geometry after
-    setText(). Scribus 1.6.x exposes layoutText(); feature detection keeps the
-    exporter compatible with environments where that method is unavailable.
-    """
+    """Force Scribus to recompute text layout after programmatic replacement."""
     layout_text = getattr(scribus, "layoutText", None)
     if callable(layout_text):
         layout_text(frame_name)
@@ -87,9 +82,6 @@ def _relayout_text_frame(frame_name):
         layout_chain(frame_name)
         return
 
-    # Older/variant Scripter builds may lack explicit relayout APIs. A redraw is
-    # the last compatibility fallback; the subsequent overflow check still has to
-    # complete successfully, otherwise export fails closed.
     redraw_all = getattr(scribus, "redrawAll", None)
     if callable(redraw_all):
         redraw_all()
@@ -98,19 +90,44 @@ def _relayout_text_frame(frame_name):
     raise RuntimeError("Scribus does not expose a text relayout API")
 
 
+def _replace_text_preserving_formatting(frame_name, value):
+    """Replace placeholder text without discarding the template's direct styling.
+
+    Scribus setText() clears the old story before inserting new text. With direct
+    formatting, that can also discard the font/size/alignment attached to the
+    placeholder and make replacement text fall back to document defaults.
+
+    Appending the replacement first makes it inherit the placeholder formatting;
+    deleting only the original prefix then leaves the new content styled exactly
+    like the template. This is intentionally done for every editable field/label.
+    """
+    new_text = str(value or "")
+    old_length = scribus.getTextLength(frame_name)
+
+    if old_length > 0 and new_text:
+        scribus.insertText(new_text, old_length, frame_name)
+        scribus.selectText(0, old_length, frame_name)
+        scribus.deleteText(frame_name)
+    elif old_length > 0:
+        scribus.selectText(0, old_length, frame_name)
+        scribus.deleteText(frame_name)
+    else:
+        # Structural templates are expected to contain non-empty placeholders.
+        # Keep a defensive fallback for custom templates while still validating
+        # the resulting layout before export.
+        scribus.setText(new_text, frame_name)
+
+    _relayout_text_frame(frame_name)
+
+
 def _replace_frames(prefix, values):
     changed = []
     for key, value in (values or {}).items():
         frame_name = f"{prefix}{key}"
         if not scribus.objectExists(frame_name):
             continue
-        scribus.setText(str(value or ""), frame_name)
+        _replace_text_preserving_formatting(frame_name, value)
         changed.append(frame_name)
-
-    # Reflow after all replacements so textOverflows() evaluates the personalized
-    # content rather than the layout cached when the SLA was opened.
-    for frame_name in changed:
-        _relayout_text_frame(frame_name)
     return changed
 
 
@@ -121,8 +138,6 @@ def _check_text_overflow():
         if not (item.startswith("txt__") or item.startswith("lbl__")):
             continue
         try:
-            # Refresh immediately before the layout-dependent query as a final
-            # guard against stale layout after multiple field/label replacements.
             _relayout_text_frame(item)
             is_overflow = scribus.textOverflows(item, 1)
         except Exception as exc:
