@@ -3,7 +3,13 @@ import uuid
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort
 from itsdangerous import URLSafeSerializer, BadSignature
 
-from products import PRODUCTS_BY_SLUG, PUBLISHED_PRODUCTS, OCCASION_ROADMAP, price_display
+from products import (
+    PRODUCTS_BY_SLUG,
+    PUBLISHED_PRODUCTS,
+    OCCASION_ROADMAP,
+    is_sellable_product,
+    price_display,
+)
 from suite_locales import SUITE_LOCALES, LANGUAGE_NAMES, RTL_LANGUAGES
 from suite_optional_locales import OPTIONAL_SUITE_LOCALES
 from suite_weekend_locales import WEEKEND_SUITE_LOCALES
@@ -121,7 +127,7 @@ def shop():
 @app.route("/product/<slug>")
 def product_detail(slug):
     product = PRODUCTS_BY_SLUG.get(slug)
-    if not product or not product.get("published", True):
+    if not product or not is_sellable_product(product):
         abort(404)
     return render_template("product.html", product=product)
 
@@ -165,7 +171,7 @@ def customize(access_token, slug):
 @app.route("/cart/add/<slug>", methods=["POST"])
 def cart_add(slug):
     product = PRODUCTS_BY_SLUG.get(slug)
-    if not product or not product.get("published", True):
+    if not product or not is_sellable_product(product):
         abort(404)
     cart = get_cart()
     if slug not in cart:
@@ -187,8 +193,8 @@ def cart_remove(slug):
 
 @app.route("/cart")
 def cart_view():
-    published_slugs = {p["slug"] for p in PUBLISHED_PRODUCTS}
-    cart = [slug for slug in get_cart() if slug in published_slugs]
+    sellable_slugs = {p["slug"] for p in PUBLISHED_PRODUCTS}
+    cart = [slug for slug in get_cart() if slug in sellable_slugs]
     session["cart"] = cart
     items = [PRODUCTS_BY_SLUG[s] for s in cart]
     total = sum(p["price"] for p in items)
@@ -197,8 +203,8 @@ def cart_view():
 
 @app.route("/checkout", methods=["POST"])
 def checkout():
-    published_slugs = {p["slug"] for p in PUBLISHED_PRODUCTS}
-    cart = [slug for slug in get_cart() if slug in published_slugs]
+    sellable_slugs = {p["slug"] for p in PUBLISHED_PRODUCTS}
+    cart = [slug for slug in get_cart() if slug in sellable_slugs]
     items = [PRODUCTS_BY_SLUG[s] for s in cart]
     if not items:
         return redirect(url_for("cart_view"))
