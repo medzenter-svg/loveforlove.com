@@ -34,7 +34,7 @@ ALLOWED_LABELS = {
 
 MAX_FIELD_LENGTH = 600
 MAX_LABEL_LENGTH = 120
-SUPPORTED_LANGUAGES = {"en", "de", "fr", "it", "es", "pt", "nl", "pl", "el", "ru", "uk", "tr", "he"}
+SUPPORTED_LANGUAGES = {"en", "de", "fr", "it", "es", "pt", "nl", "pl", "el", "ru", "tr"}
 
 
 class PrintJobValidationError(ValueError):
