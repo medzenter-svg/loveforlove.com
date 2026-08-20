@@ -11,9 +11,20 @@
     <h1>{{ product.name }}</h1>
     <div class="pd-price">{{ price_display(product.price) }}</div>
     <p class="pd-desc">{{ product.description }}</p>
-    {% if product.files|length > 1 %}
+
+    {% if product.editable %}
+    <div style="border:1px solid var(--line);padding:18px 20px;margin:-8px 0 24px;background:#fff;">
+      <div style="font-size:10px;letter-spacing:2px;color:var(--gold);font-weight:600;margin-bottom:10px;">COORDINATED & EDITABLE</div>
+      <p style="font-size:12px;line-height:1.7;color:var(--sub);margin:0 0 10px;">The visual design stays consistent across the complete suite while you edit all personal wording after purchase.</p>
+      <ul style="font-size:12px;line-height:1.8;color:var(--sub);margin:0;padding-left:18px;">
+        {% for item in product.suite_items %}<li>{{ item }}</li>{% endfor %}
+      </ul>
+      <p style="font-size:11px;line-height:1.6;color:var(--sub);margin:12px 0 0;">Includes language presets plus fully editable labels, so custom wording can be entered in any language.</p>
+    </div>
+    {% elif product.files|length > 1 %}
     <p class="pd-desc" style="margin-top:-20px;font-size:13px;">Includes {{ product.files|length }} matching print-ready files.</p>
     {% endif %}
+
     <p class="pd-desc" style="font-size:12px;opacity:.72;">Store images are protected previews. Purchased files are delivered without the preview watermark.</p>
     <form action="{{ url_for('cart_add', slug=product.slug) }}" method="post">
       <button class="btn btn-gold" type="submit">ADD TO CART</button>
