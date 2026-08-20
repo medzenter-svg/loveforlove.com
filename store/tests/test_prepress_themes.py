@@ -17,7 +17,7 @@ from prepress.design_themes import (
 )
 
 
-PROTOTYPE_CODES = {"amalfi-luce", "monaco-regatta", "como-sereno"}
+PROTOTYPE_CODES = {"amalfi-luce"}
 
 
 class PrepressThemeTests(unittest.TestCase):
@@ -33,19 +33,19 @@ class PrepressThemeTests(unittest.TestCase):
             with self.assertRaises(PrepressThemeError, msg=code):
                 get_prepress_theme(code, require_implemented=True)
 
-    def test_three_design_locked_themes_allow_invitation_prototype_only(self):
-        for code in PROTOTYPE_CODES:
-            theme = get_prototype_theme(code, "invitation")
-            self.assertTrue(theme["prototype_ready"])
-            self.assertFalse(theme["implemented"])
-            with self.assertRaises(PrepressThemeError, msg=code):
-                get_prototype_theme(code, "menu")
+    def test_amalfi_design_locked_theme_allows_invitation_prototype_only(self):
+        theme = get_prototype_theme("amalfi-luce", "invitation")
+        self.assertTrue(theme["prototype_ready"])
+        self.assertFalse(theme["implemented"])
+        self.assertEqual(theme["prototype_piece"], "invitation")
+        with self.assertRaises(PrepressThemeError):
+            get_prototype_theme("amalfi-luce", "menu")
 
     def test_other_planned_themes_have_no_prototype_path_yet(self):
         for code, theme in WEDDING_PREPRESS_THEMES.items():
             if code == "paris-editorial" or code in PROTOTYPE_CODES:
                 continue
-            self.assertFalse(theme.get("prototype_ready"))
+            self.assertFalse(theme.get("prototype_ready"), code)
             with self.assertRaises(PrepressThemeError, msg=code):
                 get_prototype_theme(code, "invitation")
 
