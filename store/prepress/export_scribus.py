@@ -1,7 +1,10 @@
 """Run inside Scribus Scripter to personalize one SLA template and export PDF/X.
 
 CLI example:
-  scribus -g -ns -py export_scribus.py -- template.sla output.pdf job.json pdfx4_worldwide
+  scribus -g -ns -py export_scribus.py template.sla output.pdf job.json pdfx4_worldwide
+
+Scribus requires -py/--python-script to be the last Scribus option. Tokens after
+the script path are passed directly to the Python script as arguments.
 
 The SLA template owns all visual design, page geometry, document bleed and color
 management. Editable text frames use these names:
