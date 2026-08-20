@@ -67,6 +67,19 @@
   margin-bottom: 42px;
 }
 
+/* The category list can grow with the catalog without breaking the layout. */
+.category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 22px;
+}
+
+.category-filter a {
+  margin: 0;
+  white-space: nowrap;
+}
+
 @media (max-width: 700px) {
   .preview-watermark {
     font-size: 18px;
@@ -75,5 +88,9 @@
 
   .preview-watermark-small {
     font-size: 10px;
+  }
+
+  .category-filter {
+    gap: 10px 14px;
   }
 }
