@@ -2,8 +2,9 @@
 {% block title %}{{ product.name }} — loveforlove.com{% endblock %}
 {% block content %}
 <div class="product-detail">
-  <div class="pd-img">
-    <img src="{{ url_for('static', filename='products/' + product.cover) }}" alt="{{ product.name }}">
+  <div class="pd-img preview-protected">
+    <img src="{{ url_for('static', filename='products/' + product.cover) }}" alt="{{ product.name }}" draggable="false">
+    <div class="preview-watermark" aria-hidden="true">LOVE FOR LOVE</div>
   </div>
   <div class="pd-info">
     <div class="pd-cat">{{ product.category.upper() }}</div>
@@ -13,6 +14,7 @@
     {% if product.files|length > 1 %}
     <p class="pd-desc" style="margin-top:-20px;font-size:13px;">Includes {{ product.files|length }} matching print-ready files.</p>
     {% endif %}
+    <p class="pd-desc" style="font-size:12px;opacity:.72;">Store images are protected previews. Purchased files are delivered without the preview watermark.</p>
     <form action="{{ url_for('cart_add', slug=product.slug) }}" method="post">
       <button class="btn btn-gold" type="submit">ADD TO CART</button>
     </form>
