@@ -1,0 +1,16 @@
+{
+  "collection_slug": "wedding-day-set",
+  "language": "en",
+  "enabled_optional": [],
+  "fields": {
+    "coupleNames": "Sofia & Matteo",
+    "weddingDate": "18 September 2027",
+    "weddingTime": "5:30 PM",
+    "venueName": "Villa Cimbrone",
+    "venueAddress": "Via Santa Chiara 26\n84010 Ravello SA, Italy"
+  },
+  "labels": {
+    "invitation": "Wedding Invitation",
+    "join_us": "Together with their families, invite you to celebrate their wedding"
+  }
+}
