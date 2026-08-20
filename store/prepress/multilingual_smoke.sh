@@ -17,9 +17,13 @@ xvfb-run -a scribus -g -ns -py \
   "$COLLECTION" \
   "$ROOT"
 
-python3 prepress/configure_template_cms.py "$PREPRESS_ROOT"
-
 test "$(find "$PREPRESS_ROOT" -type f -name '*.sla' | wc -l | tr -d ' ')" = "30"
+
+xvfb-run -a scribus -g -ns -py \
+  prepress/check_template_fonts.py \
+  "$PREPRESS_ROOT"
+
+python3 prepress/configure_template_cms.py "$PREPRESS_ROOT"
 
 python3 prepress/multilingual_smoke.py \
   "$PREPRESS_ROOT" \
@@ -34,8 +38,6 @@ fi
 
 test -f "$OUTPUT_ROOT/MULTILINGUAL_SMOKE_MANIFEST.json"
 
-# Keep all 165 files inside the job for validation, and upload a compact review
-# set: all 11 active languages for three typography-sensitive pieces.
 mkdir -p "$REVIEW_ROOT"
 cp "$OUTPUT_ROOT/MULTILINGUAL_SMOKE_MANIFEST.json" "$REVIEW_ROOT/"
 for language in en de fr it es pt nl pl el ru tr; do
@@ -46,5 +48,5 @@ done
 
 chmod -R a+rX "$ROOT/$COLLECTION"
 
-echo "Validated 165 multilingual PDFs."
+echo "Validated 165 multilingual PDFs with approved premium fonts."
 echo "Review artifact ready at: $REVIEW_ROOT"
