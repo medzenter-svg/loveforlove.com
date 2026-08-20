@@ -5,17 +5,17 @@
   <h1>Thank you for your order!</h1>
   <p>
     {% if dev_mode %}
-      Preview mode: this purchase was simulated because Stripe isn't connected yet. Once real payments are on, your customers will land here for real after checking out.
+      Preview mode: no payment was taken. The links below are available only for this short test session.
     {% else %}
-      Your files are ready below. A copy of these links has also been sent to your email.
+      Your payment is confirmed. Your protected download links are ready below and remain valid for a limited time.
     {% endif %}
   </p>
   <div class="download-list">
     {% for p in items %}
       {% for f in p.files %}
       <div class="dl-item">
-        <span>{{ p.name }}{% if p.files|length > 1 %} — {{ f.split('_')[-2] if '_' in f else f }}{% endif %}</span>
-        <a class="btn" href="{{ url_for('download', order_id=order_id, slug=p.slug, filename=f) }}">DOWNLOAD</a>
+        <span>{{ p.name }}{% if p.files|length > 1 %} — {{ f }}{% endif %}</span>
+        <a class="btn" href="{{ url_for('download', token=download_token, slug=p.slug, filename=f) }}">DOWNLOAD</a>
       </div>
       {% endfor %}
     {% endfor %}
