@@ -380,9 +380,8 @@ def checkout():
         return redirect(url_for("cart_view"))
 
     access_token = make_access_token(order_id, slugs, customer_email, dev_paid=True)
-    grant_customer_access(read_access_token(access_token))
     session["cart"] = []
-    return redirect(url_for("success", access_token=access_token))
+    return access_redirect(access_token, url_for("success", access_token=access_token))
 
 
 @app.route("/success")
@@ -392,7 +391,7 @@ def success():
     if access_token:
         payload = paid_access(access_token)
         if not customer_access_verified(payload):
-            return access_redirect(access_token, request.path + "?access_token=" + access_token)
+            return access_redirect(access_token, url_for("success", access_token=access_token))
     else:
         stripe_session_id = request.args.get("stripe_session")
         if not LIVE_PAYMENTS or not stripe_session_id:
@@ -417,8 +416,8 @@ def success():
             customer_email,
             stripe_session_id=checkout_session.id,
         )
-        payload = paid_access(access_token)
-        grant_customer_access(payload)
+        paid_access(access_token)
+        return access_redirect(access_token, url_for("success", access_token=access_token))
 
     items = [PRODUCTS_BY_SLUG[s] for s in payload.get("slugs", []) if s in PRODUCTS_BY_SLUG]
     return render_template(
