@@ -37,6 +37,15 @@ class PaidAccessTests(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn("/access/", response.headers["Location"])
 
+    def test_success_page_also_requires_email_verification(self):
+        client = store_app.app.test_client()
+        response = client.get(
+            f"/success?access_token={self.token}",
+            follow_redirects=False,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/access/", response.headers["Location"])
+
     def test_wrong_email_does_not_unlock_order(self):
         client = store_app.app.test_client()
         response = client.post(
@@ -70,6 +79,20 @@ class PaidAccessTests(unittest.TestCase):
                 verified[payload["order_id"]],
                 payload["customer_email_hash"],
             )
+
+    def test_verified_browser_can_open_success_page(self):
+        client = store_app.app.test_client()
+        payload = store_app.read_access_token(self.token)
+        with client.session_transaction() as flask_session:
+            flask_session["verified_orders"] = {
+                payload["order_id"]: payload["customer_email_hash"]
+            }
+        response = client.get(
+            f"/success?access_token={self.token}",
+            follow_redirects=False,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"order-123", response.data)
 
     def test_order_id_is_part_of_browser_verification_scope(self):
         client = store_app.app.test_client()
