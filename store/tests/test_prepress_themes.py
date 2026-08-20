@@ -17,7 +17,15 @@ from prepress.design_themes import (
 )
 
 
-PROTOTYPE_CODES = {"amalfi-luce"}
+PROTOTYPE_CODES = {
+    "amalfi-luce",
+    "monaco-regatta",
+    "como-sereno",
+    "provence-rose",
+    "santorini-aegean",
+    "riviera-garden",
+    "vienna-champagne",
+}
 
 
 class PrepressThemeTests(unittest.TestCase):
@@ -26,28 +34,21 @@ class PrepressThemeTests(unittest.TestCase):
         self.assertEqual(implemented_theme_codes(), {"paris-editorial"})
         self.assertTrue(get_prepress_theme("paris-editorial")["implemented"])
 
-    def test_planned_wedding_themes_fail_closed_for_customer_export(self):
+    def test_every_unapproved_theme_fails_closed_for_customer_export(self):
         for code, theme in WEDDING_PREPRESS_THEMES.items():
             if theme.get("implemented"):
                 continue
             with self.assertRaises(PrepressThemeError, msg=code):
                 get_prepress_theme(code, require_implemented=True)
 
-    def test_amalfi_design_locked_theme_allows_invitation_prototype_only(self):
-        theme = get_prototype_theme("amalfi-luce", "invitation")
-        self.assertTrue(theme["prototype_ready"])
-        self.assertFalse(theme["implemented"])
-        self.assertEqual(theme["prototype_piece"], "invitation")
-        with self.assertRaises(PrepressThemeError):
-            get_prototype_theme("amalfi-luce", "menu")
-
-    def test_other_planned_themes_have_no_prototype_path_yet(self):
-        for code, theme in WEDDING_PREPRESS_THEMES.items():
-            if code == "paris-editorial" or code in PROTOTYPE_CODES:
-                continue
-            self.assertFalse(theme.get("prototype_ready"), code)
+    def test_seven_design_locked_themes_allow_invitation_prototype_only(self):
+        for code in PROTOTYPE_CODES:
+            theme = get_prototype_theme(code, "invitation")
+            self.assertTrue(theme["prototype_ready"], code)
+            self.assertFalse(theme["implemented"], code)
+            self.assertEqual(theme["prototype_piece"], "invitation", code)
             with self.assertRaises(PrepressThemeError, msg=code):
-                get_prototype_theme(code, "invitation")
+                get_prototype_theme(code, "menu")
 
     def test_every_wedding_blueprint_has_a_registered_prepress_theme(self):
         wedding = [item for item in COLLECTION_BLUEPRINTS if item["occasion"] == "Weddings"]
