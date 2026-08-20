@@ -24,8 +24,26 @@ jobs:
       - name: Build reproducible prepress image
         run: docker build -f store/prepress/Dockerfile -t loveforlove-prepress .
 
-      - name: Verify prepress executables
-        run: docker run --rm loveforlove-prepress python3 prepress/check_environment.py
+      - name: Verify prepress environment and ICC profiles
+        run: docker run --rm loveforlove-prepress python3 prepress/check_environment.py --require-profiles
 
-      - name: Generate all 30 Scribus base templates
-        run: docker run --rm loveforlove-prepress bash prepress/smoke_test.sh
+      - name: Generate and preflight all 30 Scribus base templates
+        run: |
+          rm -rf .prepress-smoke
+          mkdir -p .prepress-smoke
+          docker run --rm \
+            -e LF_SMOKE_ROOT=/out \
+            -v "$PWD/.prepress-smoke:/out" \
+            loveforlove-prepress \
+            bash prepress/smoke_test.sh
+
+      - name: Count generated templates
+        run: test "$(find .prepress-smoke/wedding-day-set/prepress -type f -name '*.sla' | wc -l)" -eq 30
+
+      - name: Upload validated Scribus templates
+        uses: actions/upload-artifact@v4
+        with:
+          name: wedding-day-set-scribus-smoke
+          path: .prepress-smoke/wedding-day-set/prepress
+          if-no-files-found: error
+          retention-days: 7
