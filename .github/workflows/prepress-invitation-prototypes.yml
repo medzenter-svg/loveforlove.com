@@ -51,4 +51,5 @@ jobs:
           name: wedding-invitation-premium-prototypes
           path: .prepress-invitation-prototypes
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 5
