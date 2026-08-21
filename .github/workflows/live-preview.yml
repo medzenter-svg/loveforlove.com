@@ -1,0 +1,89 @@
+name: Live Preview
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'preview/live-url.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  live-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install app
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r store/requirements.txt
+
+      - name: Start current site
+        run: |
+          cd store
+          nohup python app.py > /tmp/loveforlove-app.log 2>&1 &
+          echo $! > /tmp/loveforlove-app.pid
+
+      - name: Wait for site
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:5000/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/loveforlove-app.log
+          exit 1
+
+      - name: Install Cloudflare tunnel
+        run: |
+          curl -L --fail --retry 3 -o /tmp/cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+          sudo dpkg -i /tmp/cloudflared.deb
+
+      - name: Start temporary public preview
+        run: |
+          nohup cloudflared tunnel --no-autoupdate --url http://127.0.0.1:5000 > /tmp/cloudflared.log 2>&1 &
+          echo $! > /tmp/cloudflared.pid
+          for i in {1..40}; do
+            URL=$(grep -oE 'https://[a-zA-Z0-9-]+\.trycloudflare\.com' /tmp/cloudflared.log | head -n1 || true)
+            if [ -n "$URL" ]; then
+              mkdir -p preview
+              printf '%s\n' "$URL" > preview/live-url.txt
+              echo "LIVE_URL=$URL" >> "$GITHUB_ENV"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/cloudflared.log
+          exit 1
+
+      - name: Save preview URL in repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add preview/live-url.txt
+          git commit -m "Update temporary live preview URL [skip ci]" || true
+          git push || true
+
+      - name: Keep preview alive
+        run: |
+          echo "Live preview: $LIVE_URL"
+          for i in {1..300}; do
+            if ! kill -0 $(cat /tmp/cloudflared.pid) 2>/dev/null; then
+              echo "Tunnel stopped unexpectedly"
+              cat /tmp/cloudflared.log
+              exit 1
+            fi
+            sleep 60
+          done
