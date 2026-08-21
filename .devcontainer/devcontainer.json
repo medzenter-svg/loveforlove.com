@@ -1,0 +1,13 @@
+{
+  "name": "LoveForLove Live Preview",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bookworm",
+  "forwardPorts": [5000],
+  "portsAttributes": {
+    "5000": {
+      "label": "loveforlove.com preview",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "python -m pip install --upgrade pip && pip install -r store/requirements.txt",
+  "postStartCommand": "cd store && nohup python app.py > /tmp/loveforlove.log 2>&1 &"
+}
