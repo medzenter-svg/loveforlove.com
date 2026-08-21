@@ -34,9 +34,8 @@
     <section class="preview-panel">
       <div class="panel-title">3. LIVE PREVIEW</div>
       <div class="paper-stage">
-        <article id="card" class="wedding-card" aria-label="Live preview">
+        <article id="card" class="wedding-card amalfi-card" aria-label="Live preview">
           <div class="card-border"></div>
-          <div class="corner corner-a">❦</div><div class="corner corner-b">❦</div>
           <div id="cardMonogram" class="card-monogram">O &amp; M</div>
           <div id="cardEyebrow" class="card-eyebrow">WEDDING COLLECTION</div>
           <h2 id="cardTitle">Wedding Invitation</h2>
@@ -55,7 +54,7 @@
 <script>
 (() => {
   const pieces = [
-    ["Save the Date","5 × 7 in / A6",["Names","Date","City & Country","Website"]],
+    ["Save the Date","5 × 7 in · 127 × 177.8 mm · 3 mm bleed",["Names","Date","Venue","Address","Website"]],
     ["Main Invitation","5 × 7 in / A5",["Names","Invitation text","Date & Time","Venue","Address","RSVP line"]],
     ["Details Card","4 × 6 in / A6",["Heading","Arrival information","Venue details","Parking","Website"]],
     ["RSVP Card","4.25 × 5.5 in / A6",["Reply by date","Guest name","Attendance options","Menu choices","Dietary notes"]],
@@ -143,6 +142,7 @@
   }
   function updatePreview(){
     const p = pieces[Number(select.value || 1)-1]; cardTitle.textContent = p.title; monogram.textContent = initials(); cardBody.innerHTML = '';
+    document.getElementById('card').classList.toggle('amalfi-save-date', p.id === 1);
     p.fields.forEach(label => {
       const row = document.createElement('div'); row.className = 'preview-row';
       const key = document.createElement('span'); key.className = 'preview-key'; key.textContent = label;
