@@ -53,8 +53,8 @@
 <script>
 (() => {
   const pieces = [
-    ["Save the Date","5 × 7 in · 127 × 177.8 mm · 3 mm bleed",["Save the date text","Names","Date","Venue","Address"]],
-    ["Main Invitation","5 × 7 in / A5",["Names","Invitation text","Date & Time","Venue","Address","RSVP line"]],
+    ["Save the Date","5 × 7 in · 127 × 177.8 mm · 3 mm bleed",["Names","Personal message to guests","Date","Venue","Address"]],
+    ["Main Invitation","5 × 7 in / A5",["Names","Personal message to guests","Date & Time","Venue","Address","RSVP line"]],
     ["Details Card","4 × 6 in / A6",["Heading","Arrival information","Venue details","Parking"]],
     ["RSVP Card","4.25 × 5.5 in / A6",["Reply by date","Guest name","Attendance options","Menu choices","Dietary notes"]],
     ["Wedding Website Card","4 × 6 in / A6",["Heading","Website","Password","QR code text"]],
@@ -81,7 +81,7 @@
   ].map((p, i) => ({id:i+1,title:p[0],format:p[1],fields:p[2]}));
 
   const samples = {
-    "Names":"Olivia & Matteo", "Date":"18 September 2027", "City & Country":"Ravello, Italy", "Save the date text":"Please save the date for the wedding of",
+    "Names":"Olivia & Matteo", "Date":"18 September 2027", "City & Country":"Ravello, Italy", "Personal message to guests":"We would be delighted to celebrate with you.",
     "Website":"loveforlove.com/olivia-matteo", "Invitation text":"Together with their families invite you to celebrate their wedding",
     "Date & Time":"Saturday, 18 September 2027 · 4:00 PM", "Venue":"Villa Cimbrone", "Address":"Via Santa Chiara 26, Ravello",
     "RSVP line":"Kindly reply by 1 August 2027", "Heading":"Wedding Details", "Arrival information":"Please arrive 30 minutes before the ceremony",
