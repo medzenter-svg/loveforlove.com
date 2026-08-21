@@ -1,21 +1,16 @@
 {% extends "base.html" %}
-{% block title %}{{ product.name }} — loveforlove.com{% endblock %}
+{% block title %}{{ product.name }} — LOVE FOR LOVE{% endblock %}
 {% block content %}
-<div class="product-detail">
-  <div class="pd-img">
-    <img src="{{ url_for('static', filename='products/' + product.cover) }}" alt="{{ product.name }}">
-  </div>
-  <div class="pd-info">
-    <div class="pd-cat">{{ product.category.upper() }}</div>
+<section class="product-detail">
+  <div class="product-visual"><img src="{{ url_for('static', filename='products/' + product.cover) }}" alt="{{ product.name }}"><div class="preview-mark">PREVIEW · LOVEFORLOVE.COM</div></div>
+  <div class="product-copy">
+    <div class="kicker">{{ product.category }}</div>
     <h1>{{ product.name }}</h1>
-    <div class="pd-price">{{ price_display(product.price) }}</div>
-    <p class="pd-desc">{{ product.description }}</p>
-    {% if product.files|length > 1 %}
-    <p class="pd-desc" style="margin-top:-20px;font-size:13px;">Includes {{ product.files|length }} matching print-ready files.</p>
-    {% endif %}
-    <form action="{{ url_for('cart_add', slug=product.slug) }}" method="post">
-      <button class="btn btn-gold" type="submit">ADD TO CART</button>
-    </form>
+    <div class="test-status">{{ product.status }}</div>
+    <p>{{ product.description }}</p>
+    <ul><li>Choose any of the 25 wedding pieces</li><li>Edit all personal wedding information</li><li>Save the test on this device</li><li>Download PNG or print/save PDF</li></ul>
+    <a class="btn-primary" href="{{ url_for('test_editor', slug=product.slug) }}">OPEN THE TEST EDITOR</a>
+    <p class="fineprint">This is a functional review. It is not a purchase and no payment is requested.</p>
   </div>
-</div>
+</section>
 {% endblock %}
