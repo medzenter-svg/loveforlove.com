@@ -54,7 +54,7 @@
 <script>
 (() => {
   const pieces = [
-    ["Save the Date","5 × 7 in · 127 × 177.8 mm · 3 mm bleed",["Names","Date","Venue","Address","Website"]],
+    ["Save the Date","5 × 7 in · 127 × 177.8 mm · 3 mm bleed",["Names","Date","Venue","Address"]],
     ["Main Invitation","5 × 7 in / A5",["Names","Invitation text","Date & Time","Venue","Address","RSVP line"]],
     ["Details Card","4 × 6 in / A6",["Heading","Arrival information","Venue details","Parking","Website"]],
     ["RSVP Card","4.25 × 5.5 in / A6",["Reply by date","Guest name","Attendance options","Menu choices","Dietary notes"]],
@@ -157,7 +157,7 @@
   document.getElementById('pngBtn').addEventListener('click', () => {
     const p=pieces[Number(select.value)-1], canvas=document.getElementById('exportCanvas'), ctx=canvas.getContext('2d');
     ctx.fillStyle='#fbf7ef'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.strokeStyle='#b6924b'; ctx.lineWidth=6; ctx.strokeRect(55,55,1390,1990); ctx.lineWidth=2; ctx.strokeRect(78,78,1344,1944);
-    ctx.textAlign='center'; ctx.fillStyle='#9c7838'; ctx.font='46px Georgia'; ctx.fillText(initials(),750,210); ctx.font='28px Arial'; ctx.fillText('WEDDING COLLECTION',750,285);
+    ctx.textAlign='center'; ctx.fillStyle='#9c7838'; ctx.font='46px Georgia'; ctx.fillText(initials(),750,210); if(p.id!==1){ctx.font='28px Arial';ctx.fillText('WEDDING COLLECTION',750,285);}
     ctx.fillStyle='#32291f'; ctx.font='64px Georgia'; ctx.fillText(p.title,750,390); ctx.fillStyle='#b6924b'; ctx.fillRect(570,440,360,3);
     let y=540; p.fields.forEach(label=>{ctx.fillStyle='#9c7838';ctx.font='22px Arial';ctx.fillText(label.toUpperCase(),750,y);y+=42;ctx.fillStyle='#32291f';ctx.font='32px Georgia';wrapText(ctx,valueFor(p,label),750,y,1180,42);y+=82;});
     ctx.fillStyle='#9c7838';ctx.font='20px Arial';ctx.fillText('Designed by loveforlove.com',750,2020);
