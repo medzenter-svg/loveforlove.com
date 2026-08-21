@@ -8,9 +8,15 @@
     <h1>{{ product.name }}</h1>
     <div class="test-status">{{ product.status }}</div>
     <p>{{ product.description }}</p>
-    <ul><li>Choose any of the 25 wedding pieces</li><li>Edit all personal wedding information</li><li>Save the test on this device</li><li>Download PNG or print/save PDF</li></ul>
-    <a class="btn-primary" href="{{ url_for('test_editor', slug=product.slug) }}">OPEN THE TEST EDITOR</a>
+    <ul><li>25 coordinated wedding pieces</li><li>Edit names, dates, venue, address and website</li><li>Live preview directly on loveforlove.com</li><li>Professional 5 × 7 in format with 3 mm bleed</li></ul>
+    <div class="product-format-box"><b>READY EXAMPLE · PIECE 01</b><span>Save the Date · 5 × 7 in · 300 dpi · 3 mm bleed</span></div>
+    <a class="btn-primary" href="{{ url_for('test_editor', slug=product.slug) }}">CUSTOMISE THE READY PRODUCT</a>
     <p class="fineprint">This is a functional review. It is not a purchase and no payment is requested.</p>
   </div>
+</section>
+<section class="product-proof-strip">
+  <div><b>01</b><span>Save the Date</span><small>Ready for testing</small></div>
+  <div><b>02–25</b><span>Matching suite</span><small>Visible in the editor list</small></div>
+  <div><b>NO EXTERNAL APP</b><span>Everything stays here</span><small>loveforlove.com editor</small></div>
 </section>
 {% endblock %}
