@@ -1,25 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Shop — loveforlove.com{% endblock %}
+{% block title %}Test Collection — LOVE FOR LOVE{% endblock %}
 {% block content %}
-<section class="section">
-  <div class="section-head">
-    <div class="kicker">SHOP</div>
-    <h2>All designs</h2>
-  </div>
-  <div class="category-filter">
-    <a href="{{ url_for('shop') }}" class="{{ 'active' if not active_category }}">ALL</a>
-    {% for c in categories %}
-    <a href="{{ url_for('shop', category=c) }}" class="{{ 'active' if active_category == c }}">{{ c.upper() }}</a>
-    {% endfor %}
-  </div>
-  <div class="grid">
-    {% for p in products %}
-    <a class="p-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
-      <div class="thumb"><img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}"></div>
-      <div class="name">{{ p.name }}</div>
-      <div class="price">{{ price_display(p.price) }}</div>
-    </a>
-    {% endfor %}
-  </div>
+<section class="single-product shop-only">
+  <div class="section-label">CURRENT TEST PRODUCT</div>
+  {% for product in products %}
+  <a class="product-card" href="{{ url_for('product_detail', slug=product.slug) }}">
+    <img src="{{ url_for('static', filename='products/' + product.cover) }}" alt="{{ product.name }}">
+    <div><span>{{ product.category }}</span><h1>{{ product.name }}</h1><p>{{ product.description }}</p><b>{{ product.status }}</b></div>
+  </a>
+  {% endfor %}
 </section>
 {% endblock %}

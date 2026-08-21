@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - first-product-editor-test
     paths-ignore:
       - 'preview/live-url.txt'
   workflow_dispatch:
