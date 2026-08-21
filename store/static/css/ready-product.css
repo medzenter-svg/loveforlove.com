@@ -47,6 +47,13 @@
 .amalfi-save-date .preview-row:nth-child(2) .preview-value { font: 7px Poppins, sans-serif; letter-spacing: .7px; color: #9b7536; }
 .amalfi-save-date .preview-value { font-size: 12px; line-height: 1.25; }
 .amalfi-save-date .card-brand { bottom: 24px; color: #9b7536; text-transform: none; letter-spacing: .2px; }
+.menu-card { padding: 54px 42px 40px; }
+.menu-card h2 { margin-bottom: 10px; }
+.menu-card .gold-rule { margin-bottom: 10px; }
+.menu-card .card-body { gap: 4px; }
+.menu-card .preview-value { font-size: 10px; line-height: 1.15; }
+.menu-card .menu-heading .preview-value { margin-top: 4px; color: #9c7838; font: 6px Poppins, sans-serif; letter-spacing: 1.3px; text-transform: uppercase; }
+.menu-card .menu-note .preview-value { margin-top: 5px; color: #8a7861; font: italic 6px Lora, serif; }
 @media (max-width: 720px) {
   .product-proof-strip { grid-template-columns: 1fr; padding: 0 20px; }
   .amalfi-card.amalfi-save-date { padding: 95px 42px 55px; }
