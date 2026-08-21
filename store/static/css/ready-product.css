@@ -1,0 +1,51 @@
+.product-format-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid #d9c7aa;
+  background: #fff;
+  padding: 15px 17px;
+  margin: 18px 0 2px;
+}
+.product-format-box b { font-size: 10px; letter-spacing: 1.7px; color: #742e36; }
+.product-format-box span { font: 13px Lora, serif; color: #5f554b; }
+.product-proof-strip {
+  max-width: 1180px;
+  margin: 0 auto 70px;
+  padding: 0 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: #d9c7aa;
+  border: 1px solid #d9c7aa;
+}
+.product-proof-strip > div {
+  background: #fff;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: center;
+}
+.product-proof-strip b { font: 500 18px Lora, serif; color: #b38b43; }
+.product-proof-strip span { font-size: 11px; letter-spacing: 1.2px; }
+.product-proof-strip small { font-size: 10px; color: #756b60; }
+.amalfi-card.amalfi-save-date {
+  background-image: url('/static/products/invitation-suite/save-date-bg.svg');
+  background-size: 100% 100%;
+  background-position: center;
+  padding: 120px 62px 65px;
+}
+.amalfi-save-date .card-border { display: none; }
+.amalfi-save-date .card-monogram { font-style: normal; font-size: 19px; letter-spacing: 6px; margin-bottom: 20px; }
+.amalfi-save-date .card-eyebrow { font-size: 7px; letter-spacing: 2.3px; }
+.amalfi-save-date h2 { font-weight: 700; font-size: 31px; margin-top: 25px; }
+.amalfi-save-date .gold-rule { margin-bottom: 25px; }
+.amalfi-save-date .card-body { gap: 11px; }
+.amalfi-save-date .preview-key { font-size: 6px; letter-spacing: 1.8px; }
+.amalfi-save-date .preview-value { font-size: 12px; line-height: 1.25; }
+.amalfi-save-date .card-brand { bottom: 24px; color: #9b7536; text-transform: none; letter-spacing: .2px; }
+@media (max-width: 720px) {
+  .product-proof-strip { grid-template-columns: 1fr; padding: 0 20px; }
+  .amalfi-card.amalfi-save-date { padding: 95px 42px 55px; }
+}
