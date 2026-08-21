@@ -44,7 +44,6 @@
 .amalfi-save-date .gold-rule { margin-bottom: 25px; }
 .amalfi-save-date .card-body { gap: 11px; }
 .amalfi-save-date .preview-key { font-size: 6px; letter-spacing: 1.8px; }
-.amalfi-save-date .preview-row:nth-child(-n+2) .preview-key { display: none; }
 .amalfi-save-date .preview-row:first-child .preview-value { font: 6px Poppins, sans-serif; letter-spacing: 1.2px; text-transform: uppercase; color: #9b7536; }
 .amalfi-save-date .preview-value { font-size: 12px; line-height: 1.25; }
 .amalfi-save-date .card-brand { bottom: 24px; color: #9b7536; text-transform: none; letter-spacing: .2px; }
