@@ -39,6 +39,7 @@
 .amalfi-save-date .card-border { display: none; }
 .amalfi-save-date .card-monogram { font-style: normal; font-size: 19px; letter-spacing: 6px; margin-bottom: 20px; }
 .amalfi-save-date .card-eyebrow { font-size: 7px; letter-spacing: 2.3px; }
+.amalfi-save-date .card-eyebrow { display: none; }
 .amalfi-save-date h2 { font-weight: 700; font-size: 31px; margin-top: 25px; }
 .amalfi-save-date .gold-rule { margin-bottom: 25px; }
 .amalfi-save-date .card-body { gap: 11px; }
