@@ -1,0 +1,91 @@
+name: Site Preview
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'preview/current-homepage.png'
+      - 'preview/current-mobile.png'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install application and browser
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r store/requirements.txt
+          pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Start current GitHub version of the site
+        run: |
+          cd store
+          nohup python app.py > /tmp/loveforlove.log 2>&1 &
+          echo $! > /tmp/loveforlove.pid
+
+      - name: Wait for site
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:5000/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/loveforlove.log
+          exit 1
+
+      - name: Capture exact desktop and mobile previews
+        run: |
+          mkdir -p preview
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+
+              desktop = browser.new_page(viewport={"width": 1440, "height": 900}, device_scale_factor=1)
+              desktop.goto("http://127.0.0.1:5000/", wait_until="networkidle")
+              desktop.screenshot(path="preview/current-homepage.png", full_page=True)
+
+              mobile = browser.new_page(viewport={"width": 390, "height": 844}, device_scale_factor=1)
+              mobile.goto("http://127.0.0.1:5000/", wait_until="networkidle")
+              mobile.screenshot(path="preview/current-mobile.png", full_page=True)
+
+              browser.close()
+          PY
+
+      - name: Upload preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: loveforlove-current-preview
+          path: |
+            preview/current-homepage.png
+            preview/current-mobile.png
+          retention-days: 30
+
+      - name: Save preview images in repository
+        continue-on-error: true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add preview/current-homepage.png preview/current-mobile.png
+          if git diff --cached --quiet; then
+            echo "Preview is unchanged."
+          else
+            git commit -m "Update current site preview [skip ci]"
+            git push
+          fi
