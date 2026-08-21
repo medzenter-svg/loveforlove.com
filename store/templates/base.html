@@ -3,81 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}loveforlove.com — Luxury Wedding Templates{% endblock %}</title>
+  <title>{% block title %}LOVE FOR LOVE{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-  <div class="wrap">
-    <header class="nav">
-      <div class="nav-left">
-        <a href="{{ url_for('shop') }}">SHOP &#9662;</a>
-        <a href="{{ url_for('shop') }}?category=Featured+Destinations">COLLECTIONS</a>
-        <a href="{{ url_for('home') }}#moments">WEDDING MOMENTS</a>
-        <a href="{{ url_for('shop') }}?category=Designers">DESIGNERS</a>
-        <a href="{{ url_for('shop') }}">JOURNAL</a>
-      </div>
-      <a class="logo" href="{{ url_for('home') }}">LOVE FOR LOVE</a>
-      <div class="nav-right">
-        <span class="lang">USD &#9662;</span>
-        <span class="lang">EN &#9662;</span>
-        {% include "icons/search.svg" %}
-        {% include "icons/user.svg" %}
-        <a class="cart-wrap" href="{{ url_for('cart_view') }}">
-          {% include "icons/bag.svg" %}
-          <span class="cart-badge">{{ session.get('cart', [])|length }}</span>
-        </a>
-      </div>
-    </header>
-    <div class="nav-flourish">
-      <svg width="90" height="14" viewBox="0 0 90 14">
-        <line x1="0" y1="7" x2="34" y2="7" stroke="#B79A63" stroke-width="1"/>
-        <line x1="56" y1="7" x2="90" y2="7" stroke="#B79A63" stroke-width="1"/>
-        <circle cx="45" cy="7" r="2.6" fill="#B79A63"/>
-        <path d="M38,7 Q41,2 45,7 Q49,2 52,7 Q49,12 45,7 Q41,12 38,7" fill="none" stroke="#B79A63" stroke-width="0.8"/>
-      </svg>
-    </div>
-
-    {% if not live_payments %}
-    <div class="dev-banner">Preview mode — Stripe isn't connected yet, so purchases are simulated for testing.</div>
-    {% endif %}
-
-    <main>
-      {% block content %}{% endblock %}
-    </main>
-
-    <div class="footer">
-      <div class="feat">
-        <div class="ic">{% include "icons/download.svg" %}</div>
-        <div class="t">Instant Download</div>
-        <div class="d">Get your files immediately after purchase</div>
-      </div>
-      <div class="feat">
-        <div class="ic">{% include "icons/edit.svg" %}</div>
-        <div class="t">Edit &amp; Print</div>
-        <div class="d">Easy to customize and print at home or professionally</div>
-      </div>
-      <div class="feat">
-        <div class="ic">{% include "icons/globe.svg" %}</div>
-        <div class="t">Multilingual</div>
-        <div class="d">Templates in multiple languages for your guests worldwide</div>
-      </div>
-      <div class="feat">
-        <div class="ic">{% include "icons/gem.svg" %}</div>
-        <div class="t">Premium Design</div>
-        <div class="d">Created with love for unforgettable moments</div>
-      </div>
-    </div>
-    <div class="bottom-flourish">
-      <svg width="90" height="14" viewBox="0 0 90 14">
-        <line x1="0" y1="7" x2="34" y2="7" stroke="#B79A63" stroke-width="1"/>
-        <line x1="56" y1="7" x2="90" y2="7" stroke="#B79A63" stroke-width="1"/>
-        <circle cx="45" cy="7" r="2.6" fill="#B79A63"/>
-        <path d="M38,7 Q41,2 45,7 Q49,2 52,7 Q49,12 45,7 Q41,12 38,7" fill="none" stroke="#B79A63" stroke-width="0.8"/>
-      </svg>
-    </div>
-    <div class="footer-bottom">Designed by loveforlove.com</div>
-  </div>
+  <header class="nav">
+    <a class="nav-link" href="{{ url_for('shop') }}">COLLECTION</a>
+    <a class="logo" href="{{ url_for('home') }}">LOVE FOR LOVE</a>
+    <span class="nav-link">EN</span>
+  </header>
+  <div class="test-banner">FUNCTIONAL TEST · PRICE AND PAYMENT ARE NOT CONNECTED</div>
+  <main>{% block content %}{% endblock %}</main>
+  <footer>
+    <div>25 EDITABLE PIECES</div><div>NO EXTERNAL APP</div><div>PRINT &amp; DIGITAL EXPORT</div>
+    <small>Designed by loveforlove.com</small>
+  </footer>
 </body>
 </html>
