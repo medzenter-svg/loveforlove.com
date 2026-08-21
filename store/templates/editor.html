@@ -123,6 +123,10 @@
     const names = Object.values(state).flatMap(Object.values).find(v => typeof v === 'string' && v.includes('&')) || samples.Names;
     const parts = names.split('&').map(s => s.trim()[0]).filter(Boolean); return parts.join(' & ');
   }
+  const promotedFields = {2:'Names',3:'Heading',8:'Dress code',14:'Ceremony title',19:'Table number',20:'Guest name',21:'Guest name',22:'Welcome line',25:'Recipient name'};
+  const cleanTitles = {4:'RSVP',5:'Wedding Website',6:'Accommodation',7:'Transport & Parking',9:'Gifts & Registry',10:'Wedding Coordinator',11:'Wedding Program',12:'Day One',13:'Day Two',15:'Order of Ceremony',16:'Reception',17:'Wedding Menu',18:'Find Your Seat',23:'Guest Book',24:'Thank You'};
+  function promotedFieldFor(p){ return promotedFields[p.id]; }
+  function titleFor(p){ const field=promotedFieldFor(p); return field ? valueFor(p,field) : (cleanTitles[p.id] || p.title); }
   function render(){
     const p = pieces[Number(select.value || 1)-1];
     document.getElementById('pieceCount').textContent = `PIECE ${p.id} OF ${pieces.length} · ${p.format}`;
@@ -141,9 +145,8 @@
   }
   function updatePreview(){
     const p = pieces[Number(select.value || 1)-1];
-    const promotedField = {2:'Names',3:'Heading',8:'Dress code',14:'Ceremony title',19:'Table number',20:'Guest name',21:'Guest name',22:'Welcome line',25:'Recipient name'}[p.id];
-    const cleanTitles = {4:'RSVP',5:'Wedding Website',6:'Accommodation',7:'Transport & Parking',9:'Gifts & Registry',10:'Wedding Coordinator',11:'Wedding Program',12:'Day One',13:'Day Two',15:'Order of Ceremony',16:'Reception',17:'Wedding Menu',18:'Find Your Seat',23:'Guest Book',24:'Thank You'};
-    cardTitle.textContent = promotedField ? valueFor(p,promotedField) : (cleanTitles[p.id] || p.title);
+    const promotedField = promotedFieldFor(p);
+    cardTitle.textContent = titleFor(p);
     monogram.textContent = initials(); cardBody.innerHTML = '';
     document.getElementById('card').classList.toggle('amalfi-save-date', p.id === 1);
     p.fields.forEach(label => {
@@ -161,8 +164,8 @@
     const p=pieces[Number(select.value)-1], canvas=document.getElementById('exportCanvas'), ctx=canvas.getContext('2d');
     ctx.fillStyle='#fbf7ef'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.strokeStyle='#b6924b'; ctx.lineWidth=6; ctx.strokeRect(55,55,1390,1990); ctx.lineWidth=2; ctx.strokeRect(78,78,1344,1944);
     ctx.textAlign='center'; ctx.fillStyle='#9c7838'; ctx.font='46px Georgia'; ctx.fillText(initials(),750,235);
-    ctx.fillStyle='#32291f'; ctx.font='64px Georgia'; ctx.fillText(p.title,750,390); ctx.fillStyle='#b6924b'; ctx.fillRect(570,440,360,3);
-    let y=520; p.fields.forEach(label=>{ctx.fillStyle='#32291f';ctx.font='32px Georgia';wrapText(ctx,valueFor(p,label),750,y,1180,42);y+=105;});
+    ctx.fillStyle='#32291f'; ctx.font='64px Georgia'; ctx.fillText(titleFor(p),750,390); ctx.fillStyle='#b6924b'; ctx.fillRect(570,440,360,3);
+    const promotedField=promotedFieldFor(p); let y=520; p.fields.forEach(label=>{if(label===promotedField)return;ctx.fillStyle='#32291f';ctx.font='32px Georgia';wrapText(ctx,valueFor(p,label),750,y,1180,42);y+=105;});
     ctx.fillStyle='#9c7838';ctx.font='20px Arial';ctx.fillText('Designed by loveforlove.com',750,2020);
     const a=document.createElement('a');a.download=`${String(p.id).padStart(2,'0')}-${p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.png`;a.href=canvas.toDataURL('image/png');a.click();
   });
