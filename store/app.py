@@ -65,6 +65,11 @@ def product_detail(slug):
     return render_template("product.html", product=product)
 
 
+@app.route("/amalfi-preview")
+def amalfi_preview():
+    return render_template("amalfi_preview.html")
+
+
 @app.route("/cart/add/<slug>", methods=["POST"])
 def cart_add(slug):
     if slug not in PRODUCTS_BY_SLUG:
