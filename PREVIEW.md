@@ -2,11 +2,17 @@
 
 This page shows screenshots generated automatically from the **current `main` branch** of the actual store code in this repository.
 
-## Desktop
+## Amalfi Collection — full product review
+
+The full review contains the complete 24-piece English master set, including both Save the Date options, front/back views where required, folded table/place cards, sizes, and the envelope suite.
+
+![Amalfi Collection full product review](preview/amalfi-collection.png)
+
+## Desktop homepage
 
 ![Current desktop homepage](preview/current-homepage.png)
 
-## Mobile
+## Mobile homepage
 
 ![Current mobile homepage](preview/current-mobile.png)
 
