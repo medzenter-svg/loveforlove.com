@@ -15,7 +15,13 @@
   <div class="grid">
     {% for p in products %}
     <a class="p-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
-      <div class="thumb"><img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}"></div>
+      <div class="thumb">
+        {% if p.get('full_collection') %}
+          <img src="{{ url_for('static', filename='products/amalfi-wedding-suite/collection-1.webp') }}" alt="{{ p.name }}">
+        {% else %}
+          <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}">
+        {% endif %}
+      </div>
       <div class="name">{{ p.name }}</div>
       <div class="price">{% if p.get('available', True) %}{{ price_display(p.price) }}{% else %}COLLECTION PREVIEW{% endif %}</div>
     </a>
