@@ -3,6 +3,18 @@
 
 PRODUCTS = [
     {
+        "slug": "amalfi-wedding-suite",
+        "name": "Amalfi Wedding Suite — 24 Piece Collection",
+        "category": "Complete Wedding Collections",
+        "price": 0,
+        "available": False,
+        "status": "FINAL QUALITY CHECK",
+        "description": "A complete 24-piece Mediterranean wedding stationery suite in ivory, lemon, white blossom, greenery and gold. The collection preview is rendered from the actual print files.",
+        "cover": "amalfi-wedding-suite/cover.webp",
+        "files": [],
+        "full_collection": True,
+    },
+    {
         "slug": "love-coupon-book",
         "name": "The Love Coupon Book",
         "category": "Gifts",
