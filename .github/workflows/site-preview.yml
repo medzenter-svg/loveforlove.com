@@ -7,6 +7,7 @@ on:
     paths-ignore:
       - 'preview/current-homepage.png'
       - 'preview/current-mobile.png'
+      - 'preview/amalfi-collection.png'
   workflow_dispatch:
 
 permissions:
@@ -48,7 +49,7 @@ jobs:
           cat /tmp/loveforlove.log
           exit 1
 
-      - name: Capture exact desktop and mobile previews
+      - name: Capture exact desktop, mobile and Amalfi previews
         run: |
           mkdir -p preview
           python - <<'PY'
@@ -65,6 +66,10 @@ jobs:
               mobile.goto("http://127.0.0.1:5000/", wait_until="networkidle")
               mobile.screenshot(path="preview/current-mobile.png", full_page=True)
 
+              amalfi = browser.new_page(viewport={"width": 1440, "height": 1100}, device_scale_factor=1)
+              amalfi.goto("http://127.0.0.1:5000/amalfi-preview", wait_until="networkidle")
+              amalfi.screenshot(path="preview/amalfi-collection.png", full_page=True)
+
               browser.close()
           PY
 
@@ -75,6 +80,7 @@ jobs:
           path: |
             preview/current-homepage.png
             preview/current-mobile.png
+            preview/amalfi-collection.png
           retention-days: 30
 
       - name: Save preview images in repository
@@ -82,7 +88,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add preview/current-homepage.png preview/current-mobile.png
+          git add preview/current-homepage.png preview/current-mobile.png preview/amalfi-collection.png
           if git diff --cached --quiet; then
             echo "Preview is unchanged."
           else
