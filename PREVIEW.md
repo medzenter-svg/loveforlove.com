@@ -6,7 +6,7 @@ This page shows screenshots generated automatically from the **current `main` br
 
 The full review contains the complete 24-piece English master set, including both Save the Date options, front/back views where required, folded table/place cards, sizes, and the envelope suite.
 
-![Amalfi Collection full product review](preview/amalfi-collection.png)
+![Amalfi Collection full product review](preview/amalfi-collection.jpg)
 
 ## Desktop homepage
 
