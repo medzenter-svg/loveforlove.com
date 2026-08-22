@@ -1,0 +1,43 @@
+name: Prepress Amalfi Prototype
+
+on:
+  pull_request:
+    paths:
+      - 'store/prepress/**'
+      - 'store/print_*.py'
+      - '.github/workflows/prepress-amalfi-prototype.yml'
+
+jobs:
+  amalfi-invitation-prototype:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build reproducible prepress image
+        run: docker build -f store/prepress/Dockerfile -t loveforlove-prepress .
+
+      - name: Export and preflight four Amalfi Invitation PDFs
+        run: |
+          rm -rf .prepress-amalfi-prototype
+          mkdir -p .prepress-amalfi-prototype
+          docker run --rm \
+            -e LF_AMALFI_SMOKE_ROOT=/out \
+            -v "$PWD/.prepress-amalfi-prototype:/out" \
+            loveforlove-prepress \
+            bash prepress/amalfi_prototype_smoke.sh
+
+      - name: Verify prototype count and manifest
+        run: |
+          PACKAGE=.prepress-amalfi-prototype/wedding-day-set/amalfi-invitation-prototype
+          test "$(find "$PACKAGE" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 4
+          test -f "$PACKAGE/INVITATION_EXPORT_SMOKE_MANIFEST.json"
+
+      - name: Upload Amalfi Invitation prototype
+        uses: actions/upload-artifact@v4
+        with:
+          name: amalfi-luce-invitation-prototype
+          path: .prepress-amalfi-prototype/wedding-day-set/amalfi-invitation-prototype
+          if-no-files-found: error
+          retention-days: 7

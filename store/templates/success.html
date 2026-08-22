@@ -5,17 +5,29 @@
   <h1>Thank you for your order!</h1>
   <p>
     {% if dev_mode %}
-      Preview mode: this purchase was simulated because Stripe isn't connected yet. Once real payments are on, your customers will land here for real after checking out.
+      Preview mode: this purchase was simulated because Stripe isn't connected yet. This page lets us test the real customer download and customization flow safely.
     {% else %}
-      Your files are ready below. A copy of these links has also been sent to your email.
+      Your purchased files and any included customization tools are ready below.
     {% endif %}
   </p>
+
+  <div class="order-access-meta" style="margin:18px auto 28px;max-width:620px;">
+    <div><strong>Order:</strong> {{ order_id }}</div>
+    <div style="margin-top:6px;">Editor and download access are protected by this order and its purchase email.</div>
+  </div>
+
   <div class="download-list">
     {% for p in items %}
+      {% if p.editable %}
+      <div class="dl-item">
+        <span>{{ p.name }} — Online Suite Editor</span>
+        <a class="btn btn-gold" href="{{ url_for('customize', access_token=access_token, slug=p.slug) }}">CUSTOMIZE</a>
+      </div>
+      {% endif %}
       {% for f in p.files %}
       <div class="dl-item">
-        <span>{{ p.name }}{% if p.files|length > 1 %} — {{ f.split('_')[-2] if '_' in f else f }}{% endif %}</span>
-        <a class="btn" href="{{ url_for('download', order_id=order_id, slug=p.slug, filename=f) }}">DOWNLOAD</a>
+        <span>{{ p.name }}{% if p.files|length > 1 %} — {{ f }}{% endif %}</span>
+        <a class="btn" href="{{ url_for('download', access_token=access_token, slug=p.slug, filename=f) }}">DOWNLOAD</a>
       </div>
       {% endfor %}
     {% endfor %}

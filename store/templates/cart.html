@@ -22,7 +22,16 @@
       <div>Total</div>
       <div>{{ price_display(total) }}</div>
     </div>
+    {% if checkout_error %}
+    <div class="dev-banner" style="margin:16px 0;">{{ checkout_error }}</div>
+    {% endif %}
     <form action="{{ url_for('checkout') }}" method="post">
+      {% if not live_payments %}
+      <label class="editor-field" style="margin:18px 0;text-align:left;">
+        <span>Test purchase email</span>
+        <input type="email" name="email" autocomplete="email" required placeholder="name@example.com">
+      </label>
+      {% endif %}
       <button class="btn btn-gold" type="submit" style="width:100%;">CHECKOUT</button>
     </form>
   {% else %}

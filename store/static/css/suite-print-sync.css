@@ -1,0 +1,147 @@
+.suite-editor[data-suite-editor] {
+  --suite-bg: #f3f0ea !important;
+  --suite-paper: #fdfbf8 !important;
+  --suite-ink: #302b29 !important;
+  --suite-accent: #7a3038 !important;
+  --suite-gold: #c0a264 !important;
+  --suite-line: #e8e1d7 !important;
+}
+
+/* The browser preview intentionally mirrors the professional Scribus master:
+   EB Garamond for editorial display text, Lato for functional information,
+   warm-white stock, wine accents and open champagne-gold corner marks. */
+.suite-card {
+  border: 0;
+  background-color: var(--suite-paper);
+  font-family: 'Lato', sans-serif;
+}
+
+.suite-card::before {
+  content: "";
+  position: absolute;
+  inset: 4.5%;
+  border: 0;
+  pointer-events: none;
+  transform: none;
+  background:
+    linear-gradient(var(--suite-gold), var(--suite-gold)) left top / 11% 1px no-repeat,
+    linear-gradient(var(--suite-gold), var(--suite-gold)) left top / 1px 11% no-repeat,
+    linear-gradient(var(--suite-gold), var(--suite-gold)) right top / 11% 1px no-repeat,
+    linear-gradient(var(--suite-gold), var(--suite-gold)) right top / 1px 11% no-repeat,
+    linear-gradient(var(--suite-gold), var(--suite-gold)) left bottom / 11% 1px no-repeat,
+    linear-gradient(var(--suite-gold), var(--suite-gold)) left bottom / 1px 11% no-repeat,
+    linear-gradient(var(--suite-gold), var(--suite-gold)) right bottom / 11% 1px no-repeat,
+    linear-gradient(var(--suite-gold), var(--suite-gold)) right bottom / 1px 11% no-repeat;
+}
+
+.suite-card::after {
+  content: "";
+  position: absolute;
+  inset: 4.5%;
+  border: 0;
+  pointer-events: none;
+  transform: none;
+  background:
+    radial-gradient(circle at 50% 0, var(--suite-gold) 0 2px, transparent 2.4px),
+    radial-gradient(circle at 50% 100%, var(--suite-gold) 0 2px, transparent 2.4px);
+}
+
+.suite-ornament { display: none; }
+
+.suite-kicker {
+  color: var(--suite-accent);
+  font-family: 'Lato', sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: .04em;
+  text-transform: none;
+}
+
+.suite-names,
+.suite-venue,
+.course-title,
+.table-number,
+.place-guest,
+.thank-message,
+.dress-highlight,
+.envelope-address,
+.liner-monogram {
+  font-family: 'EB Garamond', serif;
+  font-weight: 400;
+}
+
+.suite-names {
+  font-size: clamp(28px, 3.4vw, 43px);
+  line-height: 1.05;
+}
+
+.suite-script {
+  font-family: 'EB Garamond', serif;
+  font-style: normal;
+  color: var(--suite-accent);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.suite-rule {
+  position: relative;
+  width: 92px;
+  height: 5px;
+  margin: 13px auto;
+  background:
+    linear-gradient(to right,
+      var(--suite-gold) 0 43%,
+      transparent 43% 57%,
+      var(--suite-gold) 57% 100%) center / 100% 1px no-repeat;
+}
+
+.suite-rule::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--suite-gold);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.suite-date {
+  font-family: 'Lato', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.suite-venue {
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.suite-address,
+.suite-contact,
+.program-row,
+.course-desc,
+.envelope-return {
+  font-family: 'Lato', sans-serif;
+  color: #514946;
+}
+
+.course-label,
+.program-time {
+  color: var(--suite-accent);
+  font-family: 'Lato', sans-serif;
+}
+
+.course-title { font-size: 14px; }
+.course-desc { font-style: normal; }
+.thank-message { font-style: normal; color: var(--suite-ink); }
+.dress-highlight { color: var(--suite-ink); }
+
+/* The professional PDF uses the same open-corner system for the envelope liner;
+   do not show the legacy browser-only rotated double diamond. */
+.card-envelope-liner::before,
+.card-envelope-liner::after {
+  transform: none;
+}

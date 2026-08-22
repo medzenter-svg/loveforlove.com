@@ -1,0 +1,43 @@
+name: Prepress Full Package
+
+on:
+  pull_request:
+    paths:
+      - 'store/prepress/**'
+      - 'store/print_*.py'
+      - '.github/workflows/prepress-full-package.yml'
+
+jobs:
+  full-wedding-package-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build reproducible prepress image
+        run: docker build -f store/prepress/Dockerfile -t loveforlove-prepress .
+
+      - name: Export and preflight all 60 professional PDFs
+        run: |
+          rm -rf .prepress-full-smoke
+          mkdir -p .prepress-full-smoke
+          docker run --rm \
+            -e LF_FULL_SMOKE_ROOT=/out \
+            -v "$PWD/.prepress-full-smoke:/out" \
+            loveforlove-prepress \
+            bash prepress/full_package_smoke.sh
+
+      - name: Verify full package count and manifest
+        run: |
+          PACKAGE=.prepress-full-smoke/wedding-day-set/full-package-smoke
+          test "$(find "$PACKAGE" -maxdepth 1 -type f -name '*.pdf' | wc -l)" -eq 60
+          test -f "$PACKAGE/PRINT_PACKAGE_MANIFEST.json"
+
+      - name: Upload full package smoke
+        uses: actions/upload-artifact@v4
+        with:
+          name: wedding-day-set-full-60-pdf-smoke
+          path: .prepress-full-smoke/wedding-day-set/full-package-smoke
+          if-no-files-found: error
+          retention-days: 3

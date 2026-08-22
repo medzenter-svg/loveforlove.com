@@ -1,0 +1,15 @@
+WEEKEND_SUITE_LOCALES = {
+    "en": {"day_one":"Day One", "day_two":"Day Two", "weekend_program":"Wedding Weekend", "welcome":"Welcome", "brunch":"Brunch", "farewell":"Farewell", "activity":"Activity"},
+    "de": {"day_one":"Tag 1", "day_two":"Tag 2", "weekend_program":"Hochzeitswochenende", "welcome":"Willkommen", "brunch":"Brunch", "farewell":"Abschied", "activity":"Aktivität"},
+    "fr": {"day_one":"Jour 1", "day_two":"Jour 2", "weekend_program":"Week-end de mariage", "welcome":"Bienvenue", "brunch":"Brunch", "farewell":"Au revoir", "activity":"Activité"},
+    "it": {"day_one":"Giorno 1", "day_two":"Giorno 2", "weekend_program":"Weekend di nozze", "welcome":"Benvenuto", "brunch":"Brunch", "farewell":"Saluti", "activity":"Attività"},
+    "es": {"day_one":"Día 1", "day_two":"Día 2", "weekend_program":"Fin de semana de boda", "welcome":"Bienvenida", "brunch":"Brunch", "farewell":"Despedida", "activity":"Actividad"},
+    "pt": {"day_one":"Dia 1", "day_two":"Dia 2", "weekend_program":"Fim de semana do casamento", "welcome":"Boas-vindas", "brunch":"Brunch", "farewell":"Despedida", "activity":"Atividade"},
+    "nl": {"day_one":"Dag 1", "day_two":"Dag 2", "weekend_program":"Trouwweekend", "welcome":"Welkom", "brunch":"Brunch", "farewell":"Afscheid", "activity":"Activiteit"},
+    "pl": {"day_one":"Dzień 1", "day_two":"Dzień 2", "weekend_program":"Weekend weselny", "welcome":"Powitanie", "brunch":"Brunch", "farewell":"Pożegnanie", "activity":"Atrakcja"},
+    "el": {"day_one":"Ημέρα 1", "day_two":"Ημέρα 2", "weekend_program":"Γαμήλιο διήμερο", "welcome":"Καλωσόρισμα", "brunch":"Brunch", "farewell":"Αποχαιρετισμός", "activity":"Δραστηριότητα"},
+    "ru": {"day_one":"День 1", "day_two":"День 2", "weekend_program":"Свадебная программа", "welcome":"Встреча гостей", "brunch":"Бранч", "farewell":"Прощание", "activity":"Мероприятие"},
+    "uk": {"day_one":"День 1", "day_two":"День 2", "weekend_program":"Весільна програма", "welcome":"Зустріч гостей", "brunch":"Бранч", "farewell":"Прощання", "activity":"Подія"},
+    "tr": {"day_one":"1. Gün", "day_two":"2. Gün", "weekend_program":"Düğün hafta sonu", "welcome":"Karşılama", "brunch":"Brunch", "farewell":"Veda", "activity":"Etkinlik"},
+    "he": {"day_one":"יום 1", "day_two":"יום 2", "weekend_program":"סוף שבוע החתונה", "welcome":"קבלת פנים", "brunch":"בראנץ׳", "farewell":"פרידה", "activity":"פעילות"},
+}

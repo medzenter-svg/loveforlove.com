@@ -3,28 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}loveforlove.com — Luxury Wedding Templates{% endblock %}</title>
+  <title>{% block title %}loveforlove.com — Luxury Wedding & Celebration Templates{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Lato:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/preview-protection.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/suite-print-sync.css') }}">
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
   <div class="wrap">
     <header class="nav">
       <div class="nav-left">
-        <a href="{{ url_for('shop') }}">SHOP &#9662;</a>
+        <a href="{{ url_for('shop') }}">SHOP</a>
+        <a href="{{ url_for('home') }}#occasions">OCCASIONS</a>
         <a href="{{ url_for('shop') }}?category=Featured+Destinations">COLLECTIONS</a>
         <a href="{{ url_for('home') }}#moments">WEDDING MOMENTS</a>
         <a href="{{ url_for('shop') }}?category=Designers">DESIGNERS</a>
-        <a href="{{ url_for('shop') }}">JOURNAL</a>
       </div>
       <a class="logo" href="{{ url_for('home') }}">LOVE FOR LOVE</a>
       <div class="nav-right">
-        <span class="lang">USD &#9662;</span>
-        <span class="lang">EN &#9662;</span>
-        {% include "icons/search.svg" %}
-        {% include "icons/user.svg" %}
-        <a class="cart-wrap" href="{{ url_for('cart_view') }}">
+        <span class="lang" title="Store currency">USD</span>
+        <span class="lang" title="Current language">EN</span>
+        <a class="cart-wrap" href="{{ url_for('cart_view') }}" aria-label="Shopping bag">
           {% include "icons/bag.svg" %}
           <span class="cart-badge">{{ session.get('cart', [])|length }}</span>
         </a>
@@ -55,18 +57,18 @@
       </div>
       <div class="feat">
         <div class="ic">{% include "icons/edit.svg" %}</div>
-        <div class="t">Edit &amp; Print</div>
-        <div class="d">Easy to customize and print at home or professionally</div>
+        <div class="t">Editable Collections</div>
+        <div class="d">Purchased editable suites can be reopened and revised later; saved versions remain linked to the paid order</div>
       </div>
       <div class="feat">
         <div class="ic">{% include "icons/globe.svg" %}</div>
-        <div class="t">Multilingual</div>
-        <div class="d">Templates in multiple languages for your guests worldwide</div>
+        <div class="t">Meaningful Celebrations</div>
+        <div class="d">A growing premium collection for weddings, anniversaries, milestone birthdays and selected family events</div>
       </div>
       <div class="feat">
         <div class="ic">{% include "icons/gem.svg" %}</div>
         <div class="t">Premium Design</div>
-        <div class="d">Created with love for unforgettable moments</div>
+        <div class="d">Created as coherent visual systems for unforgettable moments</div>
       </div>
     </div>
     <div class="bottom-flourish">
@@ -79,5 +81,8 @@
     </div>
     <div class="footer-bottom">Designed by loveforlove.com</div>
   </div>
+  {% block scripts %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/persistent-draft.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/print-job-client.js') }}"></script>
 </body>
 </html>

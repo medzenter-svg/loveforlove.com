@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% block title %}Customize {{ product.name }} — loveforlove.com{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/suite-editor.css') }}">
+{% endblock %}
+{% block content %}
+<section
+  class="suite-editor"
+  data-suite-editor
+  data-locales='{{ locales|tojson }}'
+  data-rtl='{{ rtl_languages|tojson }}'
+  data-storage-key="loveforlove-{{ order_id }}-{{ product.slug }}"
+  style="--suite-bg:{{ theme.bg }};--suite-paper:{{ theme.paper }};--suite-ink:{{ theme.ink }};--suite-accent:{{ theme.accent }};--suite-gold:{{ theme.gold }};--suite-line:{{ theme.line }};"
+>
+  <div class="editor-heading">
+    <div class="kicker">YOUR PURCHASED COLLECTION</div>
+    <h1>Customize your coordinated wedding suite</h1>
+    <p>All pieces share one locked design system. Change the wording and details, keep or hide optional guest-information cards, then print only the pieces your wedding needs.</p>
+  </div>
+
+  <div class="editor-layout">
+    <aside class="editor-panel">
+      <h2>Wedding details</h2>
+      <p class="editor-note">Edits are stored locally in this browser as you type. Language presets translate standard labels; every label can still be edited manually.</p>
+
+      <label class="editor-field">
+        <span>Language preset</span>
+        <select id="languagePreset">
+          {% for code, name in language_names.items() %}<option value="{{ code }}">{{ name }}</option>{% endfor %}
+        </select>
+      </label>
+
+      <div class="editor-section">
+        <div class="editor-section-title">Couple & wedding</div>
+        <label class="editor-field"><span>Names</span><input id="coupleNames" data-bind-key="coupleNames" data-default="Emma & James" value="Emma & James"></label>
+        <label class="editor-field"><span>Date</span><input id="weddingDate" data-bind-key="weddingDate" data-default="14 June 2027" value="14 June 2027"></label>
+        <label class="editor-field"><span>Time</span><input id="weddingTime" data-bind-key="weddingTime" data-default="4:30 PM" value="4:30 PM"></label>
+        <label class="editor-field"><span>Venue</span><input id="venueName" data-bind-key="venueName" data-default="Villa del Balbianello" value="Villa del Balbianello"></label>
+        <label class="editor-field"><span>Full address</span><textarea id="venueAddress" data-bind-key="venueAddress" data-default="Via Guido Monzino 1\n22016 Tremezzina CO, Italy">Via Guido Monzino 1
+22016 Tremezzina CO, Italy</textarea></label>
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-title">RSVP</div>
+        <label class="editor-field"><span>Reply date</span><input id="rsvpDate" data-bind-key="rsvpDate" data-default="15 April 2027" value="15 April 2027"></label>
+        <label class="editor-field"><span>Contact / website</span><input id="rsvpContact" data-bind-key="rsvpContact" data-default="love.example.com · hello@example.com" value="love.example.com · hello@example.com"></label>
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-title">Menu</div>
+        <label class="editor-field"><span>1st course</span><input id="course1" data-bind-key="course1" data-default="Burrata & Heirloom Tomato" value="Burrata & Heirloom Tomato"></label>
+        <label class="editor-field"><span>Description</span><input id="course1Desc" data-bind-key="course1Desc" data-default="basil oil, aged balsamic" value="basil oil, aged balsamic"></label>
+        <label class="editor-field"><span>2nd course</span><input id="course2" data-bind-key="course2" data-default="Saffron Risotto" value="Saffron Risotto"></label>
+        <label class="editor-field"><span>Description</span><input id="course2Desc" data-bind-key="course2Desc" data-default="lake fish, brown butter" value="lake fish, brown butter"></label>
+        <label class="editor-field"><span>3rd course</span><input id="course3" data-bind-key="course3" data-default="Herb-Roasted Lamb" value="Herb-Roasted Lamb"></label>
+        <label class="editor-field"><span>Description</span><input id="course3Desc" data-bind-key="course3Desc" data-default="rosemary jus, seasonal vegetables" value="rosemary jus, seasonal vegetables"></label>
+        <label class="editor-field"><span>Dessert</span><input id="dessert" data-bind-key="dessert" data-default="Limoncello Tart" value="Limoncello Tart"></label>
+        <label class="editor-field"><span>Description</span><input id="dessertDesc" data-bind-key="dessertDesc" data-default="whipped mascarpone, candied lemon" value="whipped mascarpone, candied lemon"></label>
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-title">Seating</div>
+        <label class="editor-field"><span>Table number / name</span><input id="tableNumber" data-bind-key="tableNumber" data-default="7" value="7"></label>
+        <label class="editor-field"><span>Guest name</span><input id="guestName" data-bind-key="guestName" data-default="Sophia Miller" value="Sophia Miller"></label>
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-title">Program</div>
+        <label class="editor-field"><span>Ceremony time</span><input id="ceremonyTime" data-bind-key="ceremonyTime" data-default="4:30 PM" value="4:30 PM"></label>
+        <label class="editor-field"><span>Cocktail time</span><input id="cocktailsTime" data-bind-key="cocktailsTime" data-default="5:30 PM" value="5:30 PM"></label>
+        <label class="editor-field"><span>Dinner time</span><input id="dinnerTime" data-bind-key="dinnerTime" data-default="7:00 PM" value="7:00 PM"></label>
+        <label class="editor-field"><span>Dancing time</span><input id="dancingTime" data-bind-key="dancingTime" data-default="9:00 PM" value="9:00 PM"></label>
+        <label class="editor-field"><span>Thank-you message</span><textarea id="thankMessage" data-bind-key="thankMessage" data-default="Thank you for celebrating this unforgettable day with us. Your love and presence mean the world to us.">Thank you for celebrating this unforgettable day with us. Your love and presence mean the world to us.</textarea></label>
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-title">Optional guest cards</div>
+        <label class="optional-control"><input type="checkbox" id="useAccommodation" data-toggle-piece="accommodation" data-default="true" checked><span><strong>Accommodation card</strong><br>Hotel, booking and transfer information.</span></label>
+        <label class="optional-control"><input type="checkbox" id="useCoordinator" data-toggle-piece="coordinator" data-default="true" checked><span><strong>Coordinator contact</strong><br>Gives guests one person to contact instead of the couple.</span></label>
+        <label class="optional-control"><input type="checkbox" id="useDressCode" data-toggle-piece="dress" data-default="true" checked><span><strong>Dress Code card</strong><br>White wedding, black tie, cocktail, beach elegant or custom wording.</span></label>
+        <label class="optional-control"><input type="checkbox" id="useEnvelope" data-toggle-piece="envelope" data-default="true" checked><span><strong>Matching envelope</strong><br>Recipient and return address in the collection style.</span></label>
+        <label class="optional-control"><input type="checkbox" id="useEnvelopeLiner" data-toggle-piece="liner" data-default="true" checked><span><strong>Envelope liner</strong><br>Matching decorative inner liner / monogram piece.</span></label>
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-title">Hotel / accommodation</div>
+        <label class="editor-field"><span>Hotel name</span><input id="hotelName" data-bind-key="hotelName" data-default="Grand Hotel Tremezzo" value="Grand Hotel Tremezzo"></label>
+        <label class="editor-field"><span>Hotel address</span><textarea id="hotelAddress" data-bind-key="hotelAddress" data-default="Via Regina 8\n22016 Tremezzina CO, Italy">Via Regina 8
+22016 Tremezzina CO, Italy</textarea></label>
+        <label class="editor-field"><span>Check-in</span><input id="hotelCheckIn" data-bind-key="hotelCheckIn" data-default="13 June 2027 · from 3:00 PM" value="13 June 2027 · from 3:00 PM"></label>
+        <label class="editor-field"><span>Check-out</span><input id="hotelCheckOut" data-bind-key="hotelCheckOut" data-default="15 June 2027 · by 11:00 AM" value="15 June 2027 · by 11:00 AM"></label>
+        <label class="editor-field"><span>Booking details</span><textarea id="hotelBooking" data-bind-key="hotelBooking" data-default="Rooms are reserved under Emma & James Wedding. Please book by 1 April 2027.">Rooms are reserved under Emma & James Wedding. Please book by 1 April 2027.</textarea></label>
+        <label class="editor-field"><span>Transfer / shuttle</span><textarea id="hotelTransport" data-bind-key="hotelTransport" data-default="Wedding shuttle departs the hotel lobby at 3:45 PM.">Wedding shuttle departs the hotel lobby at 3:45 PM.</textarea></label>
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-title">Wedding coordinator</div>
+        <label class="editor-field"><span>Name</span><input id="coordinatorName" data-bind-key="coordinatorName" data-default="Anna Rossi" value="Anna Rossi"></label>
+        <label class="editor-field"><span>Role</span><input id="coordinatorRole" data-bind-key="coordinatorRole" data-default="Wedding Coordinator" value="Wedding Coordinator"></label>
+        <label class="editor-field"><span>Phone</span><input id="coordinatorPhone" data-bind-key="coordinatorPhone" data-default="+39 333 123 4567" value="+39 333 123 4567"></label>
+        <label class="editor-field"><span>WhatsApp / messenger</span><input id="coordinatorMessenger" data-bind-key="coordinatorMessenger" data-default="WhatsApp: +39 333 123 4567" value="WhatsApp: +39 333 123 4567"></label>
+        <label class="editor-field"><span>Email</span><input id="coordinatorEmail" data-bind-key="coordinatorEmail" data-default="anna@example.com" value="anna@example.com"></label>
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-title">Dress code</div>
+        <label class="editor-field"><span>Dress style</span><input id="dressStyle" data-bind-key="dressStyle" data-default="White Celebration" value="White Celebration"></label>
+        <label class="editor-field"><span>Explanation</span><textarea id="dressDescription" data-bind-key="dressDescription" data-default="We kindly invite our guests to celebrate with us in elegant white attire.">We kindly invite our guests to celebrate with us in elegant white attire.</textarea></label>
+        <label class="editor-field"><span>Additional note</span><input id="dressNote" data-bind-key="dressNote" data-default="Elegant · Festive · Summer" value="Elegant · Festive · Summer"></label>
+      </div>
+
+      <div class="editor-section">
+        <div class="editor-section-title">Envelope</div>
+        <label class="editor-field"><span>Guest / recipient address</span><textarea id="guestMailingAddress" data-bind-key="guestMailingAddress" data-default="Sophia Miller\n24 Garden Street\nLondon SW1A 1AA\nUnited Kingdom">Sophia Miller
+24 Garden Street
+London SW1A 1AA
+United Kingdom</textarea></label>
+        <label class="editor-field"><span>Return address</span><textarea id="returnAddress" data-bind-key="returnAddress" data-default="Emma & James\n12 Lake Road\nComo 22100 · Italy">Emma & James
+12 Lake Road
+Como 22100 · Italy</textarea></label>
+        <label class="editor-field"><span>Monogram / initials</span><input id="monogram" data-bind-key="monogram" data-default="E · J" value="E · J"></label>
+      </div>
+
+      <details class="editor-section">
+        <summary class="editor-section-title">Edit labels / any language</summary>
+        {% for key, value in locales['en'].items() %}
+        <label class="editor-field"><span>{{ key.replace('_',' ').title() }}</span><input id="label_{{ key }}" data-label-key="{{ key }}" data-default="{{ value }}" value="{{ value }}"></label>
+        {% endfor %}
+      </details>
+
+      <div class="editor-actions">
+        <button id="printSuite" class="btn btn-gold" type="button">PRINT / SAVE PDF</button>
+        <button id="resetSuite" class="btn btn-outline" type="button">RESET</button>
+      </div>
+      <p id="editorSaveStatus" class="editor-note" aria-live="polite"></p>
+    </aside>
+
+    <div class="suite-preview-area">
+      <div class="suite-toolbar">
+        <p>8 core pieces + 5 optional matching pieces · one locked design system · fully editable text</p>
+        <a class="btn btn-outline" href="{{ url_for('success', access_token=access_token) }}">BACK TO DOWNLOADS</a>
+      </div>
+      <div class="suite-grid">
+        <div class="suite-piece-wrap">
+          <div class="suite-piece-name">Invitation</div>
+          <article class="suite-card card-portrait">
+            <div class="suite-ornament">✦</div><div class="suite-kicker" data-label="invitation">Wedding Invitation</div>
+            <div class="suite-names" data-bind="coupleNames">Emma & James</div>
+            <p class="suite-script" data-label="join_us">Together with their families, invite you to celebrate their wedding</p>
+            <div class="suite-rule"></div><div class="suite-date"><span data-bind="weddingDate">14 June 2027</span><br><span data-bind="weddingTime">4:30 PM</span></div>
+            <div class="suite-venue" data-bind="venueName">Villa del Balbianello</div><div class="suite-address" data-bind="venueAddress">Via Guido Monzino 1</div>
+          </article>
+        </div>
+
+        <div class="suite-piece-wrap">
+          <div class="suite-piece-name">Venue & address</div>
+          <article class="suite-card card-portrait">
+            <div class="suite-ornament">✦</div><div class="suite-kicker" data-label="details">Wedding Details</div>
+            <div class="suite-names" data-bind="coupleNames">Emma & James</div><div class="suite-rule"></div>
+            <div class="suite-kicker" data-label="venue">Venue</div><div class="suite-venue" data-bind="venueName">Villa del Balbianello</div>
+            <div class="suite-kicker" style="margin-top:24px" data-label="address">Address</div><div class="suite-address" data-bind="venueAddress">Via Guido Monzino 1</div>
+            <div class="suite-date" style="margin-top:22px"><span data-bind="weddingDate">14 June 2027</span> · <span data-bind="weddingTime">4:30 PM</span></div>
+          </article>
+        </div>
+
+        <div class="suite-piece-wrap">
+          <div class="suite-piece-name">RSVP</div>
+          <article class="suite-card card-landscape">
+            <div class="suite-ornament">✦</div><div class="suite-kicker" data-label="rsvp">RSVP</div>
+            <div class="suite-names" data-bind="coupleNames">Emma & James</div><div class="suite-rule"></div>
+            <p class="suite-script"><span data-label="reply_by">Kindly reply by</span> <strong data-bind="rsvpDate">15 April 2027</strong></p>
+            <div class="suite-contact" data-bind="rsvpContact">love.example.com</div>
+          </article>
+        </div>
+
+        <div class="suite-piece-wrap">
+          <div class="suite-piece-name">Menu</div>
+          <article class="suite-card card-tall">
+            <div class="suite-ornament">✦</div><div class="suite-kicker" data-label="menu">Wedding Menu</div>
+            <div class="suite-names" style="font-size:22px" data-bind="coupleNames">Emma & James</div><div class="suite-rule"></div>
+            <div class="course"><div class="course-label" data-label="first">First Course</div><div class="course-title" data-bind="course1">Burrata</div><div class="course-desc" data-bind="course1Desc">basil oil</div></div>
+            <div class="course"><div class="course-label" data-label="second">Second Course</div><div class="course-title" data-bind="course2">Risotto</div><div class="course-desc" data-bind="course2Desc">brown butter</div></div>
+            <div class="course"><div class="course-label" data-label="third">Third Course</div><div class="course-title" data-bind="course3">Lamb</div><div class="course-desc" data-bind="course3Desc">rosemary jus</div></div>
+            <div class="course"><div class="course-label" data-label="dessert">Dessert</div><div class="course-title" data-bind="dessert">Tart</div><div class="course-desc" data-bind="dessertDesc">mascarpone</div></div>
+          </article>
+        </div>
+
+        <div class="suite-piece-wrap">
+          <div class="suite-piece-name">Table number</div>
+          <article class="suite-card card-table">
+            <div class="suite-kicker" data-label="table">Table</div><div class="table-number" data-bind="tableNumber">7</div><div class="suite-rule"></div>
+            <div class="suite-script" data-bind="coupleNames">Emma & James</div><div class="suite-date" data-bind="weddingDate">14 June 2027</div>
+          </article>
+        </div>
+
+        <div class="suite-piece-wrap">
+          <div class="suite-piece-name">Place card</div>
+          <article class="suite-card card-place">
+            <div class="suite-kicker" data-label="place">Reserved for</div><div class="place-guest" data-bind="guestName">Sophia Miller</div><div class="suite-rule"></div>
+            <div class="suite-date"><span data-label="table">Table</span> <span data-bind="tableNumber">7</span></div>
+          </article>
+        </div>
+
+        <div class="suite-piece-wrap">
+          <div class="suite-piece-name">Program</div>
+          <article class="suite-card card-portrait">
+            <div class="suite-ornament">✦</div><div class="suite-kicker" data-label="program">Wedding Program</div><div class="suite-names" style="font-size:25px" data-bind="coupleNames">Emma & James</div><div class="suite-rule"></div>
+            <div class="program-row"><span class="program-time" data-bind="ceremonyTime">4:30 PM</span><span data-label="ceremony">Ceremony</span></div>
+            <div class="program-row"><span class="program-time" data-bind="cocktailsTime">5:30 PM</span><span data-label="cocktails">Cocktails</span></div>
+            <div class="program-row"><span class="program-time" data-bind="dinnerTime">7:00 PM</span><span data-label="dinner">Dinner</span></div>
+            <div class="program-row"><span class="program-time" data-bind="dancingTime">9:00 PM</span><span data-label="dancing">Dancing</span></div>
+          </article>
+        </div>
+
+        <div class="suite-piece-wrap">
+          <div class="suite-piece-name">Thank you</div>
+          <article class="suite-card card-landscape">
+            <div class="suite-ornament">✦</div><div class="suite-kicker" data-label="thank_you">Thank You</div><div class="suite-names" data-bind="coupleNames">Emma & James</div><div class="suite-rule"></div>
+            <p class="thank-message" data-bind="thankMessage">Thank you for celebrating this unforgettable day with us.</p>
+          </article>
+        </div>
+
+        <div class="suite-piece-wrap" data-piece="accommodation">
+          <div class="suite-piece-name">Optional · Accommodation</div>
+          <article class="suite-card card-portrait">
+            <div class="suite-ornament">✦</div><div class="suite-kicker" data-label="accommodation">Guest Accommodation</div>
+            <div class="suite-venue" data-bind="hotelName">Grand Hotel Tremezzo</div><div class="suite-address" data-bind="hotelAddress">Via Regina 8</div>
+            <div class="suite-detail-grid"><div><strong data-label="check_in">Check-in</strong><span data-bind="hotelCheckIn">13 June 2027</span></div><div><strong data-label="check_out">Check-out</strong><span data-bind="hotelCheckOut">15 June 2027</span></div></div>
+            <div class="suite-rule"></div><div class="suite-kicker" data-label="booking">Booking Details</div><div class="suite-contact" data-bind="hotelBooking">Rooms reserved under Emma & James Wedding.</div>
+            <div class="suite-kicker" style="margin-top:16px" data-label="transport">Transport</div><div class="suite-contact" data-bind="hotelTransport">Wedding shuttle departs at 3:45 PM.</div>
+          </article>
+        </div>
+
+        <div class="suite-piece-wrap" data-piece="coordinator">
+          <div class="suite-piece-name">Optional · Guest contact</div>
+          <article class="suite-card card-landscape">
+            <div class="suite-ornament">✦</div><div class="suite-kicker" data-label="guest_contact">Guest Contact</div>
+            <div class="suite-venue" data-bind="coordinatorName">Anna Rossi</div><div class="suite-script" data-bind="coordinatorRole">Wedding Coordinator</div>
+            <p class="suite-script" data-label="questions">For questions and wedding-day assistance</p><div class="suite-rule"></div>
+            <div class="suite-contact"><span data-label="phone">Phone</span>: <span data-bind="coordinatorPhone">+39 333 123 4567</span><br><span data-label="messenger">WhatsApp / Messenger</span>: <span data-bind="coordinatorMessenger">WhatsApp</span><br><span data-label="email">Email</span>: <span data-bind="coordinatorEmail">anna@example.com</span></div>
+          </article>
+        </div>
+
+        <div class="suite-piece-wrap" data-piece="dress">
+          <div class="suite-piece-name">Optional · Dress code</div>
+          <article class="suite-card card-portrait">
+            <div class="suite-ornament">✦</div><div class="suite-kicker" data-label="dress_code">Dress Code</div>
+            <div class="dress-highlight" data-bind="dressStyle">White Celebration</div><div class="dress-palette"><span></span><span></span><span></span></div>
+            <p class="suite-script" data-bind="dressDescription">We kindly invite our guests to celebrate with us in elegant white attire.</p><div class="suite-rule"></div>
+            <div class="suite-kicker" data-label="dress_note">Suggested attire</div><div class="suite-date" data-bind="dressNote">Elegant · Festive · Summer</div>
+          </article>
+        </div>
+
+        <div class="suite-piece-wrap" data-piece="envelope">
+          <div class="suite-piece-name">Optional · Envelope front</div>
+          <article class="suite-card card-envelope">
+            <div class="suite-kicker" data-label="envelope">Envelope</div><div class="suite-rule"></div>
+            <div class="suite-kicker" data-label="to">To</div><div class="envelope-address" data-bind="guestMailingAddress">Sophia Miller</div>
+            <div class="suite-kicker" data-label="from">From</div><div class="envelope-return" data-bind="returnAddress">Emma & James</div>
+          </article>
+        </div>
+
+        <div class="suite-piece-wrap" data-piece="liner">
+          <div class="suite-piece-name">Optional · Envelope liner</div>
+          <article class="suite-card card-envelope-liner">
+            <div class="suite-kicker" data-label="envelope_liner">Envelope Liner</div><div class="liner-monogram" data-bind="monogram">E · J</div><div class="suite-rule"></div><div class="suite-script" data-bind="coupleNames">Emma & James</div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/suite-editor.js') }}"></script>
+{% endblock %}

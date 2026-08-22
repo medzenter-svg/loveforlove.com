@@ -3,22 +3,46 @@
 {% block content %}
 <section class="section">
   <div class="section-head">
-    <div class="kicker">SHOP</div>
+    <div class="kicker">THE LOVE FOR LOVE COLLECTION</div>
     <h2>All designs</h2>
+    <p class="section-intro">A growing collection of coordinated stationery for weddings, anniversaries and other meaningful celebrations. Only completed products are shown for sale.</p>
   </div>
-  <div class="category-filter">
-    <a href="{{ url_for('shop') }}" class="{{ 'active' if not active_category }}">ALL</a>
-    {% for c in categories %}
-    <a href="{{ url_for('shop', category=c) }}" class="{{ 'active' if active_category == c }}">{{ c.upper() }}</a>
-    {% endfor %}
+
+  {% if occasions %}
+  <div class="filter-group">
+    <div class="filter-label">SHOP BY OCCASION</div>
+    <div class="category-filter">
+      <a href="{{ url_for('shop', category=active_category) if active_category else url_for('shop') }}" class="{{ 'active' if not active_occasion }}">ALL OCCASIONS</a>
+      {% for o in occasions %}
+      <a href="{{ url_for('shop', occasion=o, category=active_category) }}" class="{{ 'active' if active_occasion == o }}">{{ o.upper() }}</a>
+      {% endfor %}
+    </div>
   </div>
+  {% endif %}
+
+  <div class="filter-group">
+    <div class="filter-label">PRODUCT TYPE</div>
+    <div class="category-filter">
+      <a href="{{ url_for('shop', occasion=active_occasion) if active_occasion else url_for('shop') }}" class="{{ 'active' if not active_category }}">ALL TYPES</a>
+      {% for c in categories %}
+      <a href="{{ url_for('shop', category=c, occasion=active_occasion) }}" class="{{ 'active' if active_category == c }}">{{ c.upper() }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
   <div class="grid">
     {% for p in products %}
     <a class="p-tile" href="{{ url_for('product_detail', slug=p.slug) }}">
-      <div class="thumb"><img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}"></div>
+      <div class="thumb preview-protected">
+        <img src="{{ url_for('static', filename='products/' + p.cover) }}" alt="{{ p.name }}" draggable="false">
+        <div class="preview-watermark preview-watermark-small" aria-hidden="true">LOVE FOR LOVE</div>
+      </div>
+      {% if p.occasion %}<div class="product-occasion">{{ p.occasion }}</div>{% endif %}
       <div class="name">{{ p.name }}</div>
       <div class="price">{{ price_display(p.price) }}</div>
     </a>
+    {% else %}
+    <div class="empty-state">This collection is being prepared. Only finished products are published for sale.</div>
     {% endfor %}
   </div>
 </section>

@@ -1,0 +1,60 @@
+name: Prepress Smoke
+
+on:
+  push:
+    branches:
+      - loveforlove-catalog-expansion
+    paths:
+      - 'store/prepress/**'
+      - 'store/print_*.py'
+      - '.github/workflows/prepress-smoke.yml'
+  pull_request:
+    paths:
+      - 'store/prepress/**'
+      - 'store/print_*.py'
+      - '.github/workflows/prepress-smoke.yml'
+
+jobs:
+  scribus-template-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build reproducible prepress image
+        run: docker build -f store/prepress/Dockerfile -t loveforlove-prepress .
+
+      - name: Verify prepress environment and ICC profiles
+        run: docker run --rm loveforlove-prepress python3 prepress/check_environment.py --require-profiles
+
+      - name: Generate templates and export four real Invitation PDFs
+        run: |
+          rm -rf .prepress-smoke
+          mkdir -p .prepress-smoke
+          docker run --rm \
+            -e LF_SMOKE_ROOT=/out \
+            -v "$PWD/.prepress-smoke:/out" \
+            loveforlove-prepress \
+            bash prepress/smoke_test.sh
+
+      - name: Count generated templates and exported PDFs
+        run: |
+          test "$(find .prepress-smoke/wedding-day-set/prepress -type f -name '*.sla' | wc -l)" -eq 30
+          test "$(find .prepress-smoke/wedding-day-set/export-smoke -type f -name '*.pdf' | wc -l)" -eq 4
+          test -f .prepress-smoke/wedding-day-set/export-smoke/INVITATION_EXPORT_SMOKE_MANIFEST.json
+
+      - name: Upload validated Scribus templates
+        uses: actions/upload-artifact@v4
+        with:
+          name: wedding-day-set-scribus-smoke
+          path: .prepress-smoke/wedding-day-set/prepress
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload Invitation PDF/X smoke files
+        uses: actions/upload-artifact@v4
+        with:
+          name: wedding-day-set-invitation-pdfx-smoke
+          path: .prepress-smoke/wedding-day-set/export-smoke
+          if-no-files-found: error
+          retention-days: 7
