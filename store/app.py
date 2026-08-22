@@ -28,6 +28,7 @@ else:
 ORDERS = {}
 
 DOWNLOADS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "downloads")
+PREVIEW_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "preview")
 
 
 @app.context_processor
@@ -68,6 +69,11 @@ def product_detail(slug):
 @app.route("/amalfi-preview")
 def amalfi_preview():
     return render_template("amalfi_preview.html")
+
+
+@app.route("/preview-assets/<path:filename>")
+def preview_asset(filename):
+    return send_from_directory(PREVIEW_DIR, filename)
 
 
 @app.route("/cart/add/<slug>", methods=["POST"])
