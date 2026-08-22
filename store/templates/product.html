@@ -3,12 +3,16 @@
 {% block content %}
 {% if product.get('full_collection') %}
 <style>
-.collection-cover{background:#f8f4ec}.collection-cover img{width:100%;height:auto;max-height:760px;object-fit:cover;object-position:top center;display:block}.collection-status{display:inline-block;border:1px solid var(--gold);color:var(--gold);padding:9px 12px;margin:0 0 20px;font-size:10px;letter-spacing:1.8px}.collection-note{font-size:12px;border-top:1px solid var(--line);padding-top:18px}.amalfi-collection-review{max-width:1180px;margin:30px auto 90px;padding:0 40px}.amalfi-collection-review .section-head p{max-width:760px;margin:14px auto 0;color:var(--sub);line-height:1.7;font-size:13px}.amalfi-contact-sheet{display:block;width:min(100%,980px);height:auto;margin:34px auto 42px;background:#fff;border:1px solid var(--line)}.amalfi-piece-list{max-width:900px;margin:0 auto;border-top:1px solid var(--line)}.amalfi-piece-row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:18px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.amalfi-piece-number{color:var(--gold);font-family:'Lora',serif;font-size:15px}.amalfi-piece-name{font-family:'Lora',serif;font-size:14px}.amalfi-piece-size{color:var(--sub);font-size:11px;text-align:right}@media(max-width:700px){.collection-cover img{max-height:none}.amalfi-collection-review{padding:0 18px}.amalfi-piece-row{grid-template-columns:38px 1fr;gap:10px}.amalfi-piece-size{grid-column:2;text-align:left}}
+.collection-cover{background:#f8f4ec}.collection-cover img{display:block;width:100%;height:auto;max-width:700px;margin:0 auto;background:#fff}.collection-status{display:inline-block;border:1px solid var(--gold);color:var(--gold);padding:9px 12px;margin:0 0 20px;font-size:10px;letter-spacing:1.8px}.collection-note{font-size:12px;border-top:1px solid var(--line);padding-top:18px}.amalfi-collection-review{max-width:1180px;margin:30px auto 90px;padding:0 40px}.amalfi-collection-review .section-head p{max-width:760px;margin:14px auto 0;color:var(--sub);line-height:1.7;font-size:13px}.amalfi-gallery{width:min(100%,700px);margin:34px auto 42px;display:grid;gap:8px}.amalfi-contact-sheet{display:block;width:100%;height:auto;margin:0;background:#fff;border:1px solid var(--line)}.amalfi-piece-list{max-width:900px;margin:0 auto;border-top:1px solid var(--line)}.amalfi-piece-row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:18px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.amalfi-piece-number{color:var(--gold);font-family:'Lora',serif;font-size:15px}.amalfi-piece-name{font-family:'Lora',serif;font-size:14px}.amalfi-piece-size{color:var(--sub);font-size:11px;text-align:right}@media(max-width:700px){.amalfi-collection-review{padding:0 18px}.amalfi-piece-row{grid-template-columns:38px 1fr;gap:10px}.amalfi-piece-size{grid-column:2;text-align:left}}
 </style>
 {% endif %}
 <div class="product-detail">
   <div class="pd-img {{ 'collection-cover' if product.get('full_collection') else '' }}">
-    <img src="{{ url_for('static', filename='products/' + product.cover) }}" alt="{{ product.name }}">
+    {% if product.get('full_collection') %}
+      <img src="{{ url_for('static', filename='products/amalfi-wedding-suite/collection-1.webp') }}" alt="{{ product.name }}">
+    {% else %}
+      <img src="{{ url_for('static', filename='products/' + product.cover) }}" alt="{{ product.name }}">
+    {% endif %}
   </div>
   <div class="pd-info">
     <div class="pd-cat">{{ product.category.upper() }}</div>
@@ -37,9 +41,13 @@
   <div class="section-head">
     <div class="kicker">FULL COLLECTION</div>
     <h2>24 coordinated pieces</h2>
-    <p>The preview below is generated from the actual print PDFs. Standard bleed is 3 mm on all sides. Front/back and folded variations remain under their canonical product number.</p>
+    <p>The collection is shown below in five sharp sections so the cards remain readable instead of stretching one low-resolution sheet. Standard bleed is 3 mm on all sides. Front/back and folded variations remain under their canonical product number.</p>
   </div>
-  <img class="amalfi-contact-sheet" src="{{ url_for('static', filename='products/' + product.cover) }}" alt="Amalfi Wedding Suite full 24-piece collection">
+  <div class="amalfi-gallery">
+    {% for n in range(1, 6) %}
+      <img class="amalfi-contact-sheet" src="{{ url_for('static', filename='products/amalfi-wedding-suite/collection-' ~ n ~ '.webp') }}" alt="Amalfi Wedding Suite collection preview {{ n }}">
+    {% endfor %}
+  </div>
   <div class="amalfi-piece-list">
     <div class="amalfi-piece-row"><span class="amalfi-piece-number">01</span><span class="amalfi-piece-name">Save the Date — 2 design variants</span><span class="amalfi-piece-size">17.5 × 12.5 cm</span></div>
     <div class="amalfi-piece-row"><span class="amalfi-piece-number">02</span><span class="amalfi-piece-name">Main Invitation — front/back</span><span class="amalfi-piece-size">18 × 13 cm</span></div>
