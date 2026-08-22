@@ -76,14 +76,6 @@ def preview_asset(filename):
     return send_from_directory(PREVIEW_DIR, filename)
 
 
-# The first binary WebP upload for the Amalfi store cover was corrupted.
-# Keep the public URL stable, but serve the verified JPEG collection preview
-# already stored in the repository. This fixes both the shop tile and product page.
-@app.route("/static/products/amalfi-wedding-suite/cover.webp")
-def amalfi_store_cover():
-    return send_from_directory(PREVIEW_DIR, "amalfi-collection.jpg")
-
-
 @app.route("/cart/add/<slug>", methods=["POST"])
 def cart_add(slug):
     if slug not in PRODUCTS_BY_SLUG:
