@@ -23,10 +23,7 @@ if STRIPE_AVAILABLE and STRIPE_SECRET_KEY:
 else:
     LIVE_PAYMENTS = False
 
-# In-memory order store, keyed by our own order id (fine for a small shop;
-# swap for a real database if order volume grows).
 ORDERS = {}
-
 DOWNLOADS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "downloads")
 PREVIEW_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "preview")
 
@@ -64,6 +61,20 @@ def product_detail(slug):
     if not product:
         abort(404)
     return render_template("product.html", product=product)
+
+
+@app.route("/test-editor/<slug>")
+def test_editor(slug):
+    product = PRODUCTS_BY_SLUG.get(slug)
+    if not product:
+        abort(404)
+    return render_template("editor.html", product=product)
+
+
+@app.route("/amalfi-editor")
+def amalfi_editor():
+    product = PRODUCTS_BY_SLUG.get("amalfi-wedding-suite")
+    return render_template("editor.html", product=product)
 
 
 @app.route("/amalfi-preview")
@@ -136,9 +147,6 @@ def checkout():
         session["cart"] = []
         return redirect(checkout_session.url, code=303)
     else:
-        # No Stripe key configured yet — dev/preview mode only.
-        # Marks the order paid immediately so the download flow can be tested
-        # end to end before real payments are wired in.
         ORDERS[order_id]["paid"] = True
         session["cart"] = []
         return redirect(url_for("success", order_id=order_id))
