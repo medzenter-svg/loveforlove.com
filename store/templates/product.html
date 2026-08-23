@@ -23,6 +23,9 @@
       <div class="collection-status">{{ product.get('status', 'COLLECTION PREVIEW') }}</div>
     {% endif %}
     <p class="pd-desc">{{ product.description }}</p>
+    {% if product.get('full_collection') %}
+      <a class="btn btn-gold" href="{{ url_for('amalfi_editor') }}" style="display:inline-block;margin:0 0 22px;">OPEN EDITOR</a>
+    {% endif %}
     {% if product.files|length > 1 %}
     <p class="pd-desc" style="margin-top:-20px;font-size:13px;">Includes {{ product.files|length }} matching print-ready files.</p>
     {% endif %}
