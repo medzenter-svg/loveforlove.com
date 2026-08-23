@@ -1,179 +1,60 @@
 {% extends "base.html" %}
-{% block title %}Test Editor — loveforlove.com{% endblock %}
+{% block title %}Amalfi Editor — loveforlove.com{% endblock %}
 {% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+.editor-shell{max-width:1580px;margin:0 auto;padding:38px 34px 70px}.editor-head{display:flex;justify-content:space-between;gap:30px;align-items:flex-end;margin-bottom:18px}.editor-head h1{font:600 42px 'Cormorant Garamond',serif;margin:8px 0}.editor-head p{margin:0;color:#655c52;font-size:13px}.editor-kicker,.panel-title,.piece-panel label{font-size:10px;letter-spacing:2px;font-weight:600;color:#742e36}.editor-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-end}.save-status{background:#fff;border:1px solid #d9c7aa;padding:11px 14px;color:#6a6055;font-size:11px;margin-bottom:20px}.editor-layout{display:grid;grid-template-columns:260px minmax(330px,420px) minmax(520px,1fr);gap:20px}.piece-panel,.field-panel,.preview-panel{background:#fff;border:1px solid #d9c7aa;padding:24px}.piece-panel label,.panel-title{display:block;margin-bottom:14px}.piece-panel select,.field input,.field textarea{width:100%;border:1px solid #d9cfbf;background:#fff;padding:12px;font:13px Poppins,Arial,sans-serif;color:#241f1a}.piece-panel select:focus,.field input:focus,.field textarea:focus{outline:2px solid #dbc28e;border-color:#b38b43}.piece-count{font-size:10px;line-height:1.7;color:#b38b43;margin:13px 0}.editor-note{font:italic 13px/1.65 'Cormorant Garamond',serif;color:#6b6258;border-top:1px solid #d9c7aa;padding-top:16px}.fields{display:flex;flex-direction:column;gap:12px}.field span{display:block;font-size:10px;letter-spacing:.5px;margin-bottom:5px;color:#665c51}.field textarea{resize:vertical;min-height:70px}.text-button{border:0;background:none;text-decoration:underline;color:#6b6258;cursor:pointer;padding:18px 0 0}.paper-stage{min-height:690px;display:flex;justify-content:center;align-items:flex-start;background:#e9dfcf;padding:28px}.wedding-card{width:min(100%,610px);aspect-ratio:1.4/1;background:#fffaf1;position:relative;padding:72px 68px 54px;text-align:center;box-shadow:0 16px 40px #4d3d2430;overflow:hidden;background-image:linear-gradient(rgba(255,250,241,.86),rgba(255,250,241,.86)),url("{{ url_for('static', filename='products/invitation-suite/save-date-bg-watercolor.svg') }}");background-size:cover;background-position:center}.wedding-card.portrait{width:min(100%,440px);aspect-ratio:2/3}.card-border{position:absolute;inset:16px;border:1px solid #b38b43;outline:1px solid #d8c397;outline-offset:5px;pointer-events:none}.rings{height:34px;position:relative;margin:0 auto 6px;width:58px}.rings i{position:absolute;top:5px;width:27px;height:27px;border:2px solid #b38b43;border-radius:50%;display:block}.rings i:first-child{left:7px}.rings i:last-child{left:24px}.card-monogram{font:32px Allura,cursive;color:#b38b43;margin-bottom:4px}.wedding-card h2{font:600 36px 'Cormorant Garamond',serif;margin:6px 0 8px;color:#372b22}.gold-rule{height:1px;width:92px;background:#b38b43;margin:0 auto 18px}.card-body{display:flex;flex-direction:column;gap:8px;position:relative;z-index:2}.preview-row{display:flex;flex-direction:column;gap:2px}.preview-value{font:16px/1.25 'Cormorant Garamond',serif;color:#40362e;white-space:pre-line}.preview-value.script{font:29px/1 Allura,cursive;color:#b38b43}.card-brand{position:absolute;bottom:24px;left:0;right:0;font-size:6px;letter-spacing:1px;color:#9f875f}.format-label{text-align:center;color:#6c6258;font-size:10px;margin-top:12px}.side-badge{font-size:8px;letter-spacing:1.5px;color:#9f875f;margin-bottom:4px}.btn-primary,.btn-secondary{cursor:pointer}.menu-card .preview-value{font-size:14px}.menu-card .card-body{gap:5px}@media(max-width:1100px){.editor-layout{grid-template-columns:1fr 1.4fr}.preview-panel{grid-column:1/-1}}@media(max-width:720px){.editor-shell{padding:24px 14px}.editor-head{align-items:flex-start;flex-direction:column}.editor-layout{grid-template-columns:1fr}.preview-panel{grid-column:auto}.paper-stage{padding:14px;min-height:560px}.wedding-card{padding:58px 38px 46px}.wedding-card h2{font-size:29px}}@media print{body{background:#fff}.nav,.nav-flourish,.dev-banner,.editor-head,.save-status,.piece-panel,.field-panel,.footer,.bottom-flourish,.footer-bottom,.panel-title,.format-label{display:none!important}.editor-shell,.editor-layout,.preview-panel,.paper-stage{display:block!important;margin:0!important;padding:0!important;border:0!important;background:#fff!important}.wedding-card{box-shadow:none;margin:0 auto;break-inside:avoid}}
+</style>
 <section class="editor-shell">
   <header class="editor-head">
-    <div>
-      <div class="editor-kicker">TEST ACCESS · NO PAYMENT</div>
-      <h1>Amalfi Wedding Suite</h1>
-      <p>Choose a piece, change the wedding details and test the finished result directly on loveforlove.com.</p>
-    </div>
-    <div class="editor-actions">
-      <button id="saveBtn" class="btn-secondary" type="button">SAVE CHANGES</button>
-      <button id="pngBtn" class="btn-secondary" type="button">DOWNLOAD PNG</button>
-      <button id="printBtn" class="btn-primary" type="button">PRINT / SAVE PDF</button>
-    </div>
+    <div><div class="editor-kicker">TEST ACCESS · NO PAYMENT</div><h1>Amalfi Wedding Suite</h1><p>Choose a piece, edit the wedding details and review the finished design directly on loveforlove.com.</p></div>
+    <div class="editor-actions"><button id="saveBtn" class="btn-secondary" type="button">SAVE CHANGES</button><button id="pngBtn" class="btn-secondary" type="button">DOWNLOAD PNG</button><button id="printBtn" class="btn-primary" type="button">PRINT / SAVE PDF</button></div>
   </header>
-
-  <div id="saveStatus" class="save-status" aria-live="polite">Changes are stored only on this device during testing.</div>
-
+  <div id="saveStatus" class="save-status">Changes are stored only on this device during testing.</div>
   <div class="editor-layout">
-    <aside class="piece-panel">
-      <label for="pieceSelect">1. CHOOSE A PIECE</label>
-      <select id="pieceSelect"></select>
-      <div id="pieceCount" class="piece-count"></div>
-      <div class="editor-note">All 25 pieces use the same protected design system. Only the personal wedding information is editable.</div>
-    </aside>
-
-    <section class="field-panel">
-      <div class="panel-title">2. EDIT THE DETAILS</div>
-      <div id="fields" class="fields"></div>
-      <button id="resetBtn" class="text-button" type="button">Restore sample text</button>
-    </section>
-
-    <section class="preview-panel">
-      <div class="panel-title">3. LIVE PREVIEW</div>
-      <div class="paper-stage">
-        <article id="card" class="wedding-card amalfi-card" aria-label="Live preview">
-          <div class="card-border"></div>
-          <div id="cardMonogram" class="card-monogram">O &amp; M</div>
-          <h2 id="cardTitle">Wedding Invitation</h2>
-          <div class="gold-rule"></div>
-          <div id="cardBody" class="card-body"></div>
-          <div class="card-brand">Designed by loveforlove.com</div>
-        </article>
-      </div>
-      <div id="formatLabel" class="format-label"></div>
-    </section>
+    <aside class="piece-panel"><label for="pieceSelect">1. CHOOSE A PIECE</label><select id="pieceSelect"></select><div id="pieceCount" class="piece-count"></div><div class="editor-note">All 24 pieces use the same Amalfi design system. Only wedding information is editable. Bleed, safe zone, fold and cut guides are production-only and never print on the guest artwork.</div></aside>
+    <section class="field-panel"><div class="panel-title">2. EDIT THE DETAILS</div><div id="fields" class="fields"></div><button id="resetBtn" class="text-button" type="button">Restore sample text</button></section>
+    <section class="preview-panel"><div class="panel-title">3. LIVE PREVIEW</div><div class="paper-stage"><article id="card" class="wedding-card" aria-label="Live preview"><div class="card-border"></div><div class="rings"><i></i><i></i></div><div id="cardMonogram" class="card-monogram">Olivia & Matteo</div><h2 id="cardTitle">Save the Date</h2><div class="gold-rule"></div><div id="cardBody" class="card-body"></div><div class="card-brand">loveforlove.com</div></article></div><div id="formatLabel" class="format-label"></div></section>
   </div>
 </section>
-
-<canvas id="exportCanvas" width="1500" height="2100" hidden></canvas>
-
+<canvas id="exportCanvas" width="1800" height="1300" hidden></canvas>
 <script>
-(() => {
-  const pieces = [
-    ["Save the Date","5 × 7 in · 127 × 177.8 mm · 3 mm bleed",["Names","Personal message to guests","Date","Venue","Address"]],
-    ["Main Invitation","5 × 7 in / A5",["Names","Personal message to guests","Date & Time","Venue","Address","RSVP line"]],
-    ["Details Card","4 × 6 in / A6",["Heading","Arrival information","Venue details","Parking"]],
-    ["RSVP Card","4.25 × 5.5 in / A6",["Reply by date","Guest name","Attendance options","Menu choices","Dietary notes"]],
-    ["Wedding Website Card","4 × 6 in / A6",["Heading","Website","Password","QR code text"]],
-    ["Accommodation Card","4 × 6 in / A6",["Heading","Hotel 1","Hotel 2","Booking deadline","Booking code"]],
-    ["Transport & Parking","4 × 6 in / A6",["Heading","Departure point","Departure time","Return time","Parking information","Contact"]],
-    ["Dress Code Card","4 × 6 in / A6",["Dress code","Description","Preferred colours","Please avoid","Footwear note"]],
-    ["Gift & Registry Card","4 × 6 in / A6",["Heading","Message","Registry link","QR code text"]],
-    ["Coordinator Contact","Business card / A7",["Coordinator name","Telephone","Email","Available hours","Contact note"]],
-    ["Full Wedding Program","5 × 7 in / A5",["Heading","Day One summary","Day Two summary","Closing note"]],
-    ["Day One Program","5 × 7 in / A5",["Date","Event 1","Event 2","Event 3","Event 4","Closing time"]],
-    ["Day Two Program","5 × 7 in / A5",["Date","Ceremony","Cocktail hour","Dinner","First dance","Party","Transfer"]],
-    ["Ceremony Card","4 × 6 in / A6",["Ceremony title","Date & Time","Venue","Arrival time","Guest note"]],
-    ["Order of Ceremony","5 × 7 in / A5",["Welcome","Processional","Reading","Vows","Ring exchange","Recessional"]],
-    ["Reception Card","4 × 6 in / A6",["Reception venue","Start time","Cocktail hour","Dinner","Dancing","End time"]],
-    ["Menu Card","4 × 9 in / DL",["Menu title","Starter heading","Starter dish","First course heading","First course dish","Main course heading","Main course dish","Vegetarian heading","Vegetarian dish","Dessert heading","Dessert dish","Drinks heading","Drinks","Allergen note"]],
-    ["Seating Chart","A2 / 18 × 24 in",["Heading","Table 1","Table 2","Table 3","Table 4","Guest note"]],
-    ["Table Number","5 × 7 in / A6",["Table number","Optional table name"]],
-    ["Place Card","90 × 50 mm",["Guest name","Meal marker","Dietary marker"]],
-    ["Escort Card","90 × 50 mm",["Guest name","Table number","Meal marker"]],
-    ["Welcome Sign","A1 / 24 × 36 in",["Welcome line","Names","Date","Venue"]],
-    ["Guest Book Sign","A5 / 5 × 7 in",["Heading","Guest message","Instructions"]],
-    ["Thank You Card","5 × 7 in / A6",["Heading","Thank-you message","Names","Date"]],
-    ["Envelope Set","Fits 5 × 7 in invitation",["Recipient name","Recipient address","Return names","Return address","Liner message"]]
-  ].map((p, i) => ({id:i+1,title:p[0],format:p[1],fields:p[2]}));
-
-  const samples = {
-    "Names":"Olivia & Matteo", "Date":"18 September 2027", "City & Country":"Ravello, Italy", "Personal message to guests":"We would be delighted to celebrate with you.",
-    "Website":"loveforlove.com/olivia-matteo", "Invitation text":"Together with their families invite you to celebrate their wedding",
-    "Date & Time":"Saturday, 18 September 2027 · 4:00 PM", "Venue":"Villa Cimbrone", "Address":"Via Santa Chiara 26, Ravello",
-    "RSVP line":"Kindly reply by 1 August 2027", "Heading":"Wedding Details", "Arrival information":"Please arrive 30 minutes before the ceremony",
-    "Venue details":"Ceremony in the Garden of Infinity", "Parking":"Guest parking and shuttle from Piazza Duomo",
-    "Reply by date":"Please reply by 1 August 2027", "Guest name":"Sophia Rossi", "Attendance options":"Joyfully accepts · Regretfully declines",
-    "Menu choices":"Sea bass · Beef fillet · Garden menu", "Dietary notes":"Please list allergies or dietary requirements",
-    "Password":"AMORE2027", "QR code text":"Scan for wedding details", "Hotel 1":"Hotel Caruso · Ravello", "Hotel 2":"Palazzo Avino · Ravello",
-    "Booking deadline":"Reserve by 15 July 2027", "Booking code":"OLIVIA&MATTEO", "Departure point":"Piazza Duomo, Ravello",
-    "Departure time":"3:15 PM", "Return time":"12:30 AM", "Parking information":"Reserved parking at Via della Repubblica", "Contact":"+39 000 000 0000",
-    "Dress code":"Mediterranean Formal", "Description":"Elegant summer evening attire", "Preferred colours":"Sage · Blush · Champagne · Navy",
-    "Please avoid":"White and ivory", "Footwear note":"Garden-friendly footwear recommended", "Message":"Your presence is the greatest gift",
-    "Registry link":"loveforlove.com/registry", "Coordinator name":"Elena Bianchi", "Telephone":"+39 000 000 0000", "Email":"elena@example.com",
-    "Available hours":"10:00 AM – 6:00 PM", "Contact note":"Please contact Elena with travel questions", "Day One summary":"Welcome dinner · 6:30 PM · Lemon Garden",
-    "Day Two summary":"Ceremony · Dinner · Dancing · Villa Cimbrone", "Closing note":"We cannot wait to celebrate with you",
-    "Event 1":"4:00 PM · Guest arrival", "Event 2":"5:00 PM · Welcome aperitivo", "Event 3":"6:30 PM · Welcome dinner", "Event 4":"9:00 PM · Music under the stars", "Closing time":"11:30 PM · Evening concludes",
-    "Ceremony":"4:00 PM · Garden ceremony", "Cocktail hour":"5:00 PM · Terrace cocktails", "Dinner":"7:00 PM · Wedding dinner", "First dance":"9:00 PM · First dance", "Party":"9:30 PM · Dancing", "Transfer":"12:30 AM · Return shuttle",
-    "Ceremony title":"The Wedding Ceremony", "Arrival time":"Please be seated by 3:45 PM", "Guest note":"An unplugged ceremony is kindly requested",
-    "Welcome":"Welcome and opening words", "Processional":"Processional", "Reading":"A reading on love", "Vows":"Exchange of vows", "Ring exchange":"Exchange of rings", "Recessional":"Recessional",
-    "Reception venue":"Villa Cimbrone Terrace", "Start time":"5:00 PM", "Dancing":"9:30 PM", "End time":"12:30 AM",
-    "Menu title":"Wedding Menu", "Starter heading":"Starter", "Starter dish":"Burrata · Amalfi lemon · basil", "First course heading":"First Course", "First course dish":"Handmade ravioli · garden herbs", "Main course heading":"Main Course", "Main course dish":"Sea bass · seasonal vegetables", "Vegetarian heading":"Vegetarian", "Vegetarian dish":"Wild mushroom risotto", "Dessert heading":"Dessert", "Dessert dish":"Lemon delight · berries", "Drinks heading":"Drinks", "Drinks":"Italian wine · sparkling water · coffee", "Allergen note":"Please advise us of allergies",
-    "Table 1":"Table One · Sophia, Luca, Emma, Noah", "Table 2":"Table Two · Mia, Leo, Ava, Hugo", "Table 3":"Table Three · Clara, Theo, Lina, Max", "Table 4":"Table Four · Anna, Paul, Eva, Luis",
-    "Table number":"TABLE 08", "Optional table name":"The Lemon Garden", "Meal marker":"Sea bass", "Dietary marker":"Gluten free",
-    "Welcome line":"Welcome to our wedding", "Guest message":"Please leave us a note to remember this beautiful day", "Instructions":"Write a message and add your photograph",
-    "Thank-you message":"Thank you for celebrating the beginning of our forever", "Recipient name":"Sophia Rossi", "Recipient address":"22 Via Roma · 20121 Milano · Italy", "Return names":"O. Moretti & M. Romano", "Return address":"12 Via Amalfi · 84010 Ravello · Italy", "Liner message":"La dolce vita begins here",
-    "Optional table name":"The Lemon Garden"
-  };
-
-  const select = document.getElementById('pieceSelect');
-  const fields = document.getElementById('fields');
-  const cardTitle = document.getElementById('cardTitle');
-  const cardBody = document.getElementById('cardBody');
-  const monogram = document.getElementById('cardMonogram');
-  const storageKey = 'loveforlove-amalfi-test-v1';
-  let state = JSON.parse(localStorage.getItem(storageKey) || '{}');
-  pieces.forEach(p => select.add(new Option(`${String(p.id).padStart(2,'0')} · ${p.title}`, p.id)));
-
-  function valueFor(piece, label){ return state[piece.id]?.[label] ?? samples[label] ?? label; }
-  function initials(){
-    const names = Object.values(state).flatMap(Object.values).find(v => typeof v === 'string' && v.includes('&')) || samples.Names;
-    const parts = names.split('&').map(s => s.trim()[0]).filter(Boolean); return parts.join(' & ');
-  }
-  const promotedFields = {2:'Names',3:'Heading',8:'Dress code',14:'Ceremony title',17:'Menu title',19:'Table number',20:'Guest name',21:'Guest name',22:'Welcome line',25:'Recipient name'};
-  const cleanTitles = {4:'RSVP',5:'Wedding Website',6:'Accommodation',7:'Transport & Parking',9:'Gifts & Registry',10:'Wedding Coordinator',11:'Wedding Program',12:'Day One',13:'Day Two',15:'Order of Ceremony',16:'Reception',18:'Find Your Seat',23:'Guest Book',24:'Thank You'};
-  function promotedFieldFor(p){ return promotedFields[p.id]; }
-  function titleFor(p){ const field=promotedFieldFor(p); return field ? valueFor(p,field) : (cleanTitles[p.id] || p.title); }
-  function render(){
-    const p = pieces[Number(select.value || 1)-1];
-    document.getElementById('pieceCount').textContent = `PIECE ${p.id} OF ${pieces.length} · ${p.format}`;
-    document.getElementById('formatLabel').textContent = `Preview format: ${p.format}`;
-    fields.innerHTML = '';
-    p.fields.forEach(label => {
-      const wrap = document.createElement('label'); wrap.className = 'field';
-      const span = document.createElement('span'); span.textContent = label;
-      const long = /text|information|message|summary|options|notes|address|instructions|course|parking|details/i.test(label);
-      const input = document.createElement(long ? 'textarea' : 'input');
-      input.value = valueFor(p,label); input.rows = long ? 3 : 1;
-      input.addEventListener('input', () => { state[p.id] ||= {}; state[p.id][label] = input.value; updatePreview(); });
-      wrap.append(span,input); fields.appendChild(wrap);
-    });
-    updatePreview();
-  }
-  function updatePreview(){
-    const p = pieces[Number(select.value || 1)-1];
-    const promotedField = promotedFieldFor(p);
-    cardTitle.textContent = titleFor(p);
-    monogram.textContent = initials(); cardBody.innerHTML = '';
-    document.getElementById('card').classList.toggle('amalfi-save-date', p.id === 1);
-    document.getElementById('card').classList.toggle('menu-card', p.id === 17);
-    p.fields.forEach(label => {
-      if(label === promotedField) return;
-      const row = document.createElement('div'); row.className = 'preview-row';
-      if(/ heading$/i.test(label)) row.classList.add('menu-heading');
-      if(label === 'Allergen note') row.classList.add('menu-note');
-      const val = document.createElement('span'); val.className = 'preview-value'; val.textContent = valueFor(p,label);
-      row.append(val); cardBody.appendChild(row);
-    });
-  }
-  select.addEventListener('change', render);
-  document.getElementById('saveBtn').addEventListener('click', () => { localStorage.setItem(storageKey, JSON.stringify(state)); const s=document.getElementById('saveStatus'); s.textContent='Saved successfully on this device.'; setTimeout(()=>s.textContent='Changes are stored only on this device during testing.',2500); });
-  document.getElementById('resetBtn').addEventListener('click', () => { const p=pieces[Number(select.value)-1]; delete state[p.id]; render(); });
-  document.getElementById('printBtn').addEventListener('click', () => window.print());
-  document.getElementById('pngBtn').addEventListener('click', () => {
-    const p=pieces[Number(select.value)-1], canvas=document.getElementById('exportCanvas'), ctx=canvas.getContext('2d');
-    ctx.fillStyle='#fbf7ef'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.strokeStyle='#b6924b'; ctx.lineWidth=6; ctx.strokeRect(55,55,1390,1990); ctx.lineWidth=2; ctx.strokeRect(78,78,1344,1944);
-    ctx.textAlign='center'; ctx.fillStyle='#9c7838'; ctx.font='46px Georgia'; ctx.fillText(initials(),750,235);
-    ctx.fillStyle='#32291f'; ctx.font='64px Georgia'; ctx.fillText(titleFor(p),750,390); ctx.fillStyle='#b6924b'; ctx.fillRect(570,440,360,3);
-    const promotedField=promotedFieldFor(p), exportFields=p.fields.filter(label=>label!==promotedField); let y=520; const step=p.id===17?92:105; exportFields.forEach(label=>{ctx.fillStyle=/ heading$/i.test(label)?'#9c7838':'#32291f';ctx.font=/ heading$/i.test(label)?'22px Arial':(p.id===17?'27px Georgia':'32px Georgia');wrapText(ctx,valueFor(p,label),750,y,1180,38);y+=step;});
-    ctx.fillStyle='#9c7838';ctx.font='20px Arial';ctx.fillText('Designed by loveforlove.com',750,2020);
-    const a=document.createElement('a');a.download=`${String(p.id).padStart(2,'0')}-${p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.png`;a.href=canvas.toDataURL('image/png');a.click();
-  });
-  function wrapText(ctx,text,x,y,maxWidth,lineHeight){const words=String(text).split(' ');let line='';for(let i=0;i<words.length;i++){const test=line+words[i]+' ';if(ctx.measureText(test).width>maxWidth&&i>0){ctx.fillText(line,x,y);line=words[i]+' ';y+=lineHeight;}else line=test;}ctx.fillText(line,x,y);}
-  select.value='1'; render();
+(()=>{
+const pieces=[
+["Save the Date","17.5 × 12.5 cm · bleed 18.1 × 13.1 cm · landscape",["Design variant","Names","Date","Venue","Venue address","Follow-up line"]],
+["Main Invitation","18 × 13 cm · bleed 18.6 × 13.6 cm · landscape · front/back",["Names","Invitation phrase","Date","Time","Venue","Full address","Reception information","Dress code","Additional information"]],
+["Details Card","16.5 × 11.5 cm · bleed 17.1 × 12.1 cm · landscape · front/back",["Ceremony time","Ceremony venue","Ceremony address","Reception time","Reception venue","Dress code","Accommodation","Transport","Dietary requirements","Additional information"]],
+["RSVP Card","14 × 9.5 cm · bleed 14.6 × 10.1 cm · landscape · front/back",["Reply heading","Reply deadline","Guest name","Accept option","Decline option","Guest count","Meal choice","Back thank-you line"]],
+["Wedding Website Card","12.5 × 8.5 cm · bleed 13.1 × 9.1 cm · landscape",["Heading","Short phrase","Wedding website","Password"]],
+["Hotel Accommodation Card","17 × 11 cm · bleed 17.6 × 11.6 cm · landscape",["Hotel name","Hotel address","Stay dates","Check-in","Check-out","Special rate","Booking code","Hotel contact","Transfer information","Who pays","Nights paid by couple","Guest-paid extras"]],
+["Transport & Parking Card","16 × 10.5 cm · bleed 16.6 × 11.1 cm · landscape",["Departure point","Departure time","Return transfer","Parking","Parking address","Additional instructions"]],
+["Dress Code Card","21 × 14 cm · bleed 21.6 × 14.6 cm · landscape",["Day One style","Day One palette","Day One recommendations","Day Two style","Day Two palette","Day Two recommendations"]],
+["Gifts & Registry Card","15.5 × 10.5 cm · bleed 16.1 × 11.1 cm · landscape",["Heading","Gift message","Couple wishes","Registry link"]],
+["Coordinator Contacts Card","13.5 × 9 cm · bleed 14.1 × 9.6 cm · landscape",["Coordinator name","Role","Phone","Email","Second contact"]],
+["General Program","22 × 14.5 cm · bleed 22.6 × 15.1 cm · landscape",["Heading","Schedule line 1","Schedule line 2","Schedule line 3","Schedule line 4","Schedule line 5"]],
+["Day One Program","21.5 × 14 cm · bleed 22.1 × 14.6 cm · landscape",["Day title","Date","Event 1","Event 2","Event 3","Event 4","Venue note"]],
+["Day Two Program","20.5 × 13.5 cm · bleed 21.1 × 14.1 cm · landscape",["Day title","Date","Event 1","Event 2","Event 3","Event 4","Venue note"]],
+["Wedding Program Card","22.5 × 15 cm · bleed 23.1 × 15.6 cm · landscape · front/back",["Day One program","Day Two program","Second day enabled"]],
+["Ceremony Card","16.5 × 10 cm · bleed 17.1 × 10.6 cm · landscape",["Ceremony title","Date","Time","Venue","Address","Additional line"]],
+["Order of Ceremony","23 × 15 cm · bleed 23.6 × 15.6 cm · landscape",["Heading","Processional","Reading","Exchange of Vows","Exchange of Rings","Unity Ceremony","Presentation","Recessional"]],
+["Reception Card","15 × 10 cm · bleed 15.6 × 10.6 cm · landscape",["Reception title","Time","Venue","Address","Additional line"]],
+["Menu Card","14 × 21 cm · bleed 14.6 × 21.6 cm · portrait",["Menu title","Starter / Antipasto","First course","Main course","Dessert","Drinks"]],
+["Table Number","12 × 24 cm print · bleed 12.6 × 24.6 cm · folds to 12 × 12 cm",["Table number","Optional table name"]],
+["Place Card","12 × 14 cm print · bleed 12.6 × 14.6 cm · folds to 12 × 7 cm",["Guest name","Optional note"]],
+["Welcome Sign","70 × 50 cm · bleed 70.6 × 50.6 cm · landscape",["Welcome phrase","Names","Date"]],
+["Guest Book Sign","25 × 20 cm · bleed 25.6 × 20.6 cm · landscape",["Heading","Guest message"]],
+["Thank You Card","14.5 × 9 cm · bleed 15.1 × 9.6 cm · landscape · front/back",["Front heading","Back thank-you text","Names"]],
+["Envelope Suite","finished 19.5 × 14.5 cm · front/back/flap/liner",["Recipient name","Recipient address","Return names","Return address","Flap note","Liner text"]]
+].map((p,i)=>({id:i+1,title:p[0],format:p[1],fields:p[2]}));
+const samples={
+"Design variant":"Option A","Names":"Olivia & Matteo","Date":"15 June 2026","Venue":"Villa Cimbrone","Venue address":"Via Santa Chiara 26, Ravello, Italy","Follow-up line":"Formal invitation to follow","Invitation phrase":"Together with their families invite you to celebrate their wedding","Time":"4:00 PM","Full address":"Via Santa Chiara 26, Ravello, Amalfi Coast, Italy","Reception information":"Reception to follow on the terrace","Dress code":"Mediterranean Formal","Additional information":"We look forward to celebrating with you","Ceremony time":"4:00 PM","Ceremony venue":"Villa Cimbrone Garden","Ceremony address":"Via Santa Chiara 26, Ravello","Reception time":"5:30 PM","Reception venue":"Villa Cimbrone Terrace","Accommodation":"Hotel recommendations are available on our wedding website","Transport":"Guest shuttle departs Piazza Duomo at 3:15 PM","Dietary requirements":"Please include dietary requirements with your reply","Reply heading":"Kindly Reply","Reply deadline":"Please reply by 15 April 2026","Guest name":"Sophia Rossi","Accept option":"Accepts with pleasure","Decline option":"Declines with regret","Guest count":"2 guests","Meal choice":"Sea bass · Beef fillet · Garden menu","Back thank-you line":"Thank you for your reply","Heading":"Wedding Details","Short phrase":"All the details for our celebration","Wedding website":"loveforlove.com/olivia-matteo","Password":"AMORE2026","Hotel name":"Hotel Caruso","Hotel address":"Piazza San Giovanni del Toro 2, Ravello","Stay dates":"14–16 June 2026","Check-in":"3:00 PM","Check-out":"11:00 AM","Special rate":"Wedding rate available","Booking code":"OLIVIA&MATTEO","Hotel contact":"+39 000 000 0000","Transfer information":"Wedding-day shuttle included","Who pays":"The couple covers the first night","Nights paid by couple":"1 night","Guest-paid extras":"Additional nights, minibar and personal extras","Departure point":"Piazza Duomo, Ravello","Departure time":"3:15 PM","Return transfer":"12:30 AM","Parking":"Reserved guest parking","Parking address":"Via della Repubblica, Ravello","Additional instructions":"Please arrive 15 minutes before departure","Day One style":"Welcome Dinner · Summer Formal","Day One palette":"Sage · Champagne · Navy","Day One recommendations":"Light tailoring and elegant summer dresses","Day Two style":"Wedding Day · Mediterranean Formal","Day Two palette":"Soft neutrals · Blue · Green","Day Two recommendations":"Garden-friendly footwear recommended","Gift message":"Your presence is the greatest gift","Couple wishes":"If you wish, a registry is available online","Registry link":"loveforlove.com/registry","Coordinator name":"Elena Bianchi","Role":"Wedding Coordinator","Phone":"+39 000 000 0000","Email":"elena@example.com","Second contact":"Marco · +39 000 000 0001","Schedule line 1":"3:15 PM · Shuttle departure","Schedule line 2":"4:00 PM · Ceremony","Schedule line 3":"5:30 PM · Cocktails","Schedule line 4":"7:00 PM · Dinner","Schedule line 5":"9:30 PM · Dancing","Day title":"Wedding Day","Event 1":"4:00 PM · Ceremony","Event 2":"5:30 PM · Aperitivo","Event 3":"7:00 PM · Dinner","Event 4":"9:30 PM · Dancing","Venue note":"Villa Cimbrone, Ravello","Day One program":"Welcome Dinner · Lemon Garden · 6:30 PM","Day Two program":"Ceremony · Dinner · Dancing · Villa Cimbrone","Second day enabled":"Yes","Ceremony title":"The Wedding Ceremony","Address":"Via Santa Chiara 26, Ravello","Additional line":"Please be seated by 3:45 PM","Processional":"Processional","Reading":"A reading on love","Exchange of Vows":"Exchange of Vows","Exchange of Rings":"Exchange of Rings","Unity Ceremony":"Unity Ceremony","Presentation":"Presentation of the newlyweds","Recessional":"Recessional","Reception title":"Wedding Reception","Menu title":"Wedding Menu","Starter / Antipasto":"Burrata · Amalfi lemon · basil","First course":"Handmade ravioli · garden herbs","Main course":"Sea bass · seasonal vegetables","Dessert":"Lemon delight · berries","Drinks":"Italian wine · sparkling water · coffee","Table number":"TABLE 08","Optional table name":"The Lemon Garden","Optional note":"Sea bass","Welcome phrase":"Welcome to our wedding","Guest message":"Please leave us a note to remember this beautiful day","Front heading":"Thank You","Back thank-you text":"Thank you for celebrating the beginning of our forever","Recipient name":"Sophia Rossi","Recipient address":"22 Via Roma · 20121 Milano · Italy","Return names":"Olivia & Matteo","Return address":"12 Via Amalfi · 84010 Ravello · Italy","Flap note":"With love from Ravello","Liner text":"La dolce vita begins here"};
+const select=document.getElementById('pieceSelect'),fields=document.getElementById('fields'),card=document.getElementById('card'),cardTitle=document.getElementById('cardTitle'),cardBody=document.getElementById('cardBody'),monogram=document.getElementById('cardMonogram');
+const storageKey='loveforlove-amalfi-24-v2';let state=JSON.parse(localStorage.getItem(storageKey)||'{}');pieces.forEach(p=>select.add(new Option(`${String(p.id).padStart(2,'0')} · ${p.title}`,p.id)));
+function valueFor(p,label){return state[p.id]?.[label]??samples[label]??label}
+function titleFor(p){const map={1:'Save the Date',2:'Wedding Invitation',3:'Wedding Details',4:'RSVP',5:'Wedding Website',6:'Accommodation',7:'Transport & Parking',8:'Dress Code',9:'Gifts & Registry',10:'Wedding Coordinator',11:'Wedding Program',12:'Day One',13:'Day Two',14:'Wedding Program',15:'Ceremony',16:'Order of Ceremony',17:'Reception',18:'Menu',19:valueFor(p,'Table number'),20:valueFor(p,'Guest name'),21:valueFor(p,'Welcome phrase'),22:'Guest Book',23:valueFor(p,'Front heading'),24:'Envelope Suite'};return map[p.id]}
+function render(){const p=pieces[Number(select.value||1)-1];document.getElementById('pieceCount').textContent=`PIECE ${p.id} OF 24 · ${p.format}`;document.getElementById('formatLabel').textContent=`Finished format: ${p.format}`;fields.innerHTML='';p.fields.forEach(label=>{const wrap=document.createElement('label');wrap.className='field';const span=document.createElement('span');span.textContent=label;const long=/information|message|address|program|recommendations|instructions|text|extras/i.test(label);const input=document.createElement(long?'textarea':'input');input.value=valueFor(p,label);input.rows=long?3:1;input.addEventListener('input',()=>{state[p.id]??={};state[p.id][label]=input.value;updatePreview()});wrap.append(span,input);fields.appendChild(wrap)});updatePreview()}
+function updatePreview(){const p=pieces[Number(select.value||1)-1];card.classList.toggle('portrait',p.id===18);card.classList.toggle('menu-card',p.id===18);cardTitle.textContent=titleFor(p);monogram.textContent=valueFor(p,'Names')==='Names'?'Olivia & Matteo':valueFor(p,'Names');cardBody.innerHTML='';p.fields.forEach(label=>{if(['Names','Front heading','Table number','Guest name','Welcome phrase','Menu title','Ceremony title','Reception title','Heading'].includes(label))return;const row=document.createElement('div');row.className='preview-row';const val=document.createElement('span');val.className='preview-value';if(label==='Design variant')val.classList.add('script');val.textContent=valueFor(p,label);row.appendChild(val);cardBody.appendChild(row)})}
+select.addEventListener('change',render);document.getElementById('saveBtn').addEventListener('click',()=>{localStorage.setItem(storageKey,JSON.stringify(state));const s=document.getElementById('saveStatus');s.textContent='Saved successfully on this device.';setTimeout(()=>s.textContent='Changes are stored only on this device during testing.',2200)});document.getElementById('resetBtn').addEventListener('click',()=>{const p=pieces[Number(select.value)-1];delete state[p.id];render()});document.getElementById('printBtn').addEventListener('click',()=>window.print());document.getElementById('pngBtn').addEventListener('click',()=>{const p=pieces[Number(select.value)-1],canvas=document.getElementById('exportCanvas'),ctx=canvas.getContext('2d');ctx.fillStyle='#fffaf1';ctx.fillRect(0,0,1800,1300);ctx.strokeStyle='#b38b43';ctx.lineWidth=5;ctx.strokeRect(55,55,1690,1190);ctx.lineWidth=2;ctx.strokeRect(75,75,1650,1150);ctx.textAlign='center';ctx.fillStyle='#b38b43';ctx.font='italic 44px Georgia';ctx.fillText('◯  ◯',900,170);ctx.fillStyle='#372b22';ctx.font='64px Georgia';ctx.fillText(titleFor(p),900,280);ctx.fillStyle='#b38b43';ctx.fillRect(810,320,180,2);let y=390;ctx.fillStyle='#40362e';ctx.font='34px Georgia';p.fields.forEach(label=>{if(['Names','Front heading','Table number','Guest name','Welcome phrase','Menu title','Ceremony title','Reception title','Heading'].includes(label))return;wrapText(ctx,valueFor(p,label),900,y,1350,44);y+=70});ctx.fillStyle='#9f875f';ctx.font='18px Arial';ctx.fillText('loveforlove.com',900,1210);const a=document.createElement('a');a.download=`${String(p.id).padStart(2,'0')}-${p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')}.png`;a.href=canvas.toDataURL('image/png');a.click()});function wrapText(ctx,text,x,y,maxWidth,lineHeight){const words=String(text).split(' ');let line='';for(let i=0;i<words.length;i++){const test=line+words[i]+' ';if(ctx.measureText(test).width>maxWidth&&i>0){ctx.fillText(line,x,y);line=words[i]+' ';y+=lineHeight}else line=test}ctx.fillText(line,x,y)}select.value='1';render();
 })();
 </script>
 {% endblock %}
