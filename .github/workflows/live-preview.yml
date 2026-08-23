@@ -4,17 +4,21 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'preview/live-url.txt'
+    paths:
+      - 'preview/restart-live-preview.txt'
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: loveforlove-live-preview
+  cancel-in-progress: true
+
 jobs:
   live-preview:
     runs-on: ubuntu-latest
-    timeout-minutes: 330
+    timeout-minutes: 75
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -79,7 +83,7 @@ jobs:
       - name: Keep preview alive
         run: |
           echo "Live preview: $LIVE_URL"
-          for i in {1..300}; do
+          for i in {1..60}; do
             if ! kill -0 $(cat /tmp/cloudflared.pid) 2>/dev/null; then
               echo "Tunnel stopped unexpectedly"
               cat /tmp/cloudflared.log
