@@ -1,1 +1,0 @@
-Store cover uses the verified Amalfi collection JPEG copied from preview/amalfi-collection.jpg. The previous cover.webp was corrupted during binary upload and is no longer referenced.
