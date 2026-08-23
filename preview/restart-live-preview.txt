@@ -1,1 +1,1 @@
-Restart live preview after Amalfi canonical 24-piece rebuild — 2026-08-22 19:34 Europe/Berlin
+Restart clean single live preview — 2026-08-23 08:50 Europe/Berlin
