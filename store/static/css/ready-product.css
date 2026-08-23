@@ -1,60 +1,35 @@
-.product-format-box {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border: 1px solid #d9c7aa;
-  background: #fff;
-  padding: 15px 17px;
-  margin: 18px 0 2px;
-}
-.product-format-box b { font-size: 10px; letter-spacing: 1.7px; color: #742e36; }
-.product-format-box span { font: 13px Lora, serif; color: #5f554b; }
-.product-proof-strip {
-  max-width: 1180px;
-  margin: 0 auto 70px;
-  padding: 0 40px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: #d9c7aa;
-  border: 1px solid #d9c7aa;
-}
-.product-proof-strip > div {
-  background: #fff;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  text-align: center;
-}
-.product-proof-strip b { font: 500 18px Lora, serif; color: #b38b43; }
-.product-proof-strip span { font-size: 11px; letter-spacing: 1.2px; }
-.product-proof-strip small { font-size: 10px; color: #756b60; }
-.amalfi-card.amalfi-save-date {
-  background-image: url('/static/products/invitation-suite/save-date-bg-watercolor.svg');
-  background-size: 100% 100%;
-  background-position: center;
-  padding: 120px 62px 65px;
-}
-.amalfi-save-date .card-border { display: none; }
-.amalfi-save-date .card-monogram { font-style: normal; font-size: 19px; letter-spacing: 6px; margin-bottom: 20px; }
-.amalfi-save-date .card-eyebrow { font-size: 7px; letter-spacing: 2.3px; }
-.amalfi-save-date .card-eyebrow { display: none; }
-.amalfi-save-date h2 { font-weight: 700; font-size: 31px; margin-top: 25px; }
-.amalfi-save-date .gold-rule { margin-bottom: 25px; }
-.amalfi-save-date .card-body { gap: 11px; }
-.amalfi-save-date .preview-key { font-size: 6px; letter-spacing: 1.8px; }
-.amalfi-save-date .preview-row:nth-child(2) .preview-value { font: 7px Poppins, sans-serif; letter-spacing: .7px; color: #9b7536; }
-.amalfi-save-date .preview-value { font-size: 12px; line-height: 1.25; }
-.amalfi-save-date .card-brand { bottom: 24px; color: #9b7536; text-transform: none; letter-spacing: .2px; }
-.menu-card { padding: 54px 42px 40px; }
-.menu-card h2 { margin-bottom: 10px; }
-.menu-card .gold-rule { margin-bottom: 10px; }
-.menu-card .card-body { gap: 4px; }
-.menu-card .preview-value { font-size: 10px; line-height: 1.15; }
-.menu-card .menu-heading .preview-value { margin-top: 4px; color: #9c7838; font: 6px Poppins, sans-serif; letter-spacing: 1.3px; text-transform: uppercase; }
-.menu-card .menu-note .preview-value { margin-top: 5px; color: #8a7861; font: italic 6px Lora, serif; }
-@media (max-width: 720px) {
-  .product-proof-strip { grid-template-columns: 1fr; padding: 0 20px; }
-  .amalfi-card.amalfi-save-date { padding: 95px 42px 55px; }
-}
+/* Amalfi final design system */
+.amalfi-editor-v3 .view-block{margin-top:14px}
+.amalfi-editor-v3 .view-block label{margin-bottom:7px}
+.amalfi-editor-v3 .paper-stage{min-height:690px;display:flex;align-items:center;justify-content:center;padding:34px;background:linear-gradient(135deg,#e9dfd0,#f4eee4)}
+.amalfi-editor-v3 .wedding-card{--card-ratio:1.4;width:min(100%,660px);aspect-ratio:var(--card-ratio);max-height:650px;background:#fffaf1;position:relative;overflow:hidden;padding:72px 74px 56px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 18px 45px rgba(67,52,31,.24);color:#17354b;isolation:isolate}
+.amalfi-editor-v3 .wedding-card.portrait{width:min(100%,435px);max-height:650px;padding:78px 56px 58px}
+.amalfi-editor-v3 .card-art{position:absolute;inset:0;z-index:-2;background-image:url('/static/products/invitation-suite/save-date-bg-watercolor.svg');background-size:100% 100%;background-position:center;background-repeat:no-repeat}
+.amalfi-editor-v3 .card-art:after{content:"";position:absolute;inset:0;background:rgba(255,250,241,.20)}
+.amalfi-editor-v3 .card-border{position:absolute;inset:18px;border:1px solid #b38b43;outline:1px solid rgba(179,139,67,.55);outline-offset:5px;z-index:-1}
+.amalfi-editor-v3 .amalfi-rings{position:relative;width:58px;height:28px;margin:0 auto 5px}
+.amalfi-editor-v3 .amalfi-rings span{position:absolute;top:3px;width:22px;height:22px;border:2px solid #b38b43;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+.amalfi-editor-v3 .amalfi-rings span:first-child{left:12px}.amalfi-editor-v3 .amalfi-rings span:last-child{left:26px}
+.amalfi-editor-v3 .card-script{font-family:'Allura',cursive;color:#b38b43;font-size:29px;line-height:1;margin:3px 0 5px}
+.amalfi-editor-v3 .wedding-card h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:38px;line-height:1.03;font-weight:600;letter-spacing:.3px;color:#17354b;margin:3px 0 9px;max-width:78%}
+.amalfi-editor-v3 .gold-rule{width:76px;height:1px;background:#b38b43;margin:4px auto 15px}
+.amalfi-editor-v3 .card-body{display:flex;flex-direction:column;gap:7px;align-items:center;max-width:76%;width:100%}
+.amalfi-editor-v3 .preview-row{width:100%;text-align:center}.amalfi-editor-v3 .preview-value{display:block;font-family:'Cormorant Garamond',Georgia,serif;font-size:17px;line-height:1.17;color:#17354b;white-space:pre-line}
+.amalfi-editor-v3 .names-row .preview-value{font-family:'Allura',cursive;color:#b38b43;font-size:31px;line-height:1}.amalfi-editor-v3 .date-row .preview-value{font-size:15px;letter-spacing:1px;text-transform:uppercase}.amalfi-editor-v3 .section-row .preview-value{font-size:15px}
+.amalfi-editor-v3 .card-brand{position:absolute;bottom:25px;left:0;right:0;text-align:center;font:9px Poppins,Arial,sans-serif;letter-spacing:.7px;color:#9e875f}
+.amalfi-editor-v3 .fold-guide{position:absolute;left:23px;right:23px;top:50%;border-top:1px dashed rgba(94,77,49,.33);z-index:2;pointer-events:none}.amalfi-editor-v3 .format-label{font-size:11px;line-height:1.55;max-width:720px;margin:12px auto 0;color:#6b6258}
+.amalfi-editor-v3 .wedding-card[data-piece="1"] .card-script{font-size:34px}.amalfi-editor-v3 .wedding-card[data-piece="1"] h2{font-size:43px}.amalfi-editor-v3 .wedding-card[data-piece="2"] h2{font-size:42px}
+.amalfi-editor-v3 .wedding-card[data-piece="5"] h2,.amalfi-editor-v3 .wedding-card[data-piece="9"] h2,.amalfi-editor-v3 .wedding-card[data-piece="10"] h2{font-size:34px}
+.amalfi-editor-v3 .wedding-card[data-piece="6"] .card-body{gap:4px;max-width:82%}.amalfi-editor-v3 .wedding-card[data-piece="6"] .preview-value{font-size:13.4px}
+.amalfi-editor-v3 .wedding-card[data-piece="8"] .card-body{display:grid;grid-template-columns:1fr 1fr;gap:8px 30px;max-width:82%}.amalfi-editor-v3 .wedding-card[data-piece="8"] .preview-row:nth-child(-n+3){grid-column:1}.amalfi-editor-v3 .wedding-card[data-piece="8"] .preview-row:nth-child(n+4){grid-column:2}.amalfi-editor-v3 .wedding-card[data-piece="8"] .preview-row:nth-child(4){grid-row:1}.amalfi-editor-v3 .wedding-card[data-piece="8"] .preview-row:nth-child(5){grid-row:2}.amalfi-editor-v3 .wedding-card[data-piece="8"] .preview-row:nth-child(6){grid-row:3}
+.amalfi-editor-v3 .wedding-card[data-piece="11"] .preview-value,.amalfi-editor-v3 .wedding-card[data-piece="12"] .preview-value,.amalfi-editor-v3 .wedding-card[data-piece="13"] .preview-value,.amalfi-editor-v3 .wedding-card[data-piece="16"] .preview-value{font-size:15px}
+.amalfi-editor-v3 .wedding-card[data-piece="18"]{padding:78px 50px 55px}.amalfi-editor-v3 .wedding-card[data-piece="18"] .card-body{gap:12px;max-width:80%}.amalfi-editor-v3 .wedding-card[data-piece="18"] .preview-value{font-size:15px}
+.amalfi-editor-v3 .wedding-card[data-piece="19"]{width:min(100%,350px);max-height:680px;padding:64px 35px 45px}.amalfi-editor-v3 .wedding-card[data-piece="19"] h2{font-size:48px}
+.amalfi-editor-v3 .wedding-card[data-piece="20"]{width:min(100%,500px);padding:60px 50px 45px}.amalfi-editor-v3 .wedding-card[data-piece="20"] h2{font-family:'Allura',cursive;color:#17354b;font-size:48px}
+.amalfi-editor-v3 .wedding-card[data-piece="21"] h2{font-family:'Allura',cursive;color:#17354b;font-size:52px;font-weight:400}.amalfi-editor-v3 .wedding-card[data-piece="22"] h2{font-size:45px}.amalfi-editor-v3 .wedding-card[data-piece="23"] h2{font-family:'Allura',cursive;color:#17354b;font-size:52px;font-weight:400}
+.amalfi-editor-v3 .wedding-card[data-piece="24"]{background:#fffaf1;padding:62px 70px 48px}.amalfi-editor-v3 .wedding-card[data-piece="24"][data-view="front"] .card-art{opacity:.62}.amalfi-editor-v3 .wedding-card[data-piece="24"][data-view="back"] .card-art{transform:rotate(180deg);opacity:.48}.amalfi-editor-v3 .wedding-card[data-piece="24"][data-view="flap"]:before{content:"";position:absolute;top:0;left:0;right:0;height:45%;background:rgba(244,232,211,.85);clip-path:polygon(0 0,100% 0,50% 100%);z-index:-1}.amalfi-editor-v3 .wedding-card[data-piece="24"][data-view="liner"] .card-art{opacity:1}.amalfi-editor-v3 .wedding-card[data-piece="24"][data-view="liner"] h2{font-family:'Allura',cursive;color:#b38b43;font-size:60px;font-weight:400}.amalfi-editor-v3 .wedding-card[data-piece="24"] .preview-value{font-size:18px}
+.amalfi-editor-v3 .wedding-card:after{content:"";position:absolute;z-index:-1;left:19%;right:19%;top:17%;bottom:15%;background:radial-gradient(ellipse at center,rgba(255,250,241,.97) 0%,rgba(255,250,241,.90) 60%,rgba(255,250,241,0) 100%);pointer-events:none}.amalfi-editor-v3 .wedding-card[data-piece="24"]:after{left:22%;right:22%;top:20%;bottom:18%}
+.amalfi-editor-v3 .editor-head h1{font-family:'Cormorant Garamond',Georgia,serif;font-size:44px}.amalfi-editor-v3 .piece-panel select,.amalfi-editor-v3 .field-panel input,.amalfi-editor-v3 .field-panel textarea{border-color:#d5c29d}.amalfi-editor-v3 .piece-count{font-size:10px;line-height:1.65;color:#9e7839}.amalfi-editor-v3 .editor-note{font-family:'Cormorant Garamond',Georgia,serif;font-size:15px}
+@media(max-width:1100px){.amalfi-editor-v3 .wedding-card{width:min(100%,600px)}}
+@media(max-width:720px){.amalfi-editor-v3 .paper-stage{padding:16px;min-height:520px}.amalfi-editor-v3 .wedding-card{padding:54px 34px 45px}.amalfi-editor-v3 .wedding-card h2{font-size:31px}.amalfi-editor-v3 .card-script{font-size:25px}.amalfi-editor-v3 .preview-value{font-size:14px}.amalfi-editor-v3 .wedding-card[data-piece="8"] .card-body{display:flex}}
+@media print{.amalfi-editor-v3 .wedding-card{box-shadow:none!important;margin:0 auto!important;max-height:none!important}.amalfi-editor-v3 .fold-guide{display:none!important}}
