@@ -108,24 +108,28 @@ CARDS_CONFIG = [
     item("21_welcome_sign",21,"Welcome Sign",700,500,T["welcome"],fields=["title","greeting","names","date"]),
     item("22_guest_book_sign",22,"Guest Book Sign",250,200,T["guestbook"],fields=["title","greeting"]),
     item("23_thank_you",23,"Thank You Card",145,90,T["thanks"],views=("front","back"),fields=["title","greeting","names"]),
-    item("24_envelope_suite",24,"Envelope Suite",225,345,T["envelope"],orientation="portrait",views=("front","back","flap","liner"),fold=True,finished=(195,145),fields=["recipient_name","recipient_address","return_names","return_address","flap_note","liner_text"],extras={l:{"recipient_name":"Sophia Rossi","recipient_address":"22 Via Roma · Milano · Italy","return_names":"Olivia & Matteo","return_address":"12 Via Amalfi · Ravello · Italy","flap_note":"With love from Ravello","liner_text":"La dolce vita begins here"} for l in SUPPORTED_LANGUAGES}),
+    item("24_envelope_suite",24,"Envelope Suite",255,365,T["envelope"],orientation="portrait",views=("front","back","flap","liner"),fold=True,finished=(195,145),fields=["recipient_name","recipient_address","return_names","return_address","flap_note","liner_text"],extras={l:{"recipient_name":"Sophia Rossi","recipient_address":"22 Via Roma · Milano · Italy","return_names":"Olivia & Matteo","return_address":"12 Via Amalfi · Ravello · Italy","flap_note":"With love from Ravello","liner_text":"La dolce vita begins here"} for l in SUPPORTED_LANGUAGES}),
 ]
 
-# №24 — реальная развёртка конверта под Main Invitation 180 × 130 мм.
-# Готовый размер: 195 × 145 мм. Ширина развёртки: 15 + 195 + 15 = 225 мм.
-# Высота: верхний клапан 55 + задняя панель 145 + лицевая панель 145 = 345 мм.
+# №24 — производственная развёртка конверта под Main Invitation 180 × 130 мм.
+# Готовый размер: 195 × 145 мм.
+# Ширина: 30 мм клеевой клапан + 195 мм панель + 30 мм клеевой клапан = 255 мм.
+# Высота: 75 мм закрывающий клапан + 145 мм задняя панель + 145 мм лицевая панель = 365 мм.
+# После сборки нижняя лицевая панель поднимается вверх и приклеивается к боковым клапанам;
+# верхний клапан 75 мм складывается вниз поверх лицевой стороны и полностью закрывает конверт.
 CARDS_CONFIG[-1]["envelope_spec"] = {
     "finished_w_mm": 195,
     "finished_h_mm": 145,
-    "flat_w_mm": 225,
-    "flat_h_mm": 345,
-    "side_flap_mm": 15,
-    "seal_flap_mm": 55,
-    "back_panel_top_mm": 55,
-    "front_panel_top_mm": 200,
+    "flat_w_mm": 255,
+    "flat_h_mm": 365,
+    "side_flap_mm": 30,
+    "seal_flap_mm": 75,
+    "back_panel_top_mm": 75,
+    "front_panel_top_mm": 220,
     "panel_w_mm": 195,
     "panel_h_mm": 145,
-    "safe_inset_mm": 8,
+    "safe_inset_mm": 10,
+    "glue_inset_mm": 4,
     "fold_marker_mm": 2.5,
 }
 
