@@ -22,12 +22,28 @@ body{font-family:'Cormorant Garamond Local','Cormorant Garamond',Georgia,serif;c
 /* Wedding Website: the WebP contains only paper, botanical art and the frame. */
 .website-page .frame{display:none}.website-content{left:24mm;right:24mm;top:8mm;bottom:14mm;gap:2.4mm}.website-content .rings{margin-bottom:.5mm}.website-title{font-size:6.4mm;letter-spacing:.12em;text-transform:uppercase;color:#4A5D4E}.website-names{font-family:'Allura Local','Allura',cursive;font-size:9.2mm;line-height:1;color:#b88d34;max-width:100%}.website-info{font-size:3.7mm;line-height:1.2;color:#4A5D4E;font-style:italic;max-width:82%;white-space:pre-wrap}.website-url{font-size:4.2mm;line-height:1.15;color:#4A5D4E;letter-spacing:.035em;max-width:92%;overflow-wrap:anywhere}.website-password-line{display:flex;align-items:baseline;justify-content:center;gap:2mm;color:#4A5D4E}.website-password-label{font-size:3.5mm;letter-spacing:.08em;text-transform:uppercase}.website-password-value{font-family:'Allura Local','Allura',cursive;font-size:7.2mm;line-height:1;color:#b88d34}
 
-/* Envelope Suite: flat dieline 225 × 345 mm, finished 195 × 145 mm.
-   Fold marks are short ticks placed only in the 3 mm bleed area and are trimmed away. */
-.envelope-page .trim{overflow:visible}.envelope-page .frame{display:none}.envelope-panel{position:absolute;left:15mm;width:195mm;height:145mm;padding:8mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2mm;overflow:hidden}.envelope-panel.front-panel{top:200mm}.envelope-panel.back-panel{top:55mm}.envelope-panel.flap-panel{top:0;width:195mm;height:55mm;padding:7mm 10mm}.envelope-panel.liner-panel{left:20mm;top:92mm;width:185mm;height:135mm;padding:8mm}.envelope-panel .field{max-width:100%}.envelope-panel .brand{bottom:6mm}.envelope-panel.front-panel .rings,.envelope-panel.back-panel .rings,.envelope-panel.liner-panel .rings{display:none}.envelope-panel.flap-panel .rings{transform:scale(.78);margin-bottom:0}.envelope-brand{position:absolute;left:15mm;width:195mm;text-align:center;font-size:8pt;color:#4A5D4E;letter-spacing:.05em}.envelope-brand.front{top:334mm}.envelope-brand.back{top:190mm}
-.fold-tick{position:absolute;z-index:20;background:#7f897d;opacity:.55}.fold-tick.h{height:.18mm;width:2.5mm}.fold-tick.v{width:.18mm;height:2.5mm}
-.tick-h1-l{left:0;top:{{ dimensions.bleed_mm + 55 }}mm}.tick-h1-r{right:0;top:{{ dimensions.bleed_mm + 55 }}mm}.tick-h2-l{left:0;top:{{ dimensions.bleed_mm + 200 }}mm}.tick-h2-r{right:0;top:{{ dimensions.bleed_mm + 200 }}mm}
-.tick-v1{left:{{ dimensions.bleed_mm + 15 }}mm;bottom:0}.tick-v2{left:{{ dimensions.bleed_mm + 210 }}mm;bottom:0}
+{% if card.id == '24_envelope_suite' %}
+{% set env = card.envelope_spec %}
+/* Envelope Suite: production dieline {{ env.flat_w_mm }} × {{ env.flat_h_mm }} mm,
+   finished {{ env.finished_w_mm }} × {{ env.finished_h_mm }} mm.
+   The lower 195 × 145 mm panel folds upward onto the back panel; 30 mm side tabs glue inside;
+   the 75 mm top flap folds down and closes the assembled envelope. */
+.envelope-page .trim{overflow:visible}.envelope-page .frame{display:none}
+.envelope-panel{position:absolute;left:{{ env.side_flap_mm }}mm;width:{{ env.panel_w_mm }}mm;height:{{ env.panel_h_mm }}mm;padding:{{ env.safe_inset_mm }}mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2mm;overflow:hidden}
+.envelope-panel.front-panel{top:{{ env.front_panel_top_mm }}mm}
+.envelope-panel.back-panel{top:{{ env.back_panel_top_mm }}mm}
+.envelope-panel.flap-panel{top:0;height:{{ env.seal_flap_mm }}mm;padding:10mm 14mm}
+.envelope-panel.liner-panel{left:{{ env.side_flap_mm + 5 }}mm;top:{{ env.back_panel_top_mm + 8 }}mm;width:{{ env.panel_w_mm - 10 }}mm;height:{{ env.panel_h_mm - 16 }}mm;padding:10mm}
+.envelope-panel .field{max-width:100%}.envelope-panel .brand{bottom:6mm}
+.envelope-panel.front-panel .rings,.envelope-panel.back-panel .rings,.envelope-panel.liner-panel .rings,.envelope-panel.flap-panel .rings{display:none}
+.envelope-brand{position:absolute;left:{{ env.side_flap_mm }}mm;width:{{ env.panel_w_mm }}mm;text-align:center;font-size:8pt;color:#4A5D4E;letter-spacing:.05em}
+.envelope-brand.front{top:{{ env.front_panel_top_mm + env.panel_h_mm - 11 }}mm}.envelope-brand.back{top:{{ env.back_panel_top_mm + env.panel_h_mm - 11 }}mm}
+.fold-tick{position:absolute;z-index:20;background:#7f897d;opacity:.55}.fold-tick.h{height:.18mm;width:{{ env.fold_marker_mm }}mm}.fold-tick.v{width:.18mm;height:{{ env.fold_marker_mm }}mm}
+.tick-h1-l{left:0;top:{{ dimensions.bleed_mm + env.back_panel_top_mm }}mm}.tick-h1-r{right:0;top:{{ dimensions.bleed_mm + env.back_panel_top_mm }}mm}
+.tick-h2-l{left:0;top:{{ dimensions.bleed_mm + env.front_panel_top_mm }}mm}.tick-h2-r{right:0;top:{{ dimensions.bleed_mm + env.front_panel_top_mm }}mm}
+.tick-v1{left:{{ dimensions.bleed_mm + env.side_flap_mm }}mm;top:{{ dimensions.bleed_mm + env.back_panel_top_mm }}mm}
+.tick-v2{left:{{ dimensions.bleed_mm + env.side_flap_mm + env.panel_w_mm }}mm;top:{{ dimensions.bleed_mm + env.back_panel_top_mm }}mm}
+{% endif %}
 </style>
 </head>
 <body>
@@ -49,7 +65,6 @@ body{font-family:'Cormorant Garamond Local','Cormorant Garamond',Georgia,serif;c
         <div class="envelope-brand back">loveforlove.com</div>
       {% elif view == 'flap' %}
         <main class="envelope-panel flap-panel">
-          <div class="rings" aria-hidden="true"><span class="ring one"></span><span class="ring two"></span></div>
           {% if values.get('flap_note') %}<div class="field">{{ values.get('flap_note') }}</div>{% endif %}
         </main>
       {% elif view == 'liner' %}
