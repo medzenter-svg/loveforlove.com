@@ -5,13 +5,19 @@
   <h1>Thank you for your order!</h1>
   <p>
     {% if dev_mode %}
-      Preview mode: this purchase was simulated because Stripe isn't connected yet. Once real payments are on, your customers will land here for real after checking out.
+      Preview mode: this purchase was simulated because Stripe isn't connected yet.
     {% else %}
-      Your files are ready below. A copy of these links has also been sent to your email.
+      Your purchase is confirmed. Editable products are unlocked below.
     {% endif %}
   </p>
   <div class="download-list">
     {% for p in items %}
+      {% if p.get('full_collection') %}
+      <div class="dl-item">
+        <span>{{ p.name }} — multilingual editor</span>
+        <a class="btn" href="{{ url_for('amalfi_editor', order_id=order_id) }}">OPEN EDITOR</a>
+      </div>
+      {% endif %}
       {% for f in p.files %}
       <div class="dl-item">
         <span>{{ p.name }}{% if p.files|length > 1 %} — {{ f.split('_')[-2] if '_' in f else f }}{% endif %}</span>
