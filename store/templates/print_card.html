@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="{{ language }}">
+<head>
+<meta charset="utf-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:wght@400;500;600&display=swap');
+@page { size: {{ dimensions.page_w_mm }}mm {{ dimensions.page_h_mm }}mm; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; width: {{ dimensions.page_w_mm }}mm; background: #fff; }
+body { font-family: 'Cormorant Garamond', Georgia, serif; color: #17354b; }
+.print-page {
+  position: relative;
+  width: {{ dimensions.page_w_mm }}mm;
+  height: {{ dimensions.page_h_mm }}mm;
+  page-break-after: always;
+  overflow: hidden;
+  background: #fffaf1;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.print-page:last-child { page-break-after: auto; }
+{% if background_uri %}
+.print-page {
+  background-image: url('{{ background_uri }}');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+{% endif %}
+.trim {
+  position: absolute;
+  left: {{ dimensions.bleed_mm }}mm;
+  top: {{ dimensions.bleed_mm }}mm;
+  width: {{ dimensions.trim_w_mm }}mm;
+  height: {{ dimensions.trim_h_mm }}mm;
+}
+.frame { position: absolute; inset: 4mm; border: .25mm solid #b9903d; }
+.decor-tl,.decor-br { position:absolute; width:23mm; height:23mm; opacity:.96; }
+.decor-tl { left:2.5mm; top:2.5mm; }
+.decor-br { right:2.5mm; bottom:2.5mm; transform:rotate(180deg); }
+.leaf { position:absolute; width:11mm; height:4mm; border-radius:100% 0 100% 0; background:#66734b; transform:rotate(-28deg); }
+.leaf.a { left:1mm; top:6mm; } .leaf.b { left:8mm; top:1mm; transform:rotate(35deg); }
+.lemon { position:absolute; width:10mm; height:7mm; border-radius:55% 45% 55% 45%; background:#e3c84d; left:5mm; top:7mm; transform:rotate(-18deg); }
+.flower { position:absolute; left:13mm; top:11mm; width:5mm; height:5mm; border-radius:50%; background:#fff; box-shadow: 3mm 0 #fff,-3mm 0 #fff,0 3mm #fff,0 -3mm #fff; }
+.flower:after { content:''; position:absolute; inset:1.7mm; border-radius:50%; background:#d7b94c; }
+.content {
+  position: absolute;
+  left: 12mm; right: 12mm; top: 12mm; bottom: 13mm;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 2mm;
+}
+.title { font-size: 7mm; font-weight: 600; line-height:1; }
+.names { font-family:'Allura', cursive; font-size: 9mm; color:#b9903d; line-height:1; }
+.field { font-size: 4.1mm; line-height:1.17; max-width: 92%; white-space: pre-wrap; }
+.rings { position:relative; width:18mm; height:9mm; margin:1.5mm 0; }
+.ring { position:absolute; width:8mm; height:8mm; border:.8mm solid #b9903d; border-radius:50%; top:.3mm; }
+.ring.one { left:2mm; } .ring.two { right:2mm; }
+.brand { position:absolute; left:0; right:0; bottom:1.4mm; text-align:center; color:#899071; font-size:2.25mm; letter-spacing:.18mm; }
+.view-label { display:none; }
+</style>
+</head>
+<body>
+{% for view in views %}
+<section class="print-page" data-view="{{ view }}">
+  <div class="trim">
+    <div class="frame"></div>
+    <div class="decor-tl"><i class="leaf a"></i><i class="leaf b"></i><i class="lemon"></i><i class="flower"></i></div>
+    <div class="decor-br"><i class="leaf a"></i><i class="leaf b"></i><i class="lemon"></i><i class="flower"></i></div>
+    <main class="content">
+      {% for key in card.fields %}
+        {% set value = values.get(key, '') %}
+        {% if value %}
+          {% if key == 'title' %}
+            <div class="title">{{ value }}</div>
+          {% elif key == 'names' %}
+            <div class="names">{{ value }}</div>
+          {% else %}
+            <div class="field" data-key="{{ key }}">{{ value }}</div>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+      <div class="rings" aria-hidden="true"><span class="ring one"></span><span class="ring two"></span></div>
+    </main>
+    <div class="brand">loveforlove.com</div>
+  </div>
+</section>
+{% endfor %}
+</body>
+</html>
