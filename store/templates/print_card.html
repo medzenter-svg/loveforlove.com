@@ -3,60 +3,78 @@
 <head>
 <meta charset="utf-8">
 <style>
-{% if font_uris.cormorant_regular %}
-@font-face{font-family:'Cormorant Garamond Local';src:url('{{ font_uris.cormorant_regular }}');font-style:normal;font-weight:400}
-{% endif %}
-{% if font_uris.cormorant_semibold %}
-@font-face{font-family:'Cormorant Garamond Local';src:url('{{ font_uris.cormorant_semibold }}');font-style:normal;font-weight:600}
-{% endif %}
-{% if font_uris.allura_regular %}
-@font-face{font-family:'Allura Local';src:url('{{ font_uris.allura_regular }}');font-style:normal;font-weight:400}
-{% endif %}
+{% if font_uris.cormorant_regular %}@font-face{font-family:'Cormorant Garamond Local';src:url('{{ font_uris.cormorant_regular }}');font-style:normal;font-weight:400}{% endif %}
+{% if font_uris.cormorant_semibold %}@font-face{font-family:'Cormorant Garamond Local';src:url('{{ font_uris.cormorant_semibold }}');font-style:normal;font-weight:600}{% endif %}
+{% if font_uris.allura_regular %}@font-face{font-family:'Allura Local';src:url('{{ font_uris.allura_regular }}');font-style:normal;font-weight:400}{% endif %}
 @page{size:{{ dimensions.page_w_mm }}mm {{ dimensions.page_h_mm }}mm;margin:0}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;width:{{ dimensions.page_w_mm }}mm;background:#fff}
 body{font-family:'Cormorant Garamond Local','Cormorant Garamond',Georgia,serif;color:#263f4a}
 .print-page{position:relative;width:{{ dimensions.page_w_mm }}mm;height:{{ dimensions.page_h_mm }}mm;page-break-after:always;overflow:hidden;background:#fffaf0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .print-page:last-child{page-break-after:auto}
-{% if background_uri %}
-.print-page{background-image:url('{{ background_uri }}');background-size:cover;background-position:center;background-repeat:no-repeat}
-{% endif %}
+{% if background_uri %}.print-page{background-image:url('{{ background_uri }}');background-size:cover;background-position:center;background-repeat:no-repeat}{% endif %}
 .trim{position:absolute;left:{{ dimensions.bleed_mm }}mm;top:{{ dimensions.bleed_mm }}mm;width:{{ dimensions.trim_w_mm }}mm;height:{{ dimensions.trim_h_mm }}mm}
 .frame{position:absolute;left:3.5mm;right:3.5mm;top:3.5mm;bottom:11mm;border:.25mm solid #b88d34;pointer-events:none}
 .content{position:absolute;left:8mm;right:8mm;top:8mm;bottom:14mm;padding:0 1mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2mm}
-.rings{position:relative;width:22mm;height:12mm;margin:0 0 1.5mm}
-.ring{position:absolute;top:1.1mm;width:10mm;height:8mm;border:.75mm solid #b88d34;border-radius:50%;box-shadow:inset 0 0 0 .28mm #e4c879}
-.ring.one{left:2.1mm;transform:rotate(-14deg)}
-.ring.two{right:2.1mm;transform:rotate(14deg)}
-.title{font-family:'Cormorant Garamond Local','Cormorant Garamond',Georgia,serif;font-size:7mm;font-weight:600;line-height:1.02;max-width:92%}
-.names{font-family:'Allura Local','Allura',cursive;font-size:9mm;font-weight:400;color:#b88d34;line-height:1.02;max-width:92%}
-.field{font-family:'Cormorant Garamond Local','Cormorant Garamond',Georgia,serif;font-size:4.1mm;line-height:1.2;max-width:90%;white-space:pre-wrap;text-align:center}
-.brand{position:absolute;bottom:5mm;left:50%;transform:translateX(-50%);white-space:nowrap;text-align:center;font-family:'Cormorant Garamond Local','Cormorant Garamond',Georgia,serif;font-size:8pt;line-height:1;color:#4A5D4E;letter-spacing:.05em}
-.view-label{display:none}
+.rings{position:relative;width:22mm;height:12mm;margin:0 0 1.5mm}.ring{position:absolute;top:1.1mm;width:10mm;height:8mm;border:.75mm solid #b88d34;border-radius:50%;box-shadow:inset 0 0 0 .28mm #e4c879}.ring.one{left:2.1mm;transform:rotate(-14deg)}.ring.two{right:2.1mm;transform:rotate(14deg)}
+.title{font-size:7mm;font-weight:600;line-height:1.02;max-width:92%}.names{font-family:'Allura Local','Allura',cursive;font-size:9mm;color:#b88d34;line-height:1.02;max-width:92%}.field{font-size:4.1mm;line-height:1.2;max-width:90%;white-space:pre-wrap;text-align:center}.brand{position:absolute;bottom:5mm;left:50%;transform:translateX(-50%);white-space:nowrap;text-align:center;font-size:8pt;line-height:1;color:#4A5D4E;letter-spacing:.05em}
+
+/* Envelope Suite: flat dieline 225 × 345 mm, finished 195 × 145 mm.
+   Fold marks are short ticks placed only in the 3 mm bleed area and are trimmed away. */
+.envelope-page .trim{overflow:visible}.envelope-page .frame{display:none}.envelope-panel{position:absolute;left:15mm;width:195mm;height:145mm;padding:8mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2mm;overflow:hidden}.envelope-panel.front-panel{top:200mm}.envelope-panel.back-panel{top:55mm}.envelope-panel.flap-panel{top:0;width:195mm;height:55mm;padding:7mm 10mm}.envelope-panel.liner-panel{left:20mm;top:92mm;width:185mm;height:135mm;padding:8mm}.envelope-panel .field{max-width:100%}.envelope-panel .brand{bottom:6mm}.envelope-panel.front-panel .rings,.envelope-panel.back-panel .rings,.envelope-panel.liner-panel .rings{display:none}.envelope-panel.flap-panel .rings{transform:scale(.78);margin-bottom:0}.envelope-brand{position:absolute;left:15mm;width:195mm;text-align:center;font-size:8pt;color:#4A5D4E;letter-spacing:.05em}.envelope-brand.front{top:334mm}.envelope-brand.back{top:190mm}
+.fold-tick{position:absolute;z-index:20;background:#7f897d;opacity:.55}.fold-tick.h{height:.18mm;width:2.5mm}.fold-tick.v{width:.18mm;height:2.5mm}
+/* horizontal fold at y=55 mm and y=200 mm: only left/right bleed */
+.tick-h1-l{left:0;top:{{ dimensions.bleed_mm + 55 }}mm}.tick-h1-r{right:0;top:{{ dimensions.bleed_mm + 55 }}mm}.tick-h2-l{left:0;top:{{ dimensions.bleed_mm + 200 }}mm}.tick-h2-r{right:0;top:{{ dimensions.bleed_mm + 200 }}mm}
+/* vertical side-flap folds x=15 mm and x=210 mm: only bottom bleed */
+.tick-v1{left:{{ dimensions.bleed_mm + 15 }}mm;bottom:0}.tick-v2{left:{{ dimensions.bleed_mm + 210 }}mm;bottom:0}
 </style>
 </head>
 <body>
 {% for view in views %}
-<section class="print-page" data-view="{{ view }}">
-  <div class="trim">
-    <div class="frame"></div>
-    <main class="content">
-      <div class="rings" aria-hidden="true"><span class="ring one"></span><span class="ring two"></span></div>
-      {% for key in card.fields %}
-        {% set value = values.get(key, '') %}
-        {% if value %}
-          {% if key == 'title' %}
-            <div class="title">{{ value }}</div>
-          {% elif key in ['names', 'return_names'] %}
-            <div class="names">{{ value }}</div>
-          {% else %}
-            <div class="field" data-key="{{ key }}">{{ value }}</div>
+<section class="print-page{% if card.id == '24_envelope_suite' %} envelope-page{% endif %}" data-view="{{ view }}">
+  {% if card.id == '24_envelope_suite' %}
+    <div class="trim">
+      {% if view == 'front' %}
+        <main class="envelope-panel front-panel">
+          {% if values.get('recipient_name') %}<div class="names">{{ values.get('recipient_name') }}</div>{% endif %}
+          {% if values.get('recipient_address') %}<div class="field">{{ values.get('recipient_address') }}</div>{% endif %}
+        </main>
+        <div class="envelope-brand front">loveforlove.com</div>
+      {% elif view == 'back' %}
+        <main class="envelope-panel back-panel">
+          {% if values.get('return_names') %}<div class="names">{{ values.get('return_names') }}</div>{% endif %}
+          {% if values.get('return_address') %}<div class="field">{{ values.get('return_address') }}</div>{% endif %}
+        </main>
+        <div class="envelope-brand back">loveforlove.com</div>
+      {% elif view == 'flap' %}
+        <main class="envelope-panel flap-panel">
+          <div class="rings" aria-hidden="true"><span class="ring one"></span><span class="ring two"></span></div>
+          {% if values.get('flap_note') %}<div class="field">{{ values.get('flap_note') }}</div>{% endif %}
+        </main>
+      {% elif view == 'liner' %}
+        <main class="envelope-panel liner-panel">
+          {% if values.get('liner_text') %}<div class="field">{{ values.get('liner_text') }}</div>{% endif %}
+        </main>
+      {% endif %}
+    </div>
+    <i class="fold-tick h tick-h1-l"></i><i class="fold-tick h tick-h1-r"></i><i class="fold-tick h tick-h2-l"></i><i class="fold-tick h tick-h2-r"></i><i class="fold-tick v tick-v1"></i><i class="fold-tick v tick-v2"></i>
+  {% else %}
+    <div class="trim">
+      <div class="frame"></div>
+      <main class="content">
+        <div class="rings" aria-hidden="true"><span class="ring one"></span><span class="ring two"></span></div>
+        {% for key in card.fields %}
+          {% set value = values.get(key, '') %}
+          {% if value %}
+            {% if key == 'title' %}<div class="title">{{ value }}</div>
+            {% elif key in ['names', 'return_names'] %}<div class="names">{{ value }}</div>
+            {% else %}<div class="field" data-key="{{ key }}">{{ value }}</div>{% endif %}
           {% endif %}
-        {% endif %}
-      {% endfor %}
-    </main>
-    <div class="brand">loveforlove.com</div>
-  </div>
+        {% endfor %}
+      </main>
+      <div class="brand">loveforlove.com</div>
+    </div>
+  {% endif %}
 </section>
 {% endfor %}
 </body>
