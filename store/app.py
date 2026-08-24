@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, s
 
 from products import PRODUCTS, PRODUCTS_BY_SLUG, price_display
 from cards_config import CARDS_CONFIG, CARDS_BY_ID, SUPPORTED_LANGUAGES, printable_dimensions, EXPECTED_CARD_COUNT
+from pdf_generator import generate_wedding_package, PACKAGE_FILENAME
 
 try:
     import stripe
@@ -25,8 +26,11 @@ else:
     LIVE_PAYMENTS = False
 
 ORDERS = {}
-DOWNLOADS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "downloads")
-PREVIEW_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "preview")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DOWNLOADS_DIR = os.path.join(BASE_DIR, "downloads")
+PREVIEW_DIR = os.path.join(os.path.dirname(BASE_DIR), "preview")
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 
 
 @app.context_processor
@@ -56,6 +60,64 @@ def render_stationery_editor(product, order_id=None):
         is_paid=is_paid,
         order_id=order_id or "",
     )
+
+
+def normalize_stationery_payload(payload):
+    """Проверяет и нормализует JSON редактора строго по конфигурации 1–24."""
+    language = payload.get("language")
+    order_id = payload.get("order_id")
+    slug = payload.get("product_slug", "amalfi-wedding-suite")
+
+    if language not in SUPPORTED_LANGUAGES:
+        return None, ({"error": "unsupported_language"}, 400)
+    if not order_allows_editor(order_id, slug):
+        return None, ({"error": "payment_required"}, 403)
+
+    incoming_cards = payload.get("cards")
+    if not isinstance(incoming_cards, list):
+        return None, ({"error": "cards_must_be_a_list"}, 400)
+    if len(incoming_cards) != EXPECTED_CARD_COUNT:
+        return None, ({
+            "error": "invalid_card_count",
+            "expected": EXPECTED_CARD_COUNT,
+            "received": len(incoming_cards),
+        }, 400)
+
+    submitted_ids = [submitted.get("id") for submitted in incoming_cards]
+    expected_ids = [card["id"] for card in CARDS_CONFIG]
+    if submitted_ids != expected_ids:
+        return None, ({"error": "invalid_card_order_or_ids"}, 400)
+
+    normalized = []
+    for submitted in incoming_cards:
+        card_id = submitted["id"]
+        config = CARDS_BY_ID[card_id]
+        allowed_fields = set(config.get("fields", []))
+        defaults = config["translations"][language]
+        values = submitted.get("values") or {}
+
+        # Все отсутствующие пользовательские поля получают языковые значения по умолчанию.
+        clean_values = {}
+        for key in config.get("fields", []):
+            value = values.get(key, defaults.get(key, ""))
+            clean_values[key] = str(value)
+
+        requested_view = submitted.get("view")
+        valid_views = config.get("views", []) or ["front"]
+        normalized.append({
+            "id": card_id,
+            "view": requested_view if requested_view in valid_views else valid_views[0],
+            "values": clean_values,
+            "print": printable_dimensions(config),
+        })
+
+    return {
+        "language": language,
+        "order_id": order_id,
+        "product_slug": slug,
+        "design_id": payload.get("design_id", "amalfi"),
+        "cards": normalized,
+    }, None
 
 
 @app.route("/")
@@ -112,55 +174,76 @@ def stationery_config_api():
 @app.route("/api/stationery/payload", methods=["POST"])
 def stationery_payload_api():
     payload = request.get_json(silent=True) or {}
-    language = payload.get("language")
-    order_id = payload.get("order_id")
-    slug = payload.get("product_slug", "amalfi-wedding-suite")
-
-    if language not in SUPPORTED_LANGUAGES:
-        return jsonify({"error": "unsupported_language"}), 400
-    if not order_allows_editor(order_id, slug):
-        return jsonify({"error": "payment_required"}), 403
-
-    incoming_cards = payload.get("cards")
-    if not isinstance(incoming_cards, list):
-        return jsonify({"error": "cards_must_be_a_list"}), 400
-    if len(incoming_cards) != EXPECTED_CARD_COUNT:
-        return jsonify({
-            "error": "invalid_card_count",
-            "expected": EXPECTED_CARD_COUNT,
-            "received": len(incoming_cards),
-        }), 400
-
-    submitted_ids = [submitted.get("id") for submitted in incoming_cards]
-    expected_ids = [card["id"] for card in CARDS_CONFIG]
-    if submitted_ids != expected_ids:
-        return jsonify({"error": "invalid_card_order_or_ids"}), 400
-
-    normalized = []
-    for submitted in incoming_cards:
-        card_id = submitted["id"]
-        config = CARDS_BY_ID[card_id]
-
-        allowed_fields = set(config.get("fields", []))
-        values = submitted.get("values") or {}
-        clean_values = {key: str(value) for key, value in values.items() if key in allowed_fields}
-
-        requested_view = submitted.get("view")
-        valid_views = config.get("views", [])
-        normalized.append({
-            "id": card_id,
-            "view": requested_view if requested_view in valid_views else valid_views[0],
-            "values": clean_values,
-            "print": printable_dimensions(config),
-        })
+    normalized, error = normalize_stationery_payload(payload)
+    if error:
+        body, status = error
+        return jsonify(body), status
 
     return jsonify({
         "ok": True,
-        "language": language,
-        "product_slug": slug,
-        "card_count": len(normalized),
-        "cards": normalized,
+        "language": normalized["language"],
+        "product_slug": normalized["product_slug"],
+        "card_count": len(normalized["cards"]),
+        "cards": normalized["cards"],
     })
+
+
+@app.route("/api/generate-pdf", methods=["POST"])
+def generate_pdf_package():
+    """Создает типографские PDF всех 24 элементов и один ZIP для скачивания."""
+    payload = request.get_json(silent=True) or {}
+    normalized, error = normalize_stationery_payload(payload)
+    if error:
+        body, status = error
+        return jsonify(body), status
+
+    try:
+        generate_wedding_package(
+            cards_config=CARDS_CONFIG,
+            normalized_cards=normalized["cards"],
+            language=normalized["language"],
+            design_id=normalized["design_id"],
+            downloads_dir=DOWNLOADS_DIR,
+            order_id=normalized["order_id"],
+            static_root=STATIC_DIR,
+            render_card_html=lambda **context: render_template("print_card.html", **context),
+        )
+    except Exception as exc:
+        app.logger.exception("PDF package generation failed")
+        return jsonify({"error": "pdf_generation_failed", "message": str(exc)}), 500
+
+    download_url = url_for(
+        "download_generated_package",
+        order_id=normalized["order_id"],
+        filename=PACKAGE_FILENAME,
+    )
+    return jsonify({
+        "ok": True,
+        "card_count": EXPECTED_CARD_COUNT,
+        "filename": PACKAGE_FILENAME,
+        "download_url": download_url,
+    })
+
+
+@app.route("/generated-download/<order_id>/<filename>")
+def download_generated_package(order_id, filename):
+    if filename != PACKAGE_FILENAME:
+        abort(404)
+    if not order_allows_editor(order_id, "amalfi-wedding-suite"):
+        abort(403)
+
+    order_dir = os.path.join(DOWNLOADS_DIR, order_id)
+    archive_path = os.path.join(order_dir, PACKAGE_FILENAME)
+    if not os.path.isfile(archive_path):
+        abort(404)
+
+    return send_from_directory(
+        order_dir,
+        PACKAGE_FILENAME,
+        as_attachment=True,
+        download_name=PACKAGE_FILENAME,
+        mimetype="application/zip",
+    )
 
 
 @app.route("/amalfi-preview")
