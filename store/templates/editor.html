@@ -15,7 +15,7 @@
     <div>
       <div class="editor-section-title">MULTILINGUAL STATIONERY CONSTRUCTOR</div>
       <h1>{{ product.name }}</h1>
-      <p>26 fixed records · 6 languages · print geometry is read only from the server configuration.</p>
+      <p>24 fixed items · 6 languages · print geometry is read only from the approved server configuration.</p>
     </div>
     <nav id="languageSwitcher" class="language-switcher" aria-label="Language"></nav>
   </header>
@@ -24,12 +24,12 @@
     {% if is_paid %}
       Editing mode is unlocked for this paid order. Text can be changed in the side panel or directly on the card.
     {% else %}
-      Preview mode. Language switching and the complete gallery are available; editing and printing are locked until payment.
+      Preview mode. Language switching and the complete 24-piece gallery are available; editing and printing are locked until payment.
     {% endif %}
   </div>
 
   <section aria-labelledby="galleryHeading">
-    <div id="galleryHeading" class="editor-section-title">ALL 26 ITEMS</div>
+    <div id="galleryHeading" class="editor-section-title">ALL 24 ITEMS</div>
     <div id="previewGallery" class="preview-gallery"></div>
   </section>
 
