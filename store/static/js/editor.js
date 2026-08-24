@@ -126,16 +126,34 @@
       return;
     }
     const s = card.envelope_spec;
-    const left = (s.side_flap_mm / s.flat_w_mm) * 100;
-    const right = left;
+    const leftPct = (s.side_flap_mm / s.flat_w_mm) * 100;
+    const rightPct = leftPct;
+    const flapBottomPct = (s.seal_flap_mm / s.flat_h_mm) * 100;
+    const backBottomPct = ((s.back_panel_top_mm + s.panel_h_mm) / s.flat_h_mm) * 100;
+    const frontTopPct = (s.front_panel_top_mm / s.flat_h_mm) * 100;
+    const safeXPct = (s.safe_inset_mm / s.flat_w_mm) * 100;
+    const safeYPct = (s.safe_inset_mm / s.flat_h_mm) * 100;
+
     if (state.activeView === 'front') {
-      els.screenContent.style.left = `${left + 4}%`; els.screenContent.style.right = `${right + 4}%`; els.screenContent.style.top = '61%'; els.screenContent.style.bottom = '5%';
+      els.screenContent.style.left = `${leftPct + safeXPct}%`;
+      els.screenContent.style.right = `${rightPct + safeXPct}%`;
+      els.screenContent.style.top = `${frontTopPct + safeYPct}%`;
+      els.screenContent.style.bottom = `${safeYPct}%`;
     } else if (state.activeView === 'back') {
-      els.screenContent.style.left = `${left + 4}%`; els.screenContent.style.right = `${right + 4}%`; els.screenContent.style.top = '20%'; els.screenContent.style.bottom = '45%';
+      els.screenContent.style.left = `${leftPct + safeXPct}%`;
+      els.screenContent.style.right = `${rightPct + safeXPct}%`;
+      els.screenContent.style.top = `${flapBottomPct + safeYPct}%`;
+      els.screenContent.style.bottom = `${100 - backBottomPct + safeYPct}%`;
     } else if (state.activeView === 'flap') {
-      els.screenContent.style.left = `${left + 5}%`; els.screenContent.style.right = `${right + 5}%`; els.screenContent.style.top = '2%'; els.screenContent.style.bottom = '82%';
+      els.screenContent.style.left = `${leftPct + safeXPct}%`;
+      els.screenContent.style.right = `${rightPct + safeXPct}%`;
+      els.screenContent.style.top = `${safeYPct}%`;
+      els.screenContent.style.bottom = `${100 - flapBottomPct + safeYPct}%`;
     } else {
-      els.screenContent.style.left = '10%'; els.screenContent.style.right = '10%'; els.screenContent.style.top = '30%'; els.screenContent.style.bottom = '30%';
+      els.screenContent.style.left = `${leftPct + safeXPct}%`;
+      els.screenContent.style.right = `${rightPct + safeXPct}%`;
+      els.screenContent.style.top = `${flapBottomPct + safeYPct}%`;
+      els.screenContent.style.bottom = `${100 - backBottomPct + safeYPct}%`;
     }
   }
 
