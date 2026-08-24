@@ -11,6 +11,7 @@
   const isPaid = root.dataset.paid === 'true';
   const productSlug = root.dataset.productSlug || 'amalfi-wedding-suite';
   const orderId = root.dataset.orderId || '';
+  const designId = root.dataset.designId || 'amalfi';
 
   if (config.length !== EXPECTED_CARD_COUNT) {
     throw new Error(`Stationery configuration must contain exactly ${EXPECTED_CARD_COUNT} items; received ${config.length}.`);
@@ -47,7 +48,6 @@
     status: document.getElementById('editorStatus'),
     saveButton: document.getElementById('saveEditorData'),
     printButton: document.getElementById('printCard'),
-    printHost: document.getElementById('printHost'),
   };
 
   function getCard(cardId = state.activeCardId) {
@@ -177,7 +177,6 @@
 
     const values = valuesFor(card);
     els.screenContent.innerHTML = '';
-
     card.fields.forEach((key) => {
       const value = values[key];
       if (value == null || value === '') return;
@@ -242,6 +241,7 @@
     return {
       product_slug: productSlug,
       order_id: orderId,
+      design_id: designId,
       language: state.language,
       card_count: EXPECTED_CARD_COUNT,
       cards,
@@ -252,12 +252,11 @@
     if (!isPaid) return;
     els.status.textContent = 'Saving…';
     try {
-      const payload = buildPayload();
       const response = await fetch('/api/stationery/payload', {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(buildPayload()),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
@@ -271,43 +270,32 @@
     }
   }
 
-  function preparePrint(card) {
-    if (!isPaid || !card) return false;
-    const bleed = Number(card.bleed_mm || 0);
-    const pageW = Number(card.w_mm) + bleed * 2;
-    const pageH = Number(card.h_mm) + bleed * 2;
+  async function generatePdfPackage() {
+    if (!isPaid) return;
+    els.printButton.disabled = true;
+    els.saveButton.disabled = true;
+    els.status.textContent = 'Generating 24 print-ready PDF files…';
 
-    let style = document.getElementById('dynamicPageSize');
-    if (!style) {
-      style = document.createElement('style');
-      style.id = 'dynamicPageSize';
-      document.head.appendChild(style);
+    try {
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildPayload()),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || result.error || `HTTP ${response.status}`);
+      if (result.card_count !== EXPECTED_CARD_COUNT || !result.download_url) {
+        throw new Error('Backend returned an invalid PDF package response.');
+      }
+      els.status.textContent = 'PDF package is ready. Download is starting…';
+      window.location.assign(result.download_url);
+    } catch (error) {
+      els.status.textContent = `PDF generation failed: ${error.message}`;
+    } finally {
+      els.printButton.disabled = !isPaid;
+      els.saveButton.disabled = !isPaid;
     }
-    style.textContent = `@page{size:${pageW}mm ${pageH}mm;margin:0} @media print{html,body{width:${pageW}mm!important;height:${pageH}mm!important}}`;
-
-    const values = valuesFor(card);
-    els.printHost.innerHTML = '';
-    const sheet = document.createElement('section');
-    sheet.className = 'print-sheet';
-    sheet.style.width = `${pageW}mm`;
-    sheet.style.height = `${pageH}mm`;
-
-    const trim = document.createElement('div');
-    trim.className = 'print-trim';
-    trim.style.left = `${bleed}mm`;
-    trim.style.top = `${bleed}mm`;
-    trim.style.width = `${card.w_mm}mm`;
-    trim.style.height = `${card.h_mm}mm`;
-    trim.innerHTML = `<div class="print-card-content">${card.fields.map((key) => values[key] ? `<div data-key="${escapeHtml(key)}">${escapeHtml(String(values[key]))}</div>` : '').join('')}<div class="print-brand">loveforlove.com</div></div>`;
-    sheet.appendChild(trim);
-    els.printHost.appendChild(sheet);
-    return true;
-  }
-
-  function printActiveCard() {
-    const card = getCard();
-    if (!preparePrint(card)) return;
-    window.print();
   }
 
   function loadLocalEdits() {
@@ -343,6 +331,6 @@
 
   loadLocalEdits();
   els.saveButton.addEventListener('click', savePayload);
-  els.printButton.addEventListener('click', printActiveCard);
+  els.printButton.addEventListener('click', generatePdfPackage);
   renderAll();
 })();
