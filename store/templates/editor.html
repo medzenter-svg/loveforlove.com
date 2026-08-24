@@ -11,19 +11,20 @@
   data-order-id="{{ order_id }}"
   data-design-id="amalfi"
   data-language="en"
+  data-layer-mode="split"
 >
   <header class="editor-toolbar">
     <div>
       <div class="editor-section-title">MULTILINGUAL STATIONERY CONSTRUCTOR</div>
       <h1>{{ product.name }}</h1>
-      <p>24 fixed items · 6 languages · print geometry is read only from the approved server configuration.</p>
+      <p>24 fixed items · 6 languages · artwork and editable text are rendered as independent layers.</p>
     </div>
     <nav id="languageSwitcher" class="language-switcher" aria-label="Language"></nav>
   </header>
 
   <div class="editor-mode">
     {% if is_paid %}
-      Editing mode is unlocked for this paid order. Text can be changed in the side panel or directly on the card.
+      Editing mode is unlocked for this paid order. Text can be changed in the side panel or directly on the card; the artwork remains locked beneath it.
     {% else %}
       Preview mode. Language switching and the complete 24-piece gallery are available; editing and PDF generation are locked until payment.
     {% endif %}
@@ -44,7 +45,7 @@
       <div class="editor-section-title">2. LIVE PREVIEW</div>
       <div id="viewSwitcher" class="view-switcher"></div>
       <div class="preview-viewport">
-        <article id="screenCard" class="screen-card" aria-label="Stationery preview">
+        <article id="screenCard" class="screen-card" aria-label="Stationery preview with locked artwork and editable text layer">
           <div id="screenCardContent" class="screen-card-content"></div>
           <div id="screenCardBrand" class="screen-card-brand">loveforlove.com</div>
         </article>
