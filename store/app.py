@@ -3,7 +3,7 @@ import uuid
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort, jsonify
 
 from products import PRODUCTS, PRODUCTS_BY_SLUG, price_display
-from cards_config_24 import CARDS_CONFIG, CARDS_BY_ID, SUPPORTED_LANGUAGES, printable_dimensions
+from cards_config import CARDS_CONFIG, CARDS_BY_ID, SUPPORTED_LANGUAGES, printable_dimensions, EXPECTED_CARD_COUNT
 
 try:
     import stripe
@@ -39,7 +39,6 @@ def get_cart():
 
 
 def order_allows_editor(order_id, slug):
-    """Редактирование открывается только для оплаченного заказа с этим товаром."""
     if not order_id:
         return False
     order = ORDERS.get(order_id)
@@ -53,6 +52,7 @@ def render_stationery_editor(product, order_id=None):
         product=product,
         cards_config=CARDS_CONFIG,
         supported_languages=SUPPORTED_LANGUAGES,
+        expected_card_count=EXPECTED_CARD_COUNT,
         is_paid=is_paid,
         order_id=order_id or "",
     )
@@ -104,6 +104,7 @@ def amalfi_editor():
 def stationery_config_api():
     return jsonify({
         "languages": SUPPORTED_LANGUAGES,
+        "expected_card_count": EXPECTED_CARD_COUNT,
         "cards": CARDS_CONFIG,
     })
 
@@ -123,20 +124,32 @@ def stationery_payload_api():
     incoming_cards = payload.get("cards")
     if not isinstance(incoming_cards, list):
         return jsonify({"error": "cards_must_be_a_list"}), 400
+    if len(incoming_cards) != EXPECTED_CARD_COUNT:
+        return jsonify({
+            "error": "invalid_card_count",
+            "expected": EXPECTED_CARD_COUNT,
+            "received": len(incoming_cards),
+        }), 400
+
+    submitted_ids = [submitted.get("id") for submitted in incoming_cards]
+    expected_ids = [card["id"] for card in CARDS_CONFIG]
+    if submitted_ids != expected_ids:
+        return jsonify({"error": "invalid_card_order_or_ids"}), 400
 
     normalized = []
     for submitted in incoming_cards:
-        card_id = submitted.get("id")
-        config = CARDS_BY_ID.get(card_id)
-        if not config:
-            return jsonify({"error": "unknown_card", "card_id": card_id}), 400
+        card_id = submitted["id"]
+        config = CARDS_BY_ID[card_id]
 
         allowed_fields = set(config.get("fields", []))
         values = submitted.get("values") or {}
         clean_values = {key: str(value) for key, value in values.items() if key in allowed_fields}
+
+        requested_view = submitted.get("view")
+        valid_views = config.get("views", [])
         normalized.append({
             "id": card_id,
-            "view": submitted.get("view") if submitted.get("view") in config.get("views", []) else config["views"][0],
+            "view": requested_view if requested_view in valid_views else valid_views[0],
             "values": clean_values,
             "print": printable_dimensions(config),
         })
@@ -145,6 +158,7 @@ def stationery_payload_api():
         "ok": True,
         "language": language,
         "product_slug": slug,
+        "card_count": len(normalized),
         "cards": normalized,
     })
 
