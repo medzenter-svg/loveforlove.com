@@ -6,7 +6,8 @@ PDF сохраняет векторный текст и CSS. Понятие 300 
 
 from __future__ import annotations
 
-import os
+import base64
+import mimetypes
 import re
 import tempfile
 import zipfile
@@ -26,18 +27,21 @@ def _safe_filename(value: str) -> str:
 
 
 def resolve_background_uri(static_root: str, design_id: str, card_id: str) -> str | None:
-    """Возвращает локальный file:// URI фонового файла текущего дизайна.
+    """Встраивает фон текущего дизайна как data URI.
 
     Ожидаемая структура:
       store/static/designs/<design_id>/<card_id>.webp
-    Также поддерживаются PNG/JPG/JPEG. Если отдельного фона пока нет, шаблон
-    печатается с CSS-декором коллекции, а не с чужим/случайным изображением.
+
+    Data URI используется вместо file://, чтобы Headless Chromium гарантированно
+    загрузил локальный фон при page.set_content().
     """
     base = Path(static_root) / "designs" / _safe_filename(design_id)
     for extension in ("webp", "png", "jpg", "jpeg"):
         candidate = base / f"{card_id}.{extension}"
         if candidate.is_file():
-            return candidate.resolve().as_uri()
+            mime = mimetypes.guess_type(candidate.name)[0] or "application/octet-stream"
+            encoded = base64.b64encode(candidate.read_bytes()).decode("ascii")
+            return f"data:{mime};base64,{encoded}"
     return None
 
 
@@ -62,16 +66,16 @@ def generate_wedding_package(
     if len(normalized_cards) != EXPECTED_CARD_COUNT:
         raise ValueError("Payload must contain exactly 24 cards")
 
-    by_id = {item["id"]: item for item in normalized_cards}
     expected_ids = [card["id"] for card in cards_config]
-    if list(by_id) != expected_ids:
+    submitted_ids = [item["id"] for item in normalized_cards]
+    if submitted_ids != expected_ids:
         raise ValueError("Card ids/order do not match server configuration")
+    by_id = {item["id"]: item for item in normalized_cards}
 
     order_dir = Path(downloads_dir) / _safe_filename(order_id)
     order_dir.mkdir(parents=True, exist_ok=True)
     zip_path = order_dir / PACKAGE_FILENAME
 
-    # Не оставляем старую версию архива того же заказа.
     if zip_path.exists():
         zip_path.unlink()
 
@@ -107,8 +111,7 @@ def generate_wedding_package(
 
                     page.set_content(html, wait_until="load")
                     page.emulate_media(media="print")
-                    # Дожидаемся веб-шрифтов/локальных ресурсов до печати.
-                    page.evaluate("document.fonts && document.fonts.ready")
+                    page.evaluate("document.fonts ? document.fonts.ready : Promise.resolve()")
 
                     pdf_name = f"{index:02d}_{_safe_filename(card['id'])}.pdf"
                     pdf_path = temp_path / pdf_name
@@ -137,7 +140,6 @@ def generate_wedding_package(
             for pdf_path in pdf_paths:
                 archive.write(pdf_path, arcname=pdf_path.name)
 
-    # TemporaryDirectory уже удалил все отдельные PDF.
     if not zip_path.is_file():
         raise RuntimeError("ZIP package was not created")
 
