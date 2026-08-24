@@ -9,6 +9,7 @@
   data-paid="{{ 'true' if is_paid else 'false' }}"
   data-product-slug="{{ product.slug }}"
   data-order-id="{{ order_id }}"
+  data-design-id="amalfi"
   data-language="en"
 >
   <header class="editor-toolbar">
@@ -24,7 +25,7 @@
     {% if is_paid %}
       Editing mode is unlocked for this paid order. Text can be changed in the side panel or directly on the card.
     {% else %}
-      Preview mode. Language switching and the complete 24-piece gallery are available; editing and printing are locked until payment.
+      Preview mode. Language switching and the complete 24-piece gallery are available; editing and PDF generation are locked until payment.
     {% endif %}
   </div>
 
@@ -56,13 +57,11 @@
       <div id="editorFields" class="editor-fields"></div>
       <div class="editor-actions-row">
         <button id="saveEditorData" class="editor-action primary" type="button" {% if not is_paid %}disabled{% endif %}>SAVE</button>
-        <button id="printCard" class="editor-action" type="button" {% if not is_paid %}disabled{% endif %}>PRINT / PDF</button>
+        <button id="printCard" class="editor-action" type="button" {% if not is_paid %}disabled{% endif %}>GENERATE PDF PACKAGE</button>
       </div>
       <div id="editorStatus" class="editor-status" aria-live="polite"></div>
     </aside>
   </div>
-
-  <div id="printHost" class="print-only" aria-hidden="true"></div>
 </section>
 
 <script>
