@@ -75,12 +75,21 @@ T = {
     "envelope": {"en":"Envelope Suite","de":"Umschlag-Set","fr":"Suite d'enveloppes","it":"Set buste","es":"Set de sobres","ru":"Комплект конверта"},
 }
 
+WEBSITE_COPY = {
+    "en": {"info": "For travel, schedule, and updates, please visit", "password_label": "Password:"},
+    "de": {"info": "Reiseinformationen, Programm und Neuigkeiten finden Sie unter", "password_label": "Passwort:"},
+    "fr": {"info": "Pour le voyage, le programme et les actualités, rendez-vous sur", "password_label": "Mot de passe :"},
+    "it": {"info": "Per viaggio, programma e aggiornamenti, visitate", "password_label": "Password:"},
+    "es": {"info": "Para viaje, programa y novedades, visite", "password_label": "Contraseña:"},
+    "ru": {"info": "Вся информация о поездке, программе и обновлениях — на сайте", "password_label": "Пароль:"},
+}
+
 CARDS_CONFIG = [
     item("01_save_the_date",1,"Save the Date",175,125,T["save"],views=("option_a","option_b"),fields=["title","names","date","venue","location","greeting"],extras={l:{"venue":"Villa Cimbrone"} for l in SUPPORTED_LANGUAGES}),
     item("02_main_invitation",2,"Main Invitation",180,130,T["invitation"],views=("front","back"),fields=["title","greeting","names","date","time","venue","location","reception","dress_code"],extras={l:{"time":"3:30 PM" if l=="en" else "15:30","venue":"Villa Cimbrone","reception":"Reception to follow","dress_code":"Mediterranean Formal"} for l in SUPPORTED_LANGUAGES}),
     item("03_details_card",3,"Details Card",165,115,T["details"],views=("front","back"),fields=["title","ceremony_time","ceremony_venue","reception_time","reception_venue","dress_code","accommodation","transport","dietary"],extras={l:{"ceremony_time":"15:30","ceremony_venue":"Villa Cimbrone","reception_time":"18:30","reception_venue":"Villa Cimbrone Terrace","dress_code":"Mediterranean Formal","accommodation":"Hotel Santa Caterina","transport":"Guest shuttle","dietary":"Please add dietary requirements"} for l in SUPPORTED_LANGUAGES}),
     item("04_rsvp",4,"RSVP Card",140,95,T["rsvp"],views=("front","back"),fields=["title","deadline","guest_name","accept","decline","guest_count","meal","thanks"],extras={l:{"deadline":"15 April 2027","guest_name":"Guest name","accept":"Accepts with pleasure","decline":"Declines with regret","guest_count":"2","meal":"Sea bass / Beef / Vegetarian","thanks":"Thank you for your reply"} for l in SUPPORTED_LANGUAGES}),
-    item("05_wedding_website",5,"Wedding Website Card",125,85,T["website"],fields=["title","greeting","website","password"],extras={l:{"website":"loveforlove.com/olivia-matteo","password":"AMORE2027"} for l in SUPPORTED_LANGUAGES}),
+    item("05_wedding_website",5,"Wedding Website Card",125,85,T["website"],fields=["names","website","password"],extras={l:{"info":WEBSITE_COPY[l]["info"],"password_label":WEBSITE_COPY[l]["password_label"],"website":"loveforlove.com/olivia-matteo","password":"forever"} for l in SUPPORTED_LANGUAGES}),
     item("06_hotel_accommodation",6,"Hotel Accommodation Card",170,110,T["hotel"],fields=["title","hotel","address","stay_dates","check_in","check_out","rate","booking_code","contact","transfer","payment_note"],extras={l:{"hotel":"Hotel Santa Caterina","address":"S.S. Amalfitana 9, Amalfi, Italy","stay_dates":"11–13 June 2027","check_in":"15:00","check_out":"11:00","rate":"Wedding rate","booking_code":"LOVE2027","contact":"+39 089 871012","transfer":"Wedding-day shuttle included","payment_note":"The couple covers one night; guests pay additional nights and extras."} for l in SUPPORTED_LANGUAGES}),
     item("07_transport_parking",7,"Transport & Parking Card",160,105,T["transport"],fields=["title","departure","departure_time","return_transfer","parking","parking_address","instructions"],extras={l:{"departure":"Hotel Santa Caterina","departure_time":"14:45","return_transfer":"00:30","parking":"Parcheggio Luna Rossa","parking_address":"Via Pantaleone Comite 33, Amalfi","instructions":"Please arrive 15 minutes early."} for l in SUPPORTED_LANGUAGES}),
     item("08_dress_code",8,"Dress Code Card",210,140,T["dress"],fields=["title","day_one_style","day_one_palette","day_one_recommendations","day_two_style","day_two_palette","day_two_recommendations"],extras={l:{"day_one_style":"Garden Cocktail","day_one_palette":"Lemon · Sage · Ivory · Gold","day_one_recommendations":"Elegant summer attire","day_two_style":"Formal Elegant","day_two_palette":"Ivory · Sage · Gold","day_two_recommendations":"Formal garden attire"} for l in SUPPORTED_LANGUAGES}),
