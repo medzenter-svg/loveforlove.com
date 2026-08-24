@@ -26,23 +26,43 @@ def _safe_filename(value: str) -> str:
     return value or "card"
 
 
+def _file_data_uri(path: Path) -> str | None:
+    if not path.is_file():
+        return None
+    mime = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{mime};base64,{encoded}"
+
+
 def resolve_background_uri(static_root: str, design_id: str, card_id: str) -> str | None:
-    """Встраивает фон текущего дизайна как data URI.
-
-    Ожидаемая структура:
-      store/static/designs/<design_id>/<card_id>.webp
-
-    Data URI используется вместо file://, чтобы Headless Chromium гарантированно
-    загрузил локальный фон при page.set_content().
-    """
+    """Встраивает фон текущего дизайна как data URI."""
     base = Path(static_root) / "designs" / _safe_filename(design_id)
     for extension in ("webp", "png", "jpg", "jpeg"):
-        candidate = base / f"{card_id}.{extension}"
-        if candidate.is_file():
-            mime = mimetypes.guess_type(candidate.name)[0] or "application/octet-stream"
-            encoded = base64.b64encode(candidate.read_bytes()).decode("ascii")
-            return f"data:{mime};base64,{encoded}"
+        uri = _file_data_uri(base / f"{card_id}.{extension}")
+        if uri:
+            return uri
     return None
+
+
+def resolve_font_uris(static_root: str) -> dict[str, str | None]:
+    """Возвращает локальные шрифты для автономной печати Chromium.
+
+    Предпочтителен WOFF2. Если его нет, используется TTF с тем же именем.
+    """
+    fonts_root = Path(static_root) / "fonts"
+
+    def choose(stem: str) -> str | None:
+        for extension in ("woff2", "ttf"):
+            uri = _file_data_uri(fonts_root / f"{stem}.{extension}")
+            if uri:
+                return uri
+        return None
+
+    return {
+        "cormorant_regular": choose("CormorantGaramond-Regular"),
+        "cormorant_semibold": choose("CormorantGaramond-SemiBold"),
+        "allura_regular": choose("Allura-Regular"),
+    }
 
 
 def generate_wedding_package(
@@ -79,6 +99,8 @@ def generate_wedding_package(
     if zip_path.exists():
         zip_path.unlink()
 
+    font_uris = resolve_font_uris(static_root)
+
     with tempfile.TemporaryDirectory(prefix="loveforlove_pdf_") as temp_dir:
         temp_path = Path(temp_dir)
         pdf_paths: list[Path] = []
@@ -106,6 +128,7 @@ def generate_wedding_package(
                         language=language,
                         design_id=design_id,
                         background_uri=background_uri,
+                        font_uris=font_uris,
                         dimensions=dimensions,
                     )
 
