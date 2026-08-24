@@ -66,7 +66,6 @@ def render_stationery_editor(product, order_id=None):
 
 
 def normalize_stationery_payload(payload):
-    """Проверяет и нормализует JSON редактора строго по конфигурации 1–24."""
     language = payload.get("language")
     order_id = payload.get("order_id")
     slug = payload.get("product_slug", "amalfi-wedding-suite")
@@ -80,11 +79,7 @@ def normalize_stationery_payload(payload):
     if not isinstance(incoming_cards, list):
         return None, ({"error": "cards_must_be_a_list"}, 400)
     if len(incoming_cards) != EXPECTED_CARD_COUNT:
-        return None, ({
-            "error": "invalid_card_count",
-            "expected": EXPECTED_CARD_COUNT,
-            "received": len(incoming_cards),
-        }, 400)
+        return None, ({"error": "invalid_card_count", "expected": EXPECTED_CARD_COUNT, "received": len(incoming_cards)}, 400)
 
     submitted_ids = [submitted.get("id") for submitted in incoming_cards]
     expected_ids = [card["id"] for card in CARDS_CONFIG]
@@ -97,28 +92,15 @@ def normalize_stationery_payload(payload):
         config = CARDS_BY_ID[card_id]
         defaults = config["translations"][language]
         values = submitted.get("values") or {}
-
         clean_values = {}
         for key in config.get("fields", []):
             value = values.get(key, defaults.get(key, ""))
             clean_values[key] = str(value)
-
         requested_view = submitted.get("view")
         valid_views = config.get("views", []) or ["front"]
-        normalized.append({
-            "id": card_id,
-            "view": requested_view if requested_view in valid_views else valid_views[0],
-            "values": clean_values,
-            "print": printable_dimensions(config),
-        })
+        normalized.append({"id": card_id, "view": requested_view if requested_view in valid_views else valid_views[0], "values": clean_values, "print": printable_dimensions(config)})
 
-    return {
-        "language": language,
-        "order_id": order_id,
-        "product_slug": slug,
-        "design_id": payload.get("design_id", "amalfi"),
-        "cards": normalized,
-    }, None
+    return {"language": language, "order_id": order_id, "product_slug": slug, "design_id": payload.get("design_id", "amalfi"), "cards": normalized}, None
 
 
 @app.route("/")
@@ -165,11 +147,7 @@ def amalfi_editor():
 
 @app.route("/api/stationery/config")
 def stationery_config_api():
-    return jsonify({
-        "languages": SUPPORTED_LANGUAGES,
-        "expected_card_count": EXPECTED_CARD_COUNT,
-        "cards": CARDS_CONFIG,
-    })
+    return jsonify({"languages": SUPPORTED_LANGUAGES, "expected_card_count": EXPECTED_CARD_COUNT, "cards": CARDS_CONFIG})
 
 
 @app.route("/api/stationery/payload", methods=["POST"])
@@ -179,25 +157,16 @@ def stationery_payload_api():
     if error:
         body, status = error
         return jsonify(body), status
-
-    return jsonify({
-        "ok": True,
-        "language": normalized["language"],
-        "product_slug": normalized["product_slug"],
-        "card_count": len(normalized["cards"]),
-        "cards": normalized["cards"],
-    })
+    return jsonify({"ok": True, "language": normalized["language"], "product_slug": normalized["product_slug"], "card_count": len(normalized["cards"]), "cards": normalized["cards"]})
 
 
 @app.route("/api/generate-pdf", methods=["POST"])
 def generate_pdf_package():
-    """Создает типографские PDF всех 24 элементов и один ZIP для скачивания."""
     payload = request.get_json(silent=True) or {}
     normalized, error = normalize_stationery_payload(payload)
     if error:
         body, status = error
         return jsonify(body), status
-
     try:
         generate_wedding_package(
             cards_config=CARDS_CONFIG,
@@ -213,17 +182,8 @@ def generate_pdf_package():
         app.logger.exception("PDF package generation failed")
         return jsonify({"error": "pdf_generation_failed", "message": str(exc)}), 500
 
-    download_url = url_for(
-        "download_generated_package",
-        order_id=normalized["order_id"],
-        filename=PACKAGE_FILENAME,
-    )
-    return jsonify({
-        "ok": True,
-        "card_count": EXPECTED_CARD_COUNT,
-        "filename": PACKAGE_FILENAME,
-        "download_url": download_url,
-    })
+    download_url = url_for("download_generated_package", order_id=normalized["order_id"], filename=PACKAGE_FILENAME)
+    return jsonify({"ok": True, "card_count": EXPECTED_CARD_COUNT, "filename": PACKAGE_FILENAME, "download_url": download_url})
 
 
 @app.route("/generated-download/<order_id>/<filename>")
@@ -232,49 +192,33 @@ def download_generated_package(order_id, filename):
         abort(404)
     if not order_allows_editor(order_id, "amalfi-wedding-suite"):
         abort(403)
-
     order_dir = os.path.join(DOWNLOADS_DIR, order_id)
     archive_path = os.path.join(order_dir, PACKAGE_FILENAME)
     if not os.path.isfile(archive_path):
         abort(404)
-
-    return send_from_directory(
-        order_dir,
-        PACKAGE_FILENAME,
-        as_attachment=True,
-        download_name=PACKAGE_FILENAME,
-        mimetype="application/zip",
-    )
+    return send_from_directory(order_dir, PACKAGE_FILENAME, as_attachment=True, download_name=PACKAGE_FILENAME, mimetype="application/zip")
 
 
 @app.route("/qa/amalfi-test-package-3c897a1e")
 def qa_amalfi_test_package():
-    """Временный QA-маршрут Render: запускает test_order.py и сразу отдает ZIP.
-
-    По умолчанию доступен только пока Stripe не включен. После подключения реальных
-    платежей маршрут автоматически становится 404, если явно не задано ALLOW_QA_PACKAGE=1.
-    """
     if LIVE_PAYMENTS and os.environ.get("ALLOW_QA_PACKAGE") != "1":
         abort(404)
 
-    script_path = os.path.join(PROJECT_ROOT, "test_order.py")
+    script_path = os.path.join(BASE_DIR, "test_order.py")
     if not os.path.isfile(script_path):
-        return jsonify({"error": "test_script_missing"}), 500
+        return jsonify({"error": "test_script_missing", "expected": script_path}), 500
 
     try:
         completed = subprocess.run(
             [sys.executable, script_path],
-            cwd=PROJECT_ROOT,
+            cwd=BASE_DIR,
             capture_output=True,
             text=True,
             timeout=240,
             check=False,
         )
     except subprocess.TimeoutExpired:
-        return jsonify({
-            "error": "qa_generation_timeout",
-            "message": "Тестовая генерация превысила 240 секунд.",
-        }), 504
+        return jsonify({"error": "qa_generation_timeout", "message": "Тестовая генерация превысила 240 секунд."}), 504
 
     if completed.returncode != 0:
         return Response(
@@ -288,18 +232,9 @@ def qa_amalfi_test_package():
     test_dir = os.path.join(STATIC_DIR, "downloads", "test_order")
     archive_path = os.path.join(test_dir, PACKAGE_FILENAME)
     if not os.path.isfile(archive_path):
-        return jsonify({
-            "error": "qa_zip_missing",
-            "message": "Скрипт завершился, но ZIP не найден.",
-        }), 500
+        return jsonify({"error": "qa_zip_missing", "message": "Скрипт завершился, но ZIP не найден."}), 500
 
-    return send_from_directory(
-        test_dir,
-        PACKAGE_FILENAME,
-        as_attachment=True,
-        download_name=PACKAGE_FILENAME,
-        mimetype="application/zip",
-    )
+    return send_from_directory(test_dir, PACKAGE_FILENAME, as_attachment=True, download_name=PACKAGE_FILENAME, mimetype="application/zip")
 
 
 @app.route("/amalfi-preview")
@@ -353,14 +288,7 @@ def checkout():
     ORDERS[order_id] = {"slugs": [p["slug"] for p in items], "paid": False}
 
     if LIVE_PAYMENTS:
-        line_items = [{
-            "price_data": {
-                "currency": "usd",
-                "product_data": {"name": p["name"]},
-                "unit_amount": p["price"],
-            },
-            "quantity": 1,
-        } for p in items]
+        line_items = [{"price_data": {"currency": "usd", "product_data": {"name": p["name"]}, "unit_amount": p["price"]}, "quantity": 1} for p in items]
         checkout_session = stripe.checkout.Session.create(
             mode="payment",
             line_items=line_items,
