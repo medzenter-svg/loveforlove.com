@@ -1,8 +1,9 @@
 import os
 import uuid
-from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort, jsonify
 
 from products import PRODUCTS, PRODUCTS_BY_SLUG, price_display
+from cards_config import CARDS_CONFIG, CARDS_BY_ID, SUPPORTED_LANGUAGES, printable_dimensions
 
 try:
     import stripe
@@ -37,6 +38,26 @@ def get_cart():
     return session.setdefault("cart", [])
 
 
+def order_allows_editor(order_id, slug):
+    """Редактирование открывается только для оплаченного заказа с этим товаром."""
+    if not order_id:
+        return False
+    order = ORDERS.get(order_id)
+    return bool(order and order.get("paid") and slug in order.get("slugs", []))
+
+
+def render_stationery_editor(product, order_id=None):
+    is_paid = order_allows_editor(order_id, product["slug"])
+    return render_template(
+        "editor.html",
+        product=product,
+        cards_config=CARDS_CONFIG,
+        supported_languages=SUPPORTED_LANGUAGES,
+        is_paid=is_paid,
+        order_id=order_id or "",
+    )
+
+
 @app.route("/")
 def home():
     featured = [p for p in PRODUCTS if p["category"] == "Featured Destinations"][:8]
@@ -68,13 +89,71 @@ def test_editor(slug):
     product = PRODUCTS_BY_SLUG.get(slug)
     if not product:
         abort(404)
-    return render_template("editor.html", product=product)
+    return render_stationery_editor(product, request.args.get("order_id"))
 
 
 @app.route("/amalfi-editor")
 def amalfi_editor():
     product = PRODUCTS_BY_SLUG.get("amalfi-wedding-suite")
-    return render_template("editor.html", product=product)
+    if not product:
+        abort(404)
+    return render_stationery_editor(product, request.args.get("order_id"))
+
+
+@app.route("/api/stationery/config")
+def stationery_config_api():
+    """Тот же конфиг доступен JSON-клиентам; Jinja получает его напрямую."""
+    return jsonify({
+        "languages": SUPPORTED_LANGUAGES,
+        "cards": CARDS_CONFIG,
+    })
+
+
+@app.route("/api/stationery/payload", methods=["POST"])
+def stationery_payload_api():
+    """Проверяет JSON редактора перед передачей в Playwright/PDF слой.
+
+    Этот endpoint намеренно не угадывает размеры: print jobs строятся только из cards_config.py.
+    """
+    payload = request.get_json(silent=True) or {}
+    language = payload.get("language")
+    order_id = payload.get("order_id")
+    slug = payload.get("product_slug", "amalfi-wedding-suite")
+
+    if language not in SUPPORTED_LANGUAGES:
+        return jsonify({"error": "unsupported_language"}), 400
+    if not order_allows_editor(order_id, slug):
+        return jsonify({"error": "payment_required"}), 403
+
+    incoming_cards = payload.get("cards")
+    if not isinstance(incoming_cards, list):
+        return jsonify({"error": "cards_must_be_a_list"}), 400
+
+    normalized = []
+    for submitted in incoming_cards:
+        card_id = submitted.get("id")
+        config = CARDS_BY_ID.get(card_id)
+        if not config:
+            return jsonify({"error": "unknown_card", "card_id": card_id}), 400
+        if config.get("spec_locked"):
+            return jsonify({"error": "print_spec_not_approved", "card_id": card_id}), 409
+
+        allowed_fields = set(config.get("fields", []))
+        values = submitted.get("values") or {}
+        clean_values = {key: str(value) for key, value in values.items() if key in allowed_fields}
+        normalized.append({
+            "id": card_id,
+            "view": submitted.get("view") if submitted.get("view") in config.get("views", []) else config["views"][0],
+            "values": clean_values,
+            "print": printable_dimensions(config),
+        })
+
+    return jsonify({
+        "ok": True,
+        "language": language,
+        "product_slug": slug,
+        "cards": normalized,
+    })
 
 
 @app.route("/amalfi-preview")
