@@ -4,16 +4,33 @@
   const root = document.getElementById('stationeryEditor');
   if (!root) return;
 
+  const EXPECTED_CARD_COUNT = 24;
+  const EXPECTED_LANGUAGE_COUNT = 6;
   const config = window.STATIONERY_CONFIG || [];
-  const languages = window.STATIONERY_LANGUAGES || ['en', 'de', 'fr', 'it', 'es', 'ru'];
+  const languages = window.STATIONERY_LANGUAGES || [];
   const isPaid = root.dataset.paid === 'true';
   const productSlug = root.dataset.productSlug || 'amalfi-wedding-suite';
   const orderId = root.dataset.orderId || '';
 
+  if (config.length !== EXPECTED_CARD_COUNT) {
+    throw new Error(`Stationery configuration must contain exactly ${EXPECTED_CARD_COUNT} items; received ${config.length}.`);
+  }
+  if (languages.length !== EXPECTED_LANGUAGE_COUNT) {
+    throw new Error(`Stationery editor must contain exactly ${EXPECTED_LANGUAGE_COUNT} languages.`);
+  }
+  config.forEach((card, index) => {
+    if (card.number !== index + 1) throw new Error(`Invalid card order at ${card.id}.`);
+    languages.forEach((language) => {
+      if (!card.translations || !card.translations[language]) {
+        throw new Error(`Missing ${language} translation for ${card.id}.`);
+      }
+    });
+  });
+
   const state = {
     language: root.dataset.language || 'en',
-    activeCardId: config[0] ? config[0].id : null,
-    activeView: config[0] && config[0].views.length ? config[0].views[0] : 'front',
+    activeCardId: config[0].id,
+    activeView: config[0].views[0] || 'front',
     values: {},
   };
 
@@ -25,7 +42,6 @@
     viewSwitcher: document.getElementById('viewSwitcher'),
     screenCard: document.getElementById('screenCard'),
     screenContent: document.getElementById('screenCardContent'),
-    brand: document.getElementById('screenCardBrand'),
     sizeNote: document.getElementById('physicalSizeNote'),
     fields: document.getElementById('editorFields'),
     status: document.getElementById('editorStatus'),
@@ -39,7 +55,7 @@
   }
 
   function defaultsFor(card, language = state.language) {
-    return (card && card.translations && card.translations[language]) || {};
+    return card.translations[language];
   }
 
   function valuesFor(card) {
@@ -49,14 +65,13 @@
   }
 
   function setValue(card, key, value) {
-    if (!isPaid || card.spec_locked) return;
+    if (!isPaid) return;
     state.values[card.id] = state.values[card.id] || {};
     state.values[card.id][state.language] = state.values[card.id][state.language] || {};
     state.values[card.id][state.language][key] = value;
   }
 
   function humanSize(card) {
-    if (!card || card.spec_locked || card.w_mm == null || card.h_mm == null) return 'Print specification required';
     const folded = card.fold && card.finished_w_mm ? ` · folded ${card.finished_w_mm} × ${card.finished_h_mm} mm` : '';
     return `${card.w_mm} × ${card.h_mm} mm · bleed ${card.bleed_mm} mm${folded}`;
   }
@@ -86,8 +101,7 @@
     config.forEach((card) => {
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = `card-nav-button${card.id === state.activeCardId ? ' is-active' : ''}${card.spec_locked ? ' is-locked' : ''}`;
-      button.disabled = Boolean(card.spec_locked);
+      button.className = `card-nav-button${card.id === state.activeCardId ? ' is-active' : ''}`;
       const translatedTitle = defaultsFor(card).title || card.name;
       button.innerHTML = `<strong>${String(card.number).padStart(2, '0')} · ${escapeHtml(translatedTitle)}</strong><span class="card-nav-size">${escapeHtml(humanSize(card))}</span>`;
       button.addEventListener('click', () => selectCard(card.id));
@@ -96,40 +110,37 @@
   }
 
   function renderGallery() {
-    if (!els.gallery) return;
     els.gallery.innerHTML = '';
     config.forEach((card) => {
       const tile = document.createElement('article');
-      tile.className = `gallery-card${card.spec_locked ? ' is-locked' : ''}`;
+      tile.className = 'gallery-card';
       const t = defaultsFor(card);
-      if (card.spec_locked) {
-        tile.innerHTML = `<div class="gallery-number">${String(card.number).padStart(2, '0')}</div><div class="gallery-title">Specification required</div><div class="gallery-size">Not printable until approved</div>`;
-      } else {
-        tile.innerHTML = `
-          <div class="gallery-number">${String(card.number).padStart(2, '0')}</div>
-          <div class="gallery-title">${escapeHtml(t.title || card.name)}</div>
-          <div class="gallery-names">${escapeHtml(t.names || '')}</div>
-          <div class="gallery-date">${escapeHtml(t.date || '')}</div>
-          <div class="gallery-location">${escapeHtml(t.location || '')}</div>
-          <div class="gallery-size">${escapeHtml(humanSize(card))}</div>`;
-        tile.addEventListener('click', () => selectCard(card.id));
-      }
+      tile.innerHTML = `
+        <div class="gallery-number">${String(card.number).padStart(2, '0')}</div>
+        <div class="gallery-title">${escapeHtml(t.title || card.name)}</div>
+        <div class="gallery-names">${escapeHtml(t.names || '')}</div>
+        <div class="gallery-date">${escapeHtml(t.date || '')}</div>
+        <div class="gallery-location">${escapeHtml(t.location || '')}</div>
+        <div class="gallery-size">${escapeHtml(humanSize(card))}</div>`;
+      tile.addEventListener('click', () => selectCard(card.id));
       els.gallery.appendChild(tile);
     });
   }
 
   function selectCard(cardId) {
     const card = getCard(cardId);
-    if (!card || card.spec_locked) return;
+    if (!card) return;
     state.activeCardId = cardId;
     state.activeView = card.views[0] || 'front';
     renderAll();
-    if (isPaid && els.editorWorkspace) els.editorWorkspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (isPaid && els.editorWorkspace) {
+      els.editorWorkspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   function renderViews(card) {
     els.viewSwitcher.innerHTML = '';
-    (card.views || []).forEach((view) => {
+    card.views.forEach((view) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = `view-button${view === state.activeView ? ' is-active' : ''}`;
@@ -157,11 +168,6 @@
   }
 
   function renderPreview(card) {
-    if (card.spec_locked) {
-      els.screenContent.innerHTML = '<div class="locked-spec">Print specification is not approved.</div>';
-      return;
-    }
-
     const size = screenDimensions(card);
     els.screenCard.style.width = `${size.width}px`;
     els.screenCard.style.height = `${size.height}px`;
@@ -175,7 +181,7 @@
     card.fields.forEach((key) => {
       const value = values[key];
       if (value == null || value === '') return;
-      const node = document.createElement(key === 'title' ? 'div' : 'div');
+      const node = document.createElement('div');
       node.className = key === 'title' ? 'screen-card-title' : 'screen-card-field';
       node.dataset.key = key;
       node.textContent = String(value);
@@ -183,8 +189,9 @@
         node.contentEditable = 'true';
         node.spellcheck = false;
         node.addEventListener('input', () => {
-          setValue(card, key, node.textContent.trim());
-          syncInput(key, node.textContent.trim());
+          const text = node.textContent.trim();
+          setValue(card, key, text);
+          syncInput(key, text);
         });
       }
       els.screenContent.appendChild(node);
@@ -201,7 +208,8 @@
       label.htmlFor = `field-${key}`;
       label.textContent = fieldLabel(key);
       const value = values[key] == null ? '' : String(values[key]);
-      const control = value.length > 70 || key.includes('greeting') || key.includes('program') || key.includes('instructions') || key.includes('payment') ? document.createElement('textarea') : document.createElement('input');
+      const isLong = value.length > 70 || key.includes('greeting') || key.includes('program') || key.includes('instructions') || key.includes('payment');
+      const control = isLong ? document.createElement('textarea') : document.createElement('input');
       control.id = `field-${key}`;
       control.dataset.key = key;
       control.value = value;
@@ -221,15 +229,22 @@
   }
 
   function buildPayload() {
+    const cards = config.map((card) => ({
+      id: card.id,
+      view: card.id === state.activeCardId ? state.activeView : card.views[0],
+      values: valuesFor(card),
+    }));
+
+    if (cards.length !== EXPECTED_CARD_COUNT) {
+      throw new Error(`Payload must contain exactly ${EXPECTED_CARD_COUNT} cards.`);
+    }
+
     return {
       product_slug: productSlug,
       order_id: orderId,
       language: state.language,
-      cards: config.filter((card) => !card.spec_locked).map((card) => ({
-        id: card.id,
-        view: card.id === state.activeCardId ? state.activeView : (card.views[0] || 'front'),
-        values: valuesFor(card),
-      })),
+      card_count: EXPECTED_CARD_COUNT,
+      cards,
     };
   }
 
@@ -237,26 +252,31 @@
     if (!isPaid) return;
     els.status.textContent = 'Saving…';
     try {
+      const payload = buildPayload();
       const response = await fetch('/api/stationery/payload', {
         method: 'POST',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(buildPayload()),
+        body: JSON.stringify(payload),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+      if (result.card_count !== EXPECTED_CARD_COUNT || result.cards.length !== EXPECTED_CARD_COUNT) {
+        throw new Error('Backend returned an invalid card count.');
+      }
       localStorage.setItem(`stationery:${productSlug}:${orderId}`, JSON.stringify(state.values));
-      els.status.textContent = `Saved. ${result.cards.length} printable items validated.`;
+      els.status.textContent = `Saved. Exactly ${result.card_count} items validated.`;
     } catch (error) {
       els.status.textContent = `Save failed: ${error.message}`;
     }
   }
 
   function preparePrint(card) {
-    if (!isPaid || !card || card.spec_locked) return false;
+    if (!isPaid || !card) return false;
     const bleed = Number(card.bleed_mm || 0);
     const pageW = Number(card.w_mm) + bleed * 2;
     const pageH = Number(card.h_mm) + bleed * 2;
+
     let style = document.getElementById('dynamicPageSize');
     if (!style) {
       style = document.createElement('style');
@@ -271,6 +291,7 @@
     sheet.className = 'print-sheet';
     sheet.style.width = `${pageW}mm`;
     sheet.style.height = `${pageH}mm`;
+
     const trim = document.createElement('div');
     trim.className = 'print-trim';
     trim.style.left = `${bleed}mm`;
@@ -304,12 +325,11 @@
     renderLanguages();
     renderNavigation();
     renderGallery();
-    if (!card) return;
     renderViews(card);
     renderPreview(card);
     renderFields(card);
     els.saveButton.disabled = !isPaid;
-    els.printButton.disabled = !isPaid || card.spec_locked;
+    els.printButton.disabled = !isPaid;
   }
 
   function escapeHtml(value) {
