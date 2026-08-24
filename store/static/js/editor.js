@@ -50,6 +50,10 @@
     printButton: document.getElementById('printCard'),
   };
 
+  function designBackgroundUrl(card) {
+    return `/static/designs/${encodeURIComponent(designId)}/${encodeURIComponent(card.id)}.webp`;
+  }
+
   function getCard(cardId = state.activeCardId) {
     return config.find((card) => card.id === cardId) || null;
   }
@@ -114,6 +118,7 @@
     config.forEach((card) => {
       const tile = document.createElement('article');
       tile.className = 'gallery-card';
+      tile.style.backgroundImage = `url("${designBackgroundUrl(card)}")`;
       const t = defaultsFor(card);
       tile.innerHTML = `
         <div class="gallery-number">${String(card.number).padStart(2, '0')}</div>
@@ -171,6 +176,7 @@
     const size = screenDimensions(card);
     els.screenCard.style.width = `${size.width}px`;
     els.screenCard.style.height = `${size.height}px`;
+    els.screenCard.style.backgroundImage = `url("${designBackgroundUrl(card)}")`;
     els.screenCard.dataset.cardId = card.id;
     els.screenCard.dataset.view = state.activeView;
     els.sizeNote.textContent = `${humanSize(card)} · view: ${state.activeView}`;
