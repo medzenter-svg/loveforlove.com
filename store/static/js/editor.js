@@ -48,6 +48,7 @@
     state.values[card.id][state.language][key] = value;
   }
   function isEnvelope(card) { return card && card.id === '24_envelope_suite'; }
+  function isWebsite(card) { return card && card.id === '05_wedding_website'; }
   function visibleFields(card) { return isEnvelope(card) ? (ENVELOPE_FIELDS[state.activeView] || card.fields) : card.fields; }
 
   function humanSize(card) {
@@ -84,10 +85,14 @@
   function renderGallery() {
     els.gallery.innerHTML = '';
     config.forEach((card) => {
-      const tile = document.createElement('article'); tile.className = `gallery-card${isEnvelope(card) ? ' is-envelope' : ''}`;
+      const tile = document.createElement('article'); tile.className = `gallery-card${isEnvelope(card) ? ' is-envelope' : ''}${isWebsite(card) ? ' is-website' : ''}`;
       tile.style.backgroundImage = `url("${designBackgroundUrl(card)}")`;
       const t = defaultsFor(card);
-      tile.innerHTML = `<div class="gallery-number">${String(card.number).padStart(2, '0')}</div><div class="gallery-title">${escapeHtml(t.title || card.name)}</div><div class="gallery-names">${escapeHtml(t.names || '')}</div><div class="gallery-date">${escapeHtml(t.date || '')}</div><div class="gallery-location">${escapeHtml(t.location || '')}</div><div class="gallery-size">${escapeHtml(humanSize(card))}</div>`;
+      if (isWebsite(card)) {
+        tile.innerHTML = `<div class="gallery-number">${String(card.number).padStart(2, '0')}</div><div class="gallery-title">${escapeHtml(t.title || card.name)}</div><div class="gallery-names">${escapeHtml(t.names || '')}</div><div class="gallery-location">${escapeHtml(t.website || '')}</div><div class="gallery-size">${escapeHtml(humanSize(card))}</div>`;
+      } else {
+        tile.innerHTML = `<div class="gallery-number">${String(card.number).padStart(2, '0')}</div><div class="gallery-title">${escapeHtml(t.title || card.name)}</div><div class="gallery-names">${escapeHtml(t.names || '')}</div><div class="gallery-date">${escapeHtml(t.date || '')}</div><div class="gallery-location">${escapeHtml(t.location || '')}</div><div class="gallery-size">${escapeHtml(humanSize(card))}</div>`;
+      }
       tile.addEventListener('click', () => selectCard(card.id)); els.gallery.appendChild(tile);
     });
   }
@@ -134,12 +139,40 @@
     }
   }
 
+  function appendPreviewNode(card, className, key, value, editable = false) {
+    if (value == null || value === '') return null;
+    const node = document.createElement('div'); node.className = className; if (key) node.dataset.key = key; node.textContent = String(value);
+    if (editable && isPaid && key) {
+      node.contentEditable = 'true'; node.spellcheck = false;
+      node.addEventListener('input', () => { const text = node.textContent.trim(); setValue(card, key, text); syncInput(key, text); });
+    }
+    els.screenContent.appendChild(node); return node;
+  }
+
+  function renderWebsitePreview(card, values) {
+    const copy = defaultsFor(card);
+    appendPreviewNode(card, 'screen-card-title website-title', null, copy.title, false);
+    appendPreviewNode(card, 'screen-card-field website-names', 'names', values.names, true);
+    appendPreviewNode(card, 'screen-card-static website-info', null, copy.info, false);
+    appendPreviewNode(card, 'screen-card-field website-url', 'website', values.website, true);
+    const passwordLine = document.createElement('div'); passwordLine.className = 'website-password-line';
+    const label = document.createElement('span'); label.className = 'website-password-label'; label.textContent = copy.password_label || '';
+    const password = document.createElement('span'); password.className = 'website-password-value'; password.dataset.key = 'password'; password.textContent = values.password || '';
+    if (isPaid) {
+      password.contentEditable = 'true'; password.spellcheck = false;
+      password.addEventListener('input', () => { const text = password.textContent.trim(); setValue(card, 'password', text); syncInput('password', text); });
+    }
+    passwordLine.append(label, password); els.screenContent.appendChild(passwordLine);
+  }
+
   function renderPreview(card) {
     const size = screenDimensions(card);
     els.screenCard.style.width = `${size.width}px`; els.screenCard.style.height = `${size.height}px`; els.screenCard.style.backgroundImage = `url("${designBackgroundUrl(card)}")`;
-    els.screenCard.dataset.cardId = card.id; els.screenCard.dataset.view = state.activeView; configureEnvelopePreview(card);
+    els.screenCard.dataset.cardId = card.id; els.screenCard.dataset.view = state.activeView; els.screenCard.classList.toggle('is-website', isWebsite(card)); configureEnvelopePreview(card);
+    els.screenContent.classList.toggle('is-website-content', isWebsite(card));
     els.sizeNote.textContent = `${humanSize(card)} · view: ${state.activeView}`;
     const values = valuesFor(card); els.screenContent.innerHTML = '';
+    if (isWebsite(card)) { renderWebsitePreview(card, values); return; }
     visibleFields(card).forEach((key) => {
       const value = values[key]; if (value == null || value === '') return;
       const node = document.createElement('div'); node.className = key === 'title' ? 'screen-card-title' : 'screen-card-field'; node.dataset.key = key; node.textContent = String(value);
