@@ -3,7 +3,7 @@ import uuid
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort, jsonify
 
 from products import PRODUCTS, PRODUCTS_BY_SLUG, price_display
-from cards_config import CARDS_CONFIG, CARDS_BY_ID, SUPPORTED_LANGUAGES, printable_dimensions
+from cards_config_24 import CARDS_CONFIG, CARDS_BY_ID, SUPPORTED_LANGUAGES, printable_dimensions
 
 try:
     import stripe
@@ -102,7 +102,6 @@ def amalfi_editor():
 
 @app.route("/api/stationery/config")
 def stationery_config_api():
-    """Тот же конфиг доступен JSON-клиентам; Jinja получает его напрямую."""
     return jsonify({
         "languages": SUPPORTED_LANGUAGES,
         "cards": CARDS_CONFIG,
@@ -111,10 +110,6 @@ def stationery_config_api():
 
 @app.route("/api/stationery/payload", methods=["POST"])
 def stationery_payload_api():
-    """Проверяет JSON редактора перед передачей в Playwright/PDF слой.
-
-    Этот endpoint намеренно не угадывает размеры: print jobs строятся только из cards_config.py.
-    """
     payload = request.get_json(silent=True) or {}
     language = payload.get("language")
     order_id = payload.get("order_id")
@@ -135,8 +130,6 @@ def stationery_payload_api():
         config = CARDS_BY_ID.get(card_id)
         if not config:
             return jsonify({"error": "unknown_card", "card_id": card_id}), 400
-        if config.get("spec_locked"):
-            return jsonify({"error": "print_spec_not_approved", "card_id": card_id}), 409
 
         allowed_fields = set(config.get("fields", []))
         values = submitted.get("values") or {}
