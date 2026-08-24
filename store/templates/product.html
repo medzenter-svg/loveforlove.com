@@ -3,75 +3,68 @@
 {% block content %}
 {% if product.get('full_collection') %}
 <style>
-.collection-cover{background:#f8f4ec}.collection-cover img{display:block;width:100%;height:auto;max-width:700px;margin:0 auto;background:#fff}.collection-status{display:inline-block;border:1px solid var(--gold);color:var(--gold);padding:9px 12px;margin:0 0 20px;font-size:10px;letter-spacing:1.8px}.amalfi-collection-review{max-width:1220px;margin:30px auto 90px;padding:0 40px}.amalfi-collection-review .section-head p{max-width:760px;margin:14px auto 0;color:var(--sub);line-height:1.7;font-size:13px}.amalfi-gallery{width:min(100%,1122px);margin:34px auto 42px;display:grid;gap:24px}.amalfi-contact-sheet{display:block;width:100%;height:auto;margin:0;background:#fff;border:1px solid var(--line);box-shadow:0 12px 36px rgba(66,48,24,.08)}.amalfi-piece-list{max-width:900px;margin:0 auto;border-top:1px solid var(--line)}.amalfi-piece-row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:18px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.amalfi-piece-number{color:var(--gold);font-family:'Lora',serif;font-size:15px}.amalfi-piece-name{font-family:'Lora',serif;font-size:14px}.amalfi-piece-size{color:var(--sub);font-size:11px;text-align:right}@media(max-width:700px){.amalfi-collection-review{padding:0 18px}.amalfi-piece-row{grid-template-columns:38px 1fr;gap:10px}.amalfi-piece-size{grid-column:2;text-align:left}}
+.amalfi-product{max-width:1220px;margin:0 auto;padding:54px 36px 90px}.amalfi-hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:48px;align-items:center}.amalfi-hero-art{background:#fbf7ef;border:1px solid #dfd4c2;padding:16px;box-shadow:0 18px 46px rgba(69,49,25,.08)}.amalfi-hero-art img{display:block;width:100%;height:auto}.amalfi-kicker{font-size:11px;letter-spacing:2.4px;color:#a9854d;margin-bottom:12px}.amalfi-hero h1{font-family:'Cormorant Garamond',Georgia,serif;font-size:52px;line-height:.98;font-weight:500;color:#17354b;margin:0 0 18px}.amalfi-status{display:inline-block;border:1px solid #b99762;color:#8c6d3a;padding:8px 12px;font-size:10px;letter-spacing:1.6px;margin-bottom:18px}.amalfi-desc{font-size:14px;line-height:1.8;color:#5e584f;margin:0 0 22px}.amalfi-actions{display:flex;gap:12px;flex-wrap:wrap}.amalfi-dates{margin:46px 0 54px;padding:26px 30px;border-top:1px solid #d9cdb8;border-bottom:1px solid #d9cdb8;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;text-align:center}.amalfi-date small{display:block;font-size:10px;letter-spacing:1.5px;color:#a9854d;margin-bottom:6px}.amalfi-date strong{display:block;font-family:'Cormorant Garamond',Georgia,serif;font-size:21px;font-weight:600;color:#234732}.amalfi-section-head{text-align:center;margin:0 auto 30px}.amalfi-section-head .kicker{font-size:10px;letter-spacing:2px;color:#a9854d}.amalfi-section-head h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:42px;font-weight:500;color:#17354b;margin:7px 0 8px}.amalfi-section-head p{max-width:760px;margin:0 auto;color:#6b6258;font-size:13px;line-height:1.7}.amalfi-gallery{display:grid;gap:24px;margin:0 auto 52px}.amalfi-gallery img{display:block;width:100%;height:auto;background:#fff;border:1px solid #ddd2bf;box-shadow:0 14px 34px rgba(67,50,28,.08)}.amalfi-list{display:grid;grid-template-columns:repeat(3,1fr);gap:0 30px;border-top:1px solid #d9cdb8}.amalfi-item{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:14px 0;border-bottom:1px solid #e5dccd}.amalfi-num{font-family:'Cormorant Garamond',Georgia,serif;color:#b38b43;font-size:18px}.amalfi-name{font-family:'Cormorant Garamond',Georgia,serif;font-size:17px;color:#17354b;line-height:1.2}.amalfi-size{display:block;margin-top:4px;font-family:'Poppins',Arial,sans-serif;font-size:10px;color:#80766a;line-height:1.5}.amalfi-note{margin-top:36px;padding:18px 22px;background:#f8f3ea;border:1px solid #e2d6c3;text-align:center;color:#5f584e;font-size:12px;line-height:1.7}.amalfi-note strong{color:#234732}@media(max-width:900px){.amalfi-hero{grid-template-columns:1fr}.amalfi-hero h1{font-size:44px}.amalfi-dates{grid-template-columns:repeat(2,1fr)}.amalfi-list{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.amalfi-product{padding:34px 18px 70px}.amalfi-hero h1{font-size:38px}.amalfi-dates{grid-template-columns:1fr 1fr;padding:22px 10px}.amalfi-list{grid-template-columns:1fr}}
 </style>
-{% endif %}
-<div class="product-detail">
-  <div class="pd-img {{ 'collection-cover' if product.get('full_collection') else '' }}">
-    {% if product.get('full_collection') %}
-      <img src="{{ url_for('static', filename='products/amalfi-wedding-suite/collection-1.webp') }}" alt="{{ product.name }}">
-    {% else %}
-      <img src="{{ url_for('static', filename='products/' + product.cover) }}" alt="{{ product.name }}">
-    {% endif %}
+<section class="amalfi-product">
+  <div class="amalfi-hero">
+    <div class="amalfi-hero-art"><img src="{{ url_for('static', filename='products/amalfi-wedding-suite/collection-1.webp') }}" alt="Amalfi Wedding Suite — pieces 1–8"></div>
+    <div>
+      <div class="amalfi-kicker">COMPLETE WEDDING COLLECTION</div>
+      <h1>Amalfi Wedding Suite</h1>
+      <div class="amalfi-status">24 COORDINATED PIECES</div>
+      <p class="amalfi-desc">A complete Mediterranean wedding stationery collection in ivory, lemon, white blossom, olive green and soft gold. The full suite includes invitation pieces, weekend information, programs, wedding-day stationery, signage and the complete envelope set.</p>
+      <div class="amalfi-actions"><a class="btn btn-gold" href="{{ url_for('amalfi_editor') }}">OPEN EDITOR</a></div>
+    </div>
   </div>
-  <div class="pd-info">
-    <div class="pd-cat">{{ product.category.upper() }}</div>
-    <h1>{{ product.name }}</h1>
-    {% if product.get('available', True) %}
-      <div class="pd-price">{{ price_display(product.price) }}</div>
-    {% else %}
-      <div class="collection-status">{{ product.get('status', 'COMPLETE COLLECTION') }}</div>
-    {% endif %}
-    <p class="pd-desc">{{ product.description }}</p>
-    {% if product.get('full_collection') %}
-      <a class="btn btn-gold" href="{{ url_for('amalfi_editor') }}" style="display:inline-block;margin:0 0 22px;">OPEN EDITOR</a>
-    {% endif %}
-    {% if product.get('available', True) %}
-    <form action="{{ url_for('cart_add', slug=product.slug) }}" method="post">
-      <button class="btn btn-gold" type="submit">ADD TO CART</button>
-    </form>
-    {% endif %}
-  </div>
-</div>
 
-{% if product.get('full_collection') %}
-<section class="amalfi-collection-review">
-  <div class="section-head">
+  <div class="amalfi-dates" aria-label="Sample wedding weekend">
+    <div class="amalfi-date"><small>DAY ONE</small><strong>Friday, 11 June 2027</strong></div>
+    <div class="amalfi-date"><small>WEDDING DAY</small><strong>Saturday, 12 June 2027</strong></div>
+    <div class="amalfi-date"><small>CEREMONY</small><strong>3:30 PM · Ravello</strong></div>
+    <div class="amalfi-date"><small>DAY TWO</small><strong>Sunday, 13 June 2027</strong></div>
+  </div>
+
+  <div class="amalfi-section-head">
     <div class="kicker">FULL COLLECTION</div>
-    <h2>24 coordinated pieces</h2>
-    <p>Complete Amalfi wedding stationery suite. The three presentation sheets below contain the full approved structure: pieces 1–8, 9–16 and 17–24, including all front/back, folded and envelope components.</p>
+    <h2>All 24 pieces</h2>
+    <p>Three presentation sheets show the complete collection in order: 1–8, 9–16 and 17–24. Front/back, folded formats and all envelope components remain grouped under their canonical product number.</p>
   </div>
+
   <div class="amalfi-gallery">
-    {% for n in range(1, 4) %}
-      <img class="amalfi-contact-sheet" src="{{ url_for('static', filename='products/amalfi-wedding-suite/collection-' ~ n ~ '.webp') }}" alt="Amalfi Wedding Suite — pieces {{ (n-1)*8+1 }}–{{ n*8 }}">
-    {% endfor %}
+    {% for n in range(1,4) %}<img src="{{ url_for('static', filename='products/amalfi-wedding-suite/collection-' ~ n ~ '.webp') }}" alt="Amalfi Wedding Suite pieces {{ (n-1)*8+1 }}–{{ n*8 }}">{% endfor %}
   </div>
-  <div class="amalfi-piece-list">
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">01</span><span class="amalfi-piece-name">Save the Date — 2 design variants</span><span class="amalfi-piece-size">17.5 × 12.5 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">02</span><span class="amalfi-piece-name">Main Invitation — front/back</span><span class="amalfi-piece-size">18 × 13 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">03</span><span class="amalfi-piece-name">Details Card — front/back</span><span class="amalfi-piece-size">16.5 × 11.5 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">04</span><span class="amalfi-piece-name">RSVP Card — front/back</span><span class="amalfi-piece-size">14 × 9.5 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">05</span><span class="amalfi-piece-name">Wedding Website Card</span><span class="amalfi-piece-size">12.5 × 8.5 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">06</span><span class="amalfi-piece-name">Hotel Accommodation Card</span><span class="amalfi-piece-size">17 × 11 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">07</span><span class="amalfi-piece-name">Transport & Parking Card</span><span class="amalfi-piece-size">16 × 10.5 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">08</span><span class="amalfi-piece-name">Dress Code Card — Day One / Day Two</span><span class="amalfi-piece-size">21 × 14 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">09</span><span class="amalfi-piece-name">Gifts & Registry Card</span><span class="amalfi-piece-size">15.5 × 10.5 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">10</span><span class="amalfi-piece-name">Coordinator Contacts Card</span><span class="amalfi-piece-size">13.5 × 9 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">11</span><span class="amalfi-piece-name">General Program</span><span class="amalfi-piece-size">22 × 14.5 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">12</span><span class="amalfi-piece-name">Day One Program</span><span class="amalfi-piece-size">21.5 × 14 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">13</span><span class="amalfi-piece-name">Day Two Program</span><span class="amalfi-piece-size">20.5 × 13.5 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">14</span><span class="amalfi-piece-name">Wedding Program Card — front/back</span><span class="amalfi-piece-size">22.5 × 15 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">15</span><span class="amalfi-piece-name">Ceremony Card</span><span class="amalfi-piece-size">16.5 × 10 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">16</span><span class="amalfi-piece-name">Order of Ceremony</span><span class="amalfi-piece-size">23 × 15 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">17</span><span class="amalfi-piece-name">Reception Card</span><span class="amalfi-piece-size">15 × 10 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">18</span><span class="amalfi-piece-name">Menu Card</span><span class="amalfi-piece-size">14 × 21 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">19</span><span class="amalfi-piece-name">Table Number — folded</span><span class="amalfi-piece-size">12 × 24 cm open / 12 × 12 cm folded</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">20</span><span class="amalfi-piece-name">Place Card — folded</span><span class="amalfi-piece-size">12 × 14 cm open / 12 × 7 cm folded</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">21</span><span class="amalfi-piece-name">Welcome Sign</span><span class="amalfi-piece-size">70 × 50 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">22</span><span class="amalfi-piece-name">Guest Book Sign</span><span class="amalfi-piece-size">25 × 20 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">23</span><span class="amalfi-piece-name">Thank You Card — front/back</span><span class="amalfi-piece-size">14.5 × 9 cm</span></div>
-    <div class="amalfi-piece-row"><span class="amalfi-piece-number">24</span><span class="amalfi-piece-name">Envelope Suite — front/back/flap/liner</span><span class="amalfi-piece-size">19.5 × 14.5 cm finished</span></div>
-  </div>
+
+  {% set pieces = [
+    ('01','Save the Date — two variants','17.5 × 12.5 cm · bleed 18.1 × 13.1'),
+    ('02','Main Invitation — front/back','18 × 13 cm · bleed 18.6 × 13.6'),
+    ('03','Details Card — front/back','16.5 × 11.5 cm · bleed 17.1 × 12.1'),
+    ('04','RSVP Card — front/back','14 × 9.5 cm · bleed 14.6 × 10.1'),
+    ('05','Wedding Website Card','12.5 × 8.5 cm · bleed 13.1 × 9.1'),
+    ('06','Hotel Accommodation Card','17 × 11 cm · bleed 17.6 × 11.6'),
+    ('07','Transport & Parking Card','16 × 10.5 cm · bleed 16.6 × 11.1'),
+    ('08','Dress Code Card — Day One / Day Two','21 × 14 cm · bleed 21.6 × 14.6'),
+    ('09','Gifts & Registry Card','15.5 × 10.5 cm · bleed 16.1 × 11.1'),
+    ('10','Coordinator Contacts Card','13.5 × 9 cm · bleed 14.1 × 9.6'),
+    ('11','General Program','22 × 14.5 cm · bleed 22.6 × 15.1'),
+    ('12','Day One Program','21.5 × 14 cm · bleed 22.1 × 14.6'),
+    ('13','Day Two Program','20.5 × 13.5 cm · bleed 21.1 × 14.1'),
+    ('14','Wedding Program Card — front/back','22.5 × 15 cm · bleed 23.1 × 15.6'),
+    ('15','Ceremony Card','16.5 × 10 cm · bleed 17.1 × 10.6'),
+    ('16','Order of Ceremony','23 × 15 cm · bleed 23.6 × 15.6'),
+    ('17','Reception Card','15 × 10 cm · bleed 15.6 × 10.6'),
+    ('18','Menu Card','14 × 21 cm · bleed 14.6 × 21.6'),
+    ('19','Table Number — folded','12 × 24 cm open · 12 × 12 cm folded'),
+    ('20','Place Card — folded','12 × 14 cm open · 12 × 7 cm folded'),
+    ('21','Welcome Sign','70 × 50 cm · bleed 70.6 × 50.6'),
+    ('22','Guest Book Sign','25 × 20 cm · bleed 25.6 × 20.6'),
+    ('23','Thank You Card — front/back','14.5 × 9 cm · bleed 15.1 × 9.6'),
+    ('24','Envelope Suite — front/back/flap/liner','19.5 × 14.5 cm finished')
+  ] %}
+  <div class="amalfi-list">{% for n,name,size in pieces %}<div class="amalfi-item"><div class="amalfi-num">{{ n }}</div><div><div class="amalfi-name">{{ name }}</div><span class="amalfi-size">{{ size }}</span></div></div>{% endfor %}</div>
+
+  <div class="amalfi-note"><strong>Collection system:</strong> centered typography, ivory ground, watercolor lemon blossom decoration kept outside the central text zone, two classic gold rings, and a very small light olive-green <em>loveforlove.com</em> signature below the design frame where appropriate.</div>
 </section>
+{% else %}
+<div class="product-detail"><div class="pd-img"><img src="{{ url_for('static', filename='products/' + product.cover) }}" alt="{{ product.name }}"></div><div class="pd-info"><div class="pd-cat">{{ product.category.upper() }}</div><h1>{{ product.name }}</h1><div class="pd-price">{{ price_display(product.price) }}</div><p class="pd-desc">{{ product.description }}</p><form action="{{ url_for('cart_add', slug=product.slug) }}" method="post"><button class="btn btn-gold" type="submit">ADD TO CART</button></form></div></div>
 {% endif %}
 {% endblock %}
