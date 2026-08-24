@@ -1,6 +1,8 @@
 import os
+import subprocess
+import sys
 import uuid
-from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort, jsonify, Response
 
 from products import PRODUCTS, PRODUCTS_BY_SLUG, price_display
 from cards_config import CARDS_CONFIG, CARDS_BY_ID, SUPPORTED_LANGUAGES, printable_dimensions, EXPECTED_CARD_COUNT
@@ -27,8 +29,9 @@ else:
 
 ORDERS = {}
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
 DOWNLOADS_DIR = os.path.join(BASE_DIR, "downloads")
-PREVIEW_DIR = os.path.join(os.path.dirname(BASE_DIR), "preview")
+PREVIEW_DIR = os.path.join(PROJECT_ROOT, "preview")
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 
@@ -92,11 +95,9 @@ def normalize_stationery_payload(payload):
     for submitted in incoming_cards:
         card_id = submitted["id"]
         config = CARDS_BY_ID[card_id]
-        allowed_fields = set(config.get("fields", []))
         defaults = config["translations"][language]
         values = submitted.get("values") or {}
 
-        # Все отсутствующие пользовательские поля получают языковые значения по умолчанию.
         clean_values = {}
         for key in config.get("fields", []):
             value = values.get(key, defaults.get(key, ""))
@@ -239,6 +240,61 @@ def download_generated_package(order_id, filename):
 
     return send_from_directory(
         order_dir,
+        PACKAGE_FILENAME,
+        as_attachment=True,
+        download_name=PACKAGE_FILENAME,
+        mimetype="application/zip",
+    )
+
+
+@app.route("/qa/amalfi-test-package-3c897a1e")
+def qa_amalfi_test_package():
+    """Временный QA-маршрут Render: запускает test_order.py и сразу отдает ZIP.
+
+    По умолчанию доступен только пока Stripe не включен. После подключения реальных
+    платежей маршрут автоматически становится 404, если явно не задано ALLOW_QA_PACKAGE=1.
+    """
+    if LIVE_PAYMENTS and os.environ.get("ALLOW_QA_PACKAGE") != "1":
+        abort(404)
+
+    script_path = os.path.join(PROJECT_ROOT, "test_order.py")
+    if not os.path.isfile(script_path):
+        return jsonify({"error": "test_script_missing"}), 500
+
+    try:
+        completed = subprocess.run(
+            [sys.executable, script_path],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=240,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        return jsonify({
+            "error": "qa_generation_timeout",
+            "message": "Тестовая генерация превысила 240 секунд.",
+        }), 504
+
+    if completed.returncode != 0:
+        return Response(
+            "Тестовая генерация не завершилась.\n\n"
+            f"STDOUT:\n{completed.stdout[-6000:]}\n\n"
+            f"STDERR:\n{completed.stderr[-6000:]}",
+            status=500,
+            mimetype="text/plain; charset=utf-8",
+        )
+
+    test_dir = os.path.join(STATIC_DIR, "downloads", "test_order")
+    archive_path = os.path.join(test_dir, PACKAGE_FILENAME)
+    if not os.path.isfile(archive_path):
+        return jsonify({
+            "error": "qa_zip_missing",
+            "message": "Скрипт завершился, но ZIP не найден.",
+        }), 500
+
+    return send_from_directory(
+        test_dir,
         PACKAGE_FILENAME,
         as_attachment=True,
         download_name=PACKAGE_FILENAME,
