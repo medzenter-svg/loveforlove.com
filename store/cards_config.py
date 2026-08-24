@@ -1,13 +1,12 @@
-"""Единый источник истины для размеров и локализованных текстов конструктора.
+"""Единый источник истины для 24 утвержденных элементов свадебной полиграфии.
 
-Графический дизайн коллекции здесь не хранится: коллекции меняют только CSS/фон/цвета/шрифты.
-Размеры 01–24 зафиксированы по утвержденной спецификации. Для 25–26 в проекте пока нет
-утвержденных названий/размеров, поэтому они присутствуют как заблокированные записи и
-не могут быть отправлены в печать до внесения реальной спецификации.
+Графический дизайн коллекции здесь не хранится: коллекции меняют только CSS, фон,
+цвета и шрифты. Размеры, стороны, поля и языковая структура фиксированы здесь.
 """
 
 SUPPORTED_LANGUAGES = ("en", "de", "fr", "it", "es", "ru")
 DEFAULT_BLEED_MM = 3
+EXPECTED_CARD_COUNT = 24
 
 COMMON = {
     "en": {"names": "Olivia & Matteo", "date": "June 12, 2027", "location": "Ravello, Amalfi Coast, Italy", "greeting": "We would be delighted to celebrate with you."},
@@ -30,7 +29,7 @@ def translations(titles, extras=None):
     return result
 
 
-def item(card_id, number, name, w_mm, h_mm, titles, *, views=("front",), orientation="landscape", fields=None, extras=None, fold=False, finished=None, spec_locked=False):
+def item(card_id, number, name, w_mm, h_mm, titles, *, views=("front",), orientation="landscape", fields=None, extras=None, fold=False, finished=None):
     data = {
         "id": card_id,
         "number": number,
@@ -43,7 +42,6 @@ def item(card_id, number, name, w_mm, h_mm, titles, *, views=("front",), orienta
         "fields": fields or ["title", "names", "date", "location", "greeting"],
         "translations": translations(titles, extras),
         "fold": fold,
-        "spec_locked": spec_locked,
     }
     if finished:
         data["finished_w_mm"], data["finished_h_mm"] = finished
@@ -75,8 +73,6 @@ T = {
     "guestbook": {"en":"Guest Book","de":"Gästebuch","fr":"Livre d'or","it":"Libro degli ospiti","es":"Libro de invitados","ru":"Книга пожеланий"},
     "thanks": {"en":"Thank You","de":"Danke","fr":"Merci","it":"Grazie","es":"Gracias","ru":"Спасибо"},
     "envelope": {"en":"Envelope Suite","de":"Umschlag-Set","fr":"Suite d'enveloppes","it":"Set buste","es":"Set de sobres","ru":"Комплект конверта"},
-    "reserved25": {lang:"Specification required" for lang in SUPPORTED_LANGUAGES},
-    "reserved26": {lang:"Specification required" for lang in SUPPORTED_LANGUAGES},
 }
 
 CARDS_CONFIG = [
@@ -104,16 +100,23 @@ CARDS_CONFIG = [
     item("22_guest_book_sign",22,"Guest Book Sign",250,200,T["guestbook"],fields=["title","greeting"]),
     item("23_thank_you",23,"Thank You Card",145,90,T["thanks"],views=("front","back"),fields=["title","greeting","names"]),
     item("24_envelope_suite",24,"Envelope Suite",195,145,T["envelope"],views=("front","back","flap","liner"),fields=["recipient_name","recipient_address","return_names","return_address","flap_note","liner_text"],extras={l:{"recipient_name":"Sophia Rossi","recipient_address":"22 Via Roma · Milano · Italy","return_names":"Olivia & Matteo","return_address":"12 Via Amalfi · Ravello · Italy","flap_note":"With love from Ravello","liner_text":"La dolce vita begins here"} for l in SUPPORTED_LANGUAGES}),
-    item("25_spec_required",25,"Specification required",None,None,T["reserved25"],views=(),fields=[],spec_locked=True),
-    item("26_spec_required",26,"Specification required",None,None,T["reserved26"],views=(),fields=[],spec_locked=True),
 ]
+
+if len(CARDS_CONFIG) != EXPECTED_CARD_COUNT:
+    raise RuntimeError(f"Expected exactly {EXPECTED_CARD_COUNT} cards, got {len(CARDS_CONFIG)}")
+
+EXPECTED_NUMBERS = list(range(1, EXPECTED_CARD_COUNT + 1))
+if [card["number"] for card in CARDS_CONFIG] != EXPECTED_NUMBERS:
+    raise RuntimeError("Card numbers must be continuous from 1 to 24")
+
+for card in CARDS_CONFIG:
+    if set(card["translations"]) != set(SUPPORTED_LANGUAGES):
+        raise RuntimeError(f"All six translations are required for {card['id']}")
 
 CARDS_BY_ID = {card["id"]: card for card in CARDS_CONFIG}
 
 
 def printable_dimensions(card):
-    if card.get("spec_locked") or card.get("w_mm") is None or card.get("h_mm") is None:
-        raise ValueError(f"Print specification is not approved for {card['id']}")
     bleed = card.get("bleed_mm", DEFAULT_BLEED_MM)
     return {
         "trim_w_mm": card["w_mm"],
